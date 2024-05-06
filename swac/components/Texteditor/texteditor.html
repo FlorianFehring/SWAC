@@ -1,0 +1,37 @@
+<div uk-grid>
+    <div class="uk-width-expand@m">
+        <ul uk-tab>
+            <li class="swac_repeatForSet"><a href="#">{title}</a></li>
+            <li class="swac_texteditor_newtab" uk-tooltip="Texteditor.newdocument"><span uk-icon="icon: plus; ratio: 0.5"></span></li>
+        </ul>
+
+        <ul class="swac_texteditor_docswitch uk-switcher uk-margin">              
+            <li class="swac_repeatForSet" uk-height-viewport>
+                <div class="swac_texteditor_contentref">{content}</div>
+                <textarea class="swac_texteditor_area"></textarea>
+
+
+
+            </li>
+            <li class="swac_texteditor_newdoc">
+                <textarea class="swac_texteditor"></textarea>
+            </li>
+        </ul>
+    </div>
+    <div class="uk-width-1-5@m">
+
+        <ul class="swac_texteditor_plugin_nav" uk-tab>
+            <li class="swac_repeatForPluginNav">
+                <a href="#">
+                    <span uk-icon="icon: tag; ratio: 0.5"></span>
+                </a>
+            </li>
+        </ul>
+        <div class="swac_texteditor_plugin_tabs uk-switcher uk-margin">              
+            <div class="swac_repeatForPluginCont">
+                <div class="uk-alert uk-alert-primary"><span uk-icon="icon: warning; ratio: 2.0"></span> Keine Daten zum Anzeigen vorhanden.</div>
+                <!-- Plugin will add content here -->
+            </div>
+        </div>
+    </div>
+</div>

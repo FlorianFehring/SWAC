@@ -1,0 +1,90 @@
+<div id="swac_mediaplayer_playlist">
+    <table class="swac_format_mediaplayer_table uk-table uk-table-striped">
+        <tr>
+            <th swac_lang="Mediaplyer.title">Title</th>
+            <th swac_lang="Mediaplayer.artist">Artist</th>
+            <th class="swac_onscreen" swac_lang="Mediaplyer.album">Album</th>
+            <th class="swac_onscreen" swac_lang="Mediaplayer.info">Info</th>
+            <th swac_lang="Mediaplayer.license">License</th>
+            <th class="swac_onscreen swac_ondesktop"></th>
+        </tr>
+        <tr class="swac_mediapalyer_playlistentry swac_repeatForSet">
+            <td data-label="Mediaplayer.title">
+                <span class="swac_mediaplayer_error swac_dontdisplay" uk-icon="icon: minus-circle; ratio: 1.5" style="color: red;" uk-tooltip="Mediaplayer.title_problem"></span>
+                <span class="swac_mediaplayer_title">{title}</span>
+                <a href="#" class="swac_mediaplayer_title_download uk-icon-button" uk-icon="download" uk-tooltip="Mediaplayer.title_download"></a>
+            </td>
+            <td class="swac_mediaplayer_artist" data-label="Mediaplayer.artist">{artist}</td>
+            <td class="swac_mediaplayer_album swac_onscreen" data-label="Mediaplayer.album">{album}</td>
+            <td class="swac_mediaplayer_info swac_onscreen" data-label="Mediaplayer.info">{info}</td>
+            <td class="swac_mediaplayer_license" style="font-size: 8pt;" data-label="Mediaplayer.license">{license}</td>
+            <td class="uk-width-small swac_onscreen swac_ondesktop"><span class="swac_mediaplayer_removefromlist" uk-icon="icon: close" uk-tooltip="Mediaplayer.remove"></span></td>
+        </tr>
+    </table>
+</div>
+
+<div class="swac_mediaplayer_container swac_dontdisplay">
+    <div class="swac_mediaplayer_slideshow uk-position-relative uk-visible-toggle uk-light" tabindex="-1" uk-slideshow="draggable: false">
+        <ul class="uk-slideshow-items" uk-height-viewport="min-height: 300; offset-bottom: 7">
+            <li class="swac_mediaplayer_playslide swac_repeatForSet">
+                <div class="swac_mediaplayer_media"></div>
+                <div class="swac_mediaplayer_titleoverlay uk-overlay uk-overlay-default uk-position-bottom uk-text-center uk-transition-slide-left">
+                    <h3 class="uk-margin-remove">{title}</h3>
+                </div>
+            </li>
+        </ul>
+        <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous uk-slideshow-item="previous"></a>
+        <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next uk-slideshow-item="next"></a>
+    </div>
+    <div class="swac_mediaplayer_overlay swac_dontdisplay">
+        <div class="swac_mediaplayer_overlaymedia"></div>
+        <button class="swac_mediaplayer_closeoverlay uk-button uk-button-primary">
+            <span uk-icon="icon: play"></span> <span swac_lang="Mediaplayer.closeoverlay"></span>
+        </button>
+    </div>
+</div>
+<div class="swac_mediaplayer_control swac_onscreen">
+    <div>
+        <a href="" class="swac_mediaplayer_playBtn uk-icon-button" uk-icon="play" uk-tooltip="Mediaplayer.play"></a>
+        <a href="" class="swac_mediaplayer_prevtitleBtn uk-icon-button" uk-icon="chevron-left" uk-tooltip="Mediaplayer.prevtitle"></a>
+        <a href="" class="swac_mediaplayer_nexttitleBtn uk-icon-button" uk-icon="chevron-right" uk-tooltip="Mediaplayer.nexttitle"></a>
+        <a href="" class="swac_mediaplayer_loopBtn uk-icon-button" uk-icon="refresh" uk-tooltip="Mediaplayer.nexttitle"></a>
+        <a href="" class="swac_mediaplayer_timeBtn uk-icon-button" uk-icon="clock" uk-toggle="target: .timetog" uk-tooltip="Mediaplayer.time"></a>
+        <span class="timetog">
+            <span class="swac_mediaplayer_curtitletime"></span> / <span class="swac_mediaplayer_wholetitletime"></span>
+        </span>
+        <span class="timetog" hidden>
+            <span class="swac_mediaplayer_curlisttime"></span> / <span class="swac_mediaplayer_wholelisttime"></span>
+        </span>
+        <a href="#" class="swac_mediaplayer_muteBtn uk-icon-button" uk-icon="ban" uk-tooltip="Mediaplayer.mute"></a>
+        <input type="range" min="0" max="100" value="50" class="swac_mediaplayer_volume" uk-tooltip="Mediaplayer.volume">
+        <a href="#swac_mediaplayer_playlist" uk-toggle class="swac_mediaplayer_playlistBtn uk-icon-button" uk-icon="list" uk-tooltip="Mediaplayer.playlist"></a>
+        <a href="#" class="swac_mediaplayer_fullscreen uk-icon-button" uk-icon="move" uk-tooltip="Mediaplayer.fullscreen"></a>
+        <a href="#" class="swac_mediaplayer_makeoffline swac_dontdisplay uk-icon-button" uk-icon="download" uk-tooltip="Mediaplayer.makeoffline"></a>
+    </div>
+    <div>
+        <input class="swac_mediaplayer_progress" type="range" value="0">
+    </div>
+</div>
+<div class="swac_mediaplayer_commentarea swac_dontdisplay">
+    <textarea name="media_comment" class="uk-textarea"></textarea>
+    <button class="swac_mediaplayer_commentbutton uk-button uk-button-primary">
+        <span uk-icon="comment"></span> <span swac_lang="Mediaplayer.sendcomment">Send</span>
+    </button>
+</div>
+<div class="swac_mediaplayer_keymedias uk-grid-column-small uk-grid-match uk-child-width-1-4@s uk-text-center" uk-grid>
+    <div class="swac_repeatForKeymedia">
+        <div class="swac_mediaplayer_keymediacard uk-card uk-card-default uk-card-body">
+            <div class="uk-card-header">
+                <div class="uk-grid-small uk-flex-middle" uk-grid>
+                    <h2 class="swac_mediaplayer_keymediakey uk-width-auto"></h2>
+                    <div class="uk-width-expand">
+                        <h3 class="swac_mediaplyer_keymediatitle uk-card-title uk-margin-remove-bottom"></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="swac_mediaplayer_desc uk-card-body"></div>
+        </div>
+    </div>
+</div>
+<button class="swac_mediaplayer_save uk-button uk-button-primary" swac_lang="Mediaplayer.save">Save</button>

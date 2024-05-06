@@ -1,0 +1,34 @@
+<div id="createmeasurementmodal" class="overlay createmeasurementmodal">
+    <div id="createmeasurementmodal-box" class="createmeasurementmodal-box box-medium">
+        <div class="box-medium-content">
+            <img id="createmeasurementmodal-button-close" class="createmeasurementmodal-button-close button-close" src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/x.svg">
+            <div class="titlecontainer">
+                <div class="title" swac_lang="Worldmap2d_CreateMeasurementModal.title">Create Measurement Point</div>
+                <hr>
+            </div>
+            <form class="createmeasurementmodal-form uk-form-stacked">
+                <label class="uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateMeasurementModal.name">Name of the Measurement Point</label>
+                <input type="text" class="createmeasurementmodal-name uk-input uk-margin-small-bottom" placeholder="Worldmap2d_CreateMeasurementModal.name_placeholder" maxlength="255" required="">
+                <label class="uk-form-label" swac_lang="Worldmap2d_CreateMeasurementModal.status">Status</label>
+                <select class="createmeasurementmodal-status uk-select uk-margin-small-bottom">
+                    <option value="false" type="number" default swac_lang="Worldmap2d_CreateMeasurementModal.status_true">Measuring pending</option>
+                    <option value="true" type="number" swac_lang="Worldmap2d_CreateMeasurementModal.status_false">Measuring completed</option>
+                </select>
+                <label class="uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateMeasurementModal.lat">Latitude</label>
+                <input class="createmeasurementmodal-lat uk-input uk-margin-small-bottom" type="number" min="-90" max="90" step="any" required="">
+                <label class="uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateMeasurementModal.lng">Longitude</label>
+                <input class="createmeasurementmodal-lng uk-input uk-margin-small-bottom" type="number" min="-180" max="180" step="any" required="">
+                <label class="uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateMeasurementModal.collection">Table name for Measurement Values</label>
+                <input type="text" class="createmeasurementmodal-collection uk-input uk-margin-small-bottom" placeholder="Worldmap2d_CreateMeasurementModal.collection_placeholder" maxlength="255" required="">
+                <label class="uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateMeasurementModal.type">Measurement Point Type</label>
+                <div class="createmeasurementmodal-type-placeholder"></div>
+                <label class="uk-form-label" swac_lang="Worldmap2d_CreateMeasurementModal.description">Description</label>
+                <textarea class="createmeasurementmodal-description uk-textarea uk-margin-small-bottom" placeholder="Worldmap2d_CreateMeasurementModal.description_placeholder" maxlength="255"></textarea>
+                <div class="button-wrapper uk-margin-small">
+                    <button id="createmeasurementmodal-back-button" class="createmeasurementmodal-back-button uk-button uk-button-default" swac_lang="Worldmap2d_CreateMeasurementModal.buttonCancel">Cancel</button>
+                    <button class="uk-button uk-button-default" type="submit" swac_lang="Worldmap2d_CreateMeasurementModal.buttonCreate">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

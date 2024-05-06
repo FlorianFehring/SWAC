@@ -1,0 +1,58 @@
+.devhelper_pin {
+    position: relative;
+    right: 0px;
+    top: 0px;
+    border: 1px solid #000;
+    color: #000;
+    text-decoration: none;
+}
+.devhelper_ok {
+    background-color: #50fa7b;
+}
+.devhelper_ok_border {
+    border: 2px dashed #50fa7b;
+}
+.devhelper_warn {
+    background-color: #DDB000;
+}
+.devhelper_warn_border {
+    border: 2px dashed #DDB000;
+}
+.devhelper_error {
+    background-color: #fb2c00;
+}
+.devhelper_error_border {
+    border: 2px dashed #fb2c00;
+}
+.devhelper_hint {
+    background-color: #ffffff;
+}
+.devhelper_hint_border {
+    border: 2px dashed #ffffff;
+}
+
+.devhelper_tools {
+    width: 100%;
+    height: 30vh;
+    resize: horiontal;
+    overflow: auto;
+}
+.devhelper_pinned {
+    position: fixed;
+    bottom: 0px;
+    right: 0px;
+}
+
+.devhelper_tools img {
+    width: 25px;
+    height: 25px;
+}
+
+.devhelper_close {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+.repeatForDataSource {
+    display: none;
+}

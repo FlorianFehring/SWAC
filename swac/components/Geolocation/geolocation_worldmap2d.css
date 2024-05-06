@@ -1,0 +1,63 @@
+.swac_geolocation {
+    margin: 0.5rem;
+    background-color: #333333;
+    color: black;
+}
+
+.swac_geolocation p {
+    font-size: 16px;
+}
+
+.swac_geolocation_ask {
+    display: none;
+    position: absolute;
+    bottom: 10%;
+    z-index: 999;
+}
+
+.swac_geolocation_unavailable {
+    display: none;
+    position: absolute;
+    bottom: 10%;
+    z-index: 999;
+}
+
+.swac_geolocation_unavailable .swac_geolocation_info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.swac_geolocation_close_unavailable {
+    width: 100% !important;
+}
+
+.swac_geolocation_nav {
+    background: white;
+}
+
+.swac_geolocation .uk-button {
+    padding: 0;
+    margin-bottom: 6px;
+    font-size: 12px;
+    line-height: inherit;
+    border-radius: 4px;
+    letter-spacing: 0.1em;
+    height: 40px;
+    width: 45%;
+    overflow: hidden;
+}
+
+.geo-button {
+    background: #D9D9D9;
+    letter-spacing: 0.1em;
+    border: 1px solid transparent;
+    border-radius: 5px;
+    height: 40px;
+    width: 45%;
+}
+
+.swac_geolocation * {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+}

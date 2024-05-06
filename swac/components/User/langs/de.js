@@ -1,0 +1,28 @@
+var User_de = {
+    login: 'Login',
+    enterlogindata: 'Bitte geben Sie ihre Zugangsdaten ein.',
+    username: 'Benutzername',
+    userpwd: 'Password',
+    loginprogress: 'Bitte haben Sie einen Moment Geduld, Sie werden eingeloggt.',
+    nologinpossible: 'Der Login ist derzeit nicht möglich.',
+    logout: 'Logout',
+    registerhere: 'Noch kein Konto? Hier anmelden.',
+    pwdlost: 'Passwort vergessen?',
+    regconfirminfo: 'Wir haben Ihnen eine Bestätigungsemail gesendet. Bitte tragen Sie ihren Bestätigungscode in das Feld unten ein. Falls die E-Mail nicht in ein paar Minuten inihrem Postfach erscheint, schauen Sie bitte auch im Spam-Ordner nach.',
+    regconfirm: 'Registrierung bestätigen',
+    regconfirmed: 'Registrierung bestätigt. Sie können sich jetzt anmelden.',
+    accept_privacy: 'Sie müssen unserer <a href="%privacy_url%" target="_new">Datenschutzerklärung</a> zustimmen.',
+    accept_terms: 'Sie müssen unseren <a href="%terms_url%" target="_new">Nutzungsbedingungen</a> zustimmen.',
+    accept_privacy_terms: 'Sie Müssen unseren <a href="%terms_url%" target="_new">Nutzungsbedingungen</a> und der <a href="%privacy_url%" target="_new">Datenschutzerklärung</a> zustimmen.',
+    dontaccept: 'Ich lehne ab',
+    accept: 'Ich akzeptiere',
+    notaccepted_terms: 'Sie haben die Bedingungen abgelehnt und können deshalb den Service nicht weiter nutzen.',
+    maillogininfo: "Tragen Sie ihren Benutzernamen oder ihre Email-Adresse unten ein, um eine Email zu bekommen, mit der sie sich einmalig einlogen können.",
+    maillogin: "Email senden",
+    mailloginsend: "Falls ihre Email oder ihr Benutzername existiert, wurde soeben eine Email versendet.",
+    mailloginfail: "Sie konnten nicht angemeldet werden. Eventuell haben Sie diesen Einmal-Login bereits genutzt.",
+    account: "Account",
+    autologout: "Sie wurden automatisch abgemeldet.",
+    regtokenhere: 'Fügen Sie hier die Zeichen aus der E-Mail ein'
+};
+export default User_de;

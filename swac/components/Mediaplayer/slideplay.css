@@ -1,0 +1,98 @@
+.swac_mediaplayer_container {
+    height: 100%;
+    position: relative;
+}
+.swac_mediaplayer_media {
+    height: 100%; /* Overwrittes inheritted stylings allows uk-viewport to work*/
+    text-align: center;
+}
+.swac_mediaplayer_media img {
+    height: 100%;
+}
+.swac_mediaplayer_media > video {
+    height: 100%;
+    width: 90%;
+}
+.swac_mediaplayer_media > div {
+    height: 100%;
+}
+.swac_mediaplayer_media > iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.swac_mediaplayer_control {
+    display: inline-grid;
+    grid-template-columns: 160px auto 350px;
+    width: 100%;
+    background: #4d4444;
+    color: #ffffff;
+}
+
+.swac_mediaplayer_progress {
+    -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+    width: auto; /* Specific width is required for Firefox. */
+    background: transparent; /* Otherwise white in Chrome */
+}
+
+input[class="swac_mediaplayer_progress"]::-webkit-slider-runnable-track, input[class="swac_mediaplayer_progress"]::-moz-range-track, input[class="swac_mediaplayer_progress"]::-ms-track {
+    box-sizing: border-box;
+    border: solid 1px #da974e;
+    height: 0.5em;
+    border-radius: 0.25em;
+    color: transparent; /* needed for input[type='range']::-ms-track */
+}
+
+.swac_mediaplayer_playslide h3 {
+    background: #000000;
+    border: 0px;
+}
+
+.swac_mediaplayer_volume {
+    width: 100px;
+    background: transparent;
+}
+
+input[type=range]::-moz-range-track {
+ width: 100%;
+ height: 19px;
+ cursor: pointer;
+ box-shadow: 0 4px 4px rgba(0,0,0,0.3) inset;
+ background: linear-gradient(to right, #005fc2, #35A834 40%, #ffd400 65%, #FF6400);
+ border-radius: 20px;
+ border: 0.2px solid #010101;
+}
+
+.swac_mediaplayer_overlay_default {
+    width: 100%;
+    height: 80%;
+    position: absolute;
+    top: 20px;
+    text-align: center;
+}
+
+.swac_mediaplayer_overlay_smartphone {
+    width: 300px;
+    height: 90%;
+    position: absolute;
+    top: 20px;
+    text-align: center;
+}
+
+.swac_mediaplayer_overlaymedia {
+    margin: 0 auto;
+    border-radius: 10px; 
+    width: 75%;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid black;
+}
+
+.swac_mediaplayer_overlaymedia > iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.swac_repeatForKeymedia {
+    display: none;
+}

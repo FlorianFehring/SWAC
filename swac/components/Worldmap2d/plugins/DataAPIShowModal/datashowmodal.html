@@ -1,0 +1,29 @@
+<div class="worldmap2d_dataapimodal" uk-modal>
+    <div class="uk-modal-dialog">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+            <h2 class="uk-modal-title worldmap2d_setname"></h2>
+        </div>
+        <div class="uk-modal-body" uk-overflow-auto>
+            <p class="uk-text-bold uk-text-uppercase">Data</p>
+            <table class="uk-table uk-table-striped">
+                <thead>
+                    <tr>
+                        <th swac_lang="Worldmap2d_DataShowModal.attribute">Attribute</th>
+                        <th swac_lang="Worldmap2d_DataShowModal.value">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="worldmap2d_repeatForValue">
+                        <td class="worldmap2d_attr"></td>
+                        <td class="worldmap2d_val"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="label-wrapper"></div>
+        </div>
+        <div class="uk-modal-footer uk-text-right">
+            <button class="uk-button uk-button-default uk-modal-close" type="button" swac_lang="Worldmap2d_DataShowModal.close">Close</button>
+        </div>
+    </div>
+</div>

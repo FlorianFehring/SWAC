@@ -1,0 +1,17 @@
+.swac_booking_img img {
+    border: 1px solid black;
+    max-width: 200px;
+    max-height: 200px;
+    box-shadow: 10px 20px 30px grey;
+}
+
+.swac_booking_description {
+    width: 80%;    
+}
+
+.swac_booking_description h3 {
+    width: 100%;
+    background: linear-gradient(to right, green, white);
+    color: #fff;
+    border: 0px;
+}

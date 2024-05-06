@@ -1,0 +1,17 @@
+ul {list-style-type: none;}
+
+.swac_events_eventlist .swac_events_event {
+    position: static;
+    width: 100%;
+    border: 3px solid #195f0b;
+    padding: 5px;
+    margin-bottom: 3px;
+    background: #fff;
+    color: #000;
+}
+
+.swac_events_title {
+    font-size: 16pt;
+    border: 0px;
+    background: #9ACD32;
+}

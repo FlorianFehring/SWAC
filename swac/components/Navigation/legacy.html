@@ -1,0 +1,56 @@
+<!-- Menu mobile -->
+<div class="uk-offcanvas-content uk-hidden@s">
+    <nav class="uk-navbar-container" uk-navbar>
+        <div class="uk-navbar-left">
+            <a class="uk-navbar-item uk-logo" href="../">
+                <picture>
+                    <source type="image/avif" srcset="content/logo.avif">
+                    <source type="image/webp" srcset="content/logo.webp">
+                    <source type="image/png" srcset="content/logo.png">
+                    <img src="content/logo.png" alt="logo" width="150" height="150">
+                </picture>
+            </a>
+        </div>
+        <div class="uk-navbar-right">
+            <a class="uk-navbar-item" href="#offcanvas-nav" uk-toggle>
+                <span uk-navbar-toggle-icon></span>
+            </a>
+        </div>
+    </nav>
+
+    <div id="offcanvas-nav" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+            <ul class="uk-nav uk-nav-default">
+                <li class="swac_repeatForSet">
+                    <a href="{rto}" swac_id="{id}" swac_parent="{parent}">{name}</a>
+                    <ul class="uk-nav-sub swac_forChilds">
+                        <li class="swac_child"><a href="{rto}">{name}</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Menu desktop -->
+<nav class="uk-navbar-container uk-box-shadow-medium uk-visible@s" uk-navbar>
+    <div class="uk-navbar-left">
+        <a class="uk-navbar-item uk-logo" href="../">
+            <picture>
+                <source type="image/avif" srcset="content/logo.avif">
+                <source type="image/webp" srcset="content/logo.webp">
+                <source type="image/png" srcset="content/logo.png">
+                <img src="content/logo.png" alt="logo" width="150" height="150">
+            </picture>
+        </a>
+    </div>
+    <div class="uk-navbar-right">
+        <ul class="uk-navbar-nav">
+            <li class="swac_repeatForSet">
+                <a href="{rto}" swac_id="{id}" swac_parent="{parent}">{name}</a>
+            </li>
+        </ul>
+        <span class="swac_nav_addons">             
+        </span>
+    </div>
+</nav>

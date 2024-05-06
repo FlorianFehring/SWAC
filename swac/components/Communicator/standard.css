@@ -1,0 +1,19 @@
+.swac_communicator_repeatForDev {
+    display: none;
+}
+.swac_communicator_repeatForCam {
+    display: none;
+}
+
+.swac_communicator_repeatForMic {
+    display: none;
+}
+
+.swac_communicator_footer{
+    height: 200px;
+}
+
+.swac_communicator_camshow {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+}

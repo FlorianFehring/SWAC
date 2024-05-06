@@ -1,0 +1,254 @@
+{
+    "a.A.": {
+        "full": "anderer Ansicht"
+    },
+    "a.a.O.": {
+        "full": "am angegebenen Ort"
+    },
+    "a.D.": {
+        "full": "außer Dienst"
+    },
+    "a.E.": {
+        "full": "am Ende"
+    },
+    "a.F.": {
+        "full": "alte Fassung"
+    },
+    "Abb.": {
+        "full": "Abbildung"
+    },
+    "ABl.": {
+        "full": "Amtsblatt"
+    },
+    "Abs.": {
+        "full": "Absatz"
+    },
+    "Abschn.": {
+        "full": "Abschnitt"
+    },
+    "Alt.": {
+        "full": "Alternative"
+    },
+    "Anl.": {
+        "full": "Anlage"
+    },
+    "Anm.": {
+        "full": "Anmerkung"
+    },
+    "Art.": {
+        "full": "Artikel"
+    },
+    "Aufl.": {
+        "full": "Auflage"
+    },
+    "Az.": {
+        "full": "Aktenzeichen"
+    },
+    "Bd.": {
+        "full": "Band"
+    },
+    "Bsp.": {
+        "full": "Beispiel"
+    },
+    "bspw.": {
+        "full": "beispielsweise"
+    },
+    "bzgl.": {
+        "full": "bezüglich"
+    },
+    "bzw.": {
+        "full": "beziehungsweise"
+    },
+    "ca.": {
+        "full": "circa"
+    },
+    "d.h.": {
+        "full": "das heißt"
+    },
+    "ders.": {
+        "full": "derselbe"
+    },
+    "dgl.": {
+        "full": "dergleichen"
+    },
+    "dt.": {
+        "full": "Deutsch"
+    },
+    "e.V.": {
+        "full": "eingetragener Verein"
+    },
+    "etc.": {
+        "full": "et cetera"
+    },
+    "evtl.": {
+        "full": "eventuell"
+    },
+    "ff.": {
+        "full": "fortlaufend"
+    },
+    "Fn.": {
+        "full": "Fußnote"
+    },
+    "gem.": {
+        "full": "gemäß"
+    },
+    "ggf.": {
+        "full": "gegebenenfalls"
+    },
+    "grds.": {
+        "full": "grundsätzlich"
+    },
+    "Hrsg.": {
+        "full": "Herausgeber"
+    },
+    "i.A.": {
+        "full": "im Auftrag"
+    },
+    "i.d.F.": {
+        "full": "in der Fassung"
+    },
+    "i.d.R.": {
+        "full": "in der Regel"
+    },
+    "i.d.S.": {
+        "full": "in diesem Sinne"
+    },
+    "i.V.": {
+        "full": "in Vertretung"
+    },
+    "i.V.m.": {
+        "full": "in Verbindung mit"
+    },
+    "inkl.": {
+        "full": "inklusive"
+    },
+    "insb.": {
+        "full": "insbesondere"
+    },
+    "lit.": {
+        "full": "littera"
+    },
+    "max.": {
+        "full": "maximal"
+    },
+    "min.": {
+        "full": "minimal"
+    },
+    "Mio.": {
+        "full": "Millionen"
+    },
+    "Mrd.": {
+        "full": "Milliarden"
+    },
+    "MwSt.": {
+        "full": "Mehrwertsteuer"
+    },
+    "N.N.": {
+        "full": "nomen nescio"
+    },
+    "Nr.": {
+        "full": "Nummer"
+    },
+    "o.a.": {
+        "full": "oben angegeben"
+    },
+    "o.Ä.": {
+        "full": "oder Ähnliches"
+    },
+    "o.ä.": {
+        "full": "oder ähnlich"
+    },
+    "o.g.": {
+        "full": "oben genannt"
+    },
+    "u.g.": {
+        "full": "unten genannt"
+    },
+    "p.a.": {
+        "full": "per anno"
+    },
+    "Pos.": {
+        "full": "Position"
+    },
+    "pp.": {
+        "full": "per procura"
+    },
+    "rd.": {
+        "full": "rund"
+    },
+    "S.": {
+        "full": "Seite"
+    },
+    "s.A.": {
+        "full": "siehe Auch"
+    },
+    "s.o.": {
+        "full": "siehe oben"
+    },
+    "s.u.": {
+        "full": "siehe unten"
+    },
+    "sog.": {
+        "full": "sogenannt"
+    },
+    "Tab.": {
+        "full": "Tabelle"
+    },
+    "Tel.": {
+        "full": "Telefon"
+    },
+    "Tsd.": {
+        "full": "Tausend"
+    },
+    "u.a.": {
+        "full": "unter anderem"
+    },
+    "u.Ä.": {
+        "full": "und Ähnliches"
+    },
+    "u.a.m.": {
+        "full": "und anderes mehr"
+    },
+    "u.U.": {
+        "full": "unter Umtänden"
+    },
+    "usw.": {
+        "full": "und so weiter"
+    },
+    "u.v.m.": {
+        "full": "und vieles mehr"
+    },
+    "v.A.": {
+        "full": "vor Allem"
+    },
+    "v.H.": {
+        "full": "von Hundert"
+    },
+    "vgl.": {
+        "full": "vergleiche"
+    },
+    "vs.": {
+        "full": "versus"
+    },
+    "z.B.": {
+        "full": "zum Beispiel"
+    },
+    "z.Hd.": {
+        "full": "zu Händen"
+    },
+    "z.T.": {
+        "full": "zum Teil"
+    },
+    "zz.": {
+        "full": "zurzeit"
+    },
+    "Ziff.": {
+        "full": "Ziffer"
+    },
+    "zit.": {
+        "full": "zitiert"
+    },
+    "zzgl.": {
+        "full": "zuzüglich"
+    }
+}

@@ -1,0 +1,20 @@
+.uk-progress::-webkit-progress-value {
+    /* 
+        Default color 
+    */
+}
+
+/*
+    Loading bar error color
+*/
+.uk-progress-danger::-webkit-progress-value { 
+        background-color: red; 
+}
+
+/*
+    Loading bar success color
+*/
+.uk-progress-success::-webkit-progress-value { 
+        background-color: green; 
+}
+ 

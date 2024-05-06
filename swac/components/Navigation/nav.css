@@ -1,0 +1,38 @@
+@media screen and (max-width: 640px) {
+    [swa^="Navigation"] {
+        height:50px;
+    }
+    .uk-navbar-item {
+        min-height: 30px;
+        max-height: 50px;
+    }
+    nav .uk-logo img {
+        max-height: 50px;
+        width: auto;
+    }
+}
+
+@media screen and (min-width: 640px) {
+    [swa^="Navigation"] {
+        height:80px;
+    }
+    nav .uk-logo img {
+        max-height: 80px;
+        width: auto;
+    }
+}
+
+/* footer */
+.swac_navigation_foot {
+    position: absolute;
+    bottom: 0px;
+    height: 75px;
+    width: 100%;
+    text-align: center;
+}
+.swac_navigation_foot > nav {
+    background: #000000;
+}
+.swac_navigation_foot img {
+    max-height:70px;
+}

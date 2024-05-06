@@ -1,0 +1,39 @@
+<h1><span swac_lang="Devicestates.overallActive"></span> <span class="swac_devicestates_overall"></span></h1>
+<span swac_lang="Devicestates.activeTimeout"></span> <input type="number" name="activeTimeout" class="swac_dashbord_activeTimeout uk-input uk-form-small uk-form-width-small"> <span swac_lang="Devicestates.seconds">Seconds</span>
+<button type="button" class="swac_devicestates_calculateActivityStates uk-button uk-button-small" disabled>Devicestates.calculateActivityStates</button>
+
+<ul class="swac_devicestates" uk-accordion="multiple: true">
+    <li class="swac_repeatForSet" swac_parent="{parent}">
+        <a class="uk-accordion-title" href="#">
+            <img data-src="/SWAC/swac/components/Devicestates/imgs/collect_{collectsData}.svg" shouldActive="{collectsData}" class="swac_devicestates_acticityState" alt="Collection status" width="25" height="25"> 
+            <span class="swac_devicestates_overCur"></span> %
+            {name}
+            <span class="swac_devicestates_offScince"></span>
+        </a>
+        <span swac_lang="Devicestates.oldestActivityFrom"></span> <span class="swac_devicestates_oldestSubActivityTS"></span>
+        <br><span swac_lang="Devicestates.newestActivityFrom"></span> <span class="swac_devicestates_newestSubActivityTS"></span>
+        Id: <a href="/SmartMonitoring/sites/objectview.html?id={id}">{id}</a>
+        <div class="uk-accordion-content">
+            <span swac_lang="Devicestates.inactiveOfAvailable"></span> <span class="swac_devicestates_inactiveCur"></span> / <span class="swac_devicestates_availCur"></span>
+            <br><span swac_lang="Devicestates.lastOwnActivityFrom"></span> <span class="swac_devicestates_ownActivityTS">{lastSetFrom}</span>
+            <ul class="swac_forChilds" uk-accordion="multiple: true">
+                <li class="swac_child">
+                    <a class="uk-accordion-title" href="#">
+                        <img data-src="/SWAC/swac/components/Devicestates/imgs/collect_{collectsData}.svg" shouldActive="{collectsData}" class="swac_devicestates_acticityState" alt="Collection status" width="25" height="25"> 
+                        <span class="swac_devicestates_overCur"></span> %
+                        {name}
+                        <span class="swac_devicestates_offScince"></span>
+                    </a>
+                    <span swac_lang="Devicestates.oldestActivityFrom"></span> <span class="swac_devicestates_oldestSubActivityTS"></span>
+                    <br><span swac_lang="Devicestates.newestActivityFrom"></span> <span class="swac_devicestates_newestSubActivityTS"></span>
+                    ID: {id}
+                    <div class="uk-accordion-content">
+                        <span swac_lang="Devicestates.inactiveOfAvailable"></span> <span class="swac_devicestates_inactiveCur"></span> / <span class="swac_devicestates_availCur"></span>
+                        <br><span swac_lang="Devicestates.lastOwnActivityFrom"></span> <span class="swac_devicestates_ownActivityTS">{lastSetFrom}</span>
+                        <ul class="swac_forChilds" uk-accordion="multiple: true"></ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </li>
+</ul>

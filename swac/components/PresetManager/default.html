@@ -1,0 +1,67 @@
+<h4 class="uk-heading-bullet" swac_lang="PresetManager.presets">Presets</h4>
+<ul class="uk-list">
+    <li class="swac_repeatForSet" swac_parent="{parent}">
+        <div class="uk-card uk-card-default uk-card-small uk-card-body">
+            <div class="uk-card-badge uk-label">{version}</div>
+            <h3 class="uk-card-title">{name}</h3>
+            <p>{desc}</p>
+            <p class="notice"></p>
+            <button class="install uk-button uk-button-primary" swac_lang="PresetManager.install">Install</button>
+            <button class="uninstall uk-button uk-button-primary" swac_lang="PresetManager.uninstall">Uninstall</button>
+            <button class="swac_presetmanager_update uk-button uk-button-primary" swac_lang="PresetManager.update" disabled>Update (<span class="swac_presetmanager_updates">0</span>)</button>
+            <button class="uk-button uk-button-primary" uk-toggle="target: .detail_{id}; cls: swac_dontdisplay" swac_lang="PresetManager.details">Details</button>
+            <table class="detail_{id} detail uk-table uk-table-striped swac_dontdisplay">
+                <thead>
+                    <tr>
+                        <th swac_lang="PresetManager.partname">Name</th>
+                        <th swac_lang="PresetManager.partstate">State</th>
+                        <th swac_lang="PresetManager.partinst">Found</th>
+                        <th swac_lang="PresetManager.partmiss">Missing</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="swac_presetmanager_repeatForPart">
+                        <td><a href="#" class="swac_presetmanager_partname"></a></td>
+                        <td class="swac_presetmanager_partstate"></td>
+                        <td class="swac_presetmanager_partinst"></td>
+                        <td class="swac_presetmanager_partmiss"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <ul class="swac_forChilds uk-list">
+                <li class="swac_child">
+                    <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                        <div class="uk-card-badge uk-label">{version}</div>
+                        <h3 class="uk-card-title">{name}</h3>
+                        <p>{desc}</p>
+                        <p class="notice"></p>
+                        <button class="install uk-button uk-button-primary" swac_lang="PresetManager.install">Install</button>
+                        <button class="uninstall uk-button uk-button-primary" swac_lang="PresetManager.install">Uninstall</button>
+                        <button class="update uk-button uk-button-primary" swac_lang="PresetManager.update">Update</button>
+                        <button class="uk-button uk-button-primary" uk-toggle="target: .detail_{id}; cls: swac_dontdisplay" swac_lang="PresetManager.details">Details</button>
+                        <table class="detail_{id} detail uk-table uk-table-striped swac_dontdisplay">
+                            <thead>
+                                <tr>
+                                    <th swac_lang="PresetManager.partname">Name</th>
+                                    <th swac_lang="PresetManager.partstate">State</th>
+                                    <th swac_lang="PresetManager.partinst">Found</th>
+                                    <th swac_lang="PresetManager.partmiss">Missing</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="swac_presetmanager_repeatForPart">
+                                    <td><a href="#" class="swac_presetmanager_partname"></a></td>
+                                    <td class="swac_presetmanager_partstate"></td>
+                                    <td class="swac_presetmanager_partinst"></td>
+                                    <td class="swac_presetmanager_partmiss"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <ul class="swac_forChilds uk-list uk-list-decimal"></ul>
+                    <hr>
+                </li>
+            </ul>
+        </div>
+    </li>
+</ul>

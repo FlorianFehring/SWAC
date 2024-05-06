@@ -1,0 +1,741 @@
+{
+    "die": {
+        "type": "article",
+        "used": 30
+    },
+    "der": {
+        "type": "article",
+        "used": 30
+    },
+    "und": {
+        "type": "conjunction",
+        "used": 30
+    },
+    "in": {
+
+        "used": 30
+    },
+    "zu": {
+
+        "used": 30
+    },
+    "den": {
+        "used": 30
+    },
+    "das": {
+        "type": "article"
+    },
+    "nicht": {},
+    "von": {},
+    "sie": {},
+    "ist": {},
+    "des": {},
+    "sich": {},
+    "mit": {},
+    "dem": {},
+    "dass": {
+        "type": "conjunction"
+    },
+    "er": {},
+    "es": {},
+    "ein": {},
+    "ich": {},
+    "auf": {},
+    "so": {
+        "type": "conjunction"
+    },
+    "eine": {},
+    "auch": {
+        "type": "conjunction"
+    },
+    "als": {
+        "type": "temporal conjunction",
+        "used": 30
+    },
+    "nachdem": {
+        "type": "temporal conjunction"
+    },
+    "seit": {
+        "type": "temporal conjunction"
+    },
+    "bevor": {
+        "type": "temporal conjunction"
+    },
+    "indem": {
+        "type": "modal conjunction"
+    },
+    "obgleich": {
+        "type": "causal conjunction"
+    },
+    "obschon": {
+        "type": "causal conjunction"
+    },
+    "indessen": {
+        "type": "conjunction"
+    },
+    "indes": {
+        "type": "conjunction"
+    },
+    "an": {
+
+        "used": 30
+    },
+    "nach": {
+
+        "used": 30
+    },
+    "wohingegen": {
+        "type": "conjunction"
+    },
+    "zumal": {
+        "type": "conjunction"
+    },
+    "wie": {
+        "type": "modal conjunction",
+        "used": 30
+    },
+    "insofern": {
+        "type": "modal conjunction"
+    },
+    "sofern": {
+        "type": "modal conjunction"
+    },
+    "insoweit": {
+        "type": "modal conjunction"
+    },
+    "soweit": {
+        "type": "modal conjunction"
+    },
+    "solange": {
+        "type": "modal conjunction"
+    },
+    "soweit": {
+        "type": "modal conjunction"
+    },
+    "soof": {
+        "type": "modal conjunction"
+    },
+    "soviel": {
+        "type": "modal conjunction"
+    },
+    "sowie": {
+        "type": "conjunction"
+    },
+    "statt": {
+        "type": "conjunction"
+    },
+    "jedoch": {
+        "type": "conjunction"
+    },
+    "entweder": {
+        "type": "conjunction",
+        "syl": "ent·we·der"
+    },
+    "beziehungsweise": {
+        "type": "conjunction",
+        "syl": "be·zie·hungs·wei·se",
+        "syn": "oder, vielmehr, sprich, respektive"
+    },
+    "im": {
+        "used": 30
+    },
+    "für": {
+        "used": 30
+    },
+    "man": {
+        "used": 15
+    },
+    "aber": {
+        "type": "causal conjunction",
+        "used": 15
+    },
+    "aus": {
+        "used": 15
+    },
+    "durch": {
+        "used": 15
+    },
+    "wenn": {
+        "type": "causal conjunction",
+        "used": 15
+    },
+    "obwohl": {
+        "type": "causal conjunction"
+    },
+    "außer": {
+        "type": "causal conjunction"
+    },
+    "nur": {
+        "used": 15
+    },
+    "war": {
+        "used": 15
+    },
+    "noch": {
+        "used": 15
+    },
+    "werden": {
+        "used": 15
+    },
+    "bei": {
+        "used": 15
+    },
+    "hat": {
+        "used": 15
+    },
+    "wir": {
+        "used": 15
+    },
+    "was": {
+        "used": 15
+    },
+    "wird": {
+        "used": 15
+    },
+    "sein": {
+        "type": "possessive pronom",
+        "used": 15
+    },
+    "einen": {
+        "used": 15
+    },
+    "welche": {
+        "used": 15
+    },
+    "sind": {
+        "used": 15
+    },
+    "oder": {
+        "type": "adversative conjunction",
+        "used": 15,
+        "syn": "beziehungsweise, vielmehr, besser gesagt, respektive, mit anderen Worten, das heißt, und/oder"
+    },
+    "einerseits": {
+        "type": "adversative conjunction"
+    },
+    "andererseits": {
+        "type": "adversative conjunction"
+    },
+    "falls": {
+        "type": "conjunction"
+    },
+    "ferner": {
+        "type": "conjunction"
+    },
+    "zur": {
+        "used": 15
+    },
+    "um": {
+        "used": 15
+    },
+    "haben": {
+        "used": 15
+    },
+    "einer": {
+        "used": 15
+    },
+    "mir": {
+        "used": 15
+    },
+    "über": {
+        "used": 15
+    },
+    "ihm": {
+        "used": 15
+    },
+    "diese": {
+        "used": 15
+    },
+    "einem": {
+        "used": 15
+    },
+    "ihr": {
+        "used": 15
+    },
+    "uns": {
+        "used": 15
+    },
+    "da": {
+        "type": "causal conjunction",
+        "used": 15
+    },
+    "zum": {
+        "used": 15
+    },
+    "kann": {
+        "used": 15
+    },
+    "doch": {
+        "type": "causal conjunction",
+        "used": 15
+    },
+    "vor": {
+        "used": 15
+    },
+    "dieser": {
+        "used": 15
+    },
+    "mich": {
+        "used": 15
+    },
+    "ihn": {
+        "used": 15
+    },
+    "du": {
+        "used": 15
+    },
+    "hatte": {
+        "used": 15
+    },
+    "seine": {
+        "type": "possessive pronom",
+        "used": 15
+    },
+    "mehr": {
+        "used": 15
+    },
+    "am": {
+        "used": 15
+    },
+    "denn": {
+        "type": "causal conjunction",
+        "used": 15
+    },
+    "desto": {
+        "type": "conjunction",
+        "syl": "des·to",
+        "syn": "umso"
+    },
+    "umso": {
+        "type": "modal conjunction"
+    },
+    "wobei": {
+        "type": "conjunction"
+    },
+    "nun": {
+        "used": 15
+    },
+    "unter": {
+        "used": 15
+    },
+    "sehr": {
+        "used": 15
+    },
+    "selbst": {
+        "used": 15
+    },
+    "schon": {
+        "used": 15
+    },
+    "hier": {
+        "used": 15
+    },
+    "bis": {
+        "type": "temporal conjunction",
+        "used": 15
+    },
+    "ehe": {
+        "type": "temporal conjunction"
+    },
+    "habe": {
+        "used": 15
+    },
+    "ihre": {
+        "type": "possessive pronom",
+        "used": 15
+    },
+    "dann": {
+        "used": 15
+    },
+    "ihnen": {
+        "type": "possessive pronom",
+        "used": 15
+    },
+    "seiner": {
+        "type": "possessive pronom",
+        "used": 15
+    },
+    "alle": {
+        "used": 15
+    },
+    "wieder": {
+        "used": 15
+    },
+    "meine": {
+        "type": "possessive pronom",
+        "used": 15,
+        "syl": "mei·ne"
+    },
+    "Zeit": {
+        "used": 15
+    },
+    "gegen": {
+        "used": 15
+    },
+    "vom": {
+        "used": 15
+    },
+    "ganz": {
+        "used": 15
+    },
+    "einzelnen": {
+        "used": 15
+    },
+    "wo": {
+        "type": "local conjunction",
+        "used": 15
+    },
+    "woher": {
+        "type": "local conjunction"
+    },
+    "muss": {
+        "used": 15
+    },
+    "ohne": {
+        "used": 15
+    },
+    "eines": {
+        "used": 15
+    },
+    "können": {
+        "used": 15
+    },
+    "sei": {
+        "used": 15
+    },
+    "ja": {
+        "used": 7
+    },
+    "wurde": {
+        "used": 7
+    },
+    "jetzt": {
+        "used": 7
+    },
+    "immer": {
+        "used": 7
+    },
+    "seinen": {
+        "type": "possessive pronom",
+        "used": 7
+    },
+    "wohl": {
+        "used": 7
+    },
+    "dieses": {
+        "used": 7
+    },
+    "ihren": {
+        "type": "possessive pronom",
+        "used": 7
+    },
+    "würde": {
+        "used": 7
+    },
+    "diesen": {
+        "used": 7
+    },
+    "sondern": {
+        "used": 7
+    },
+    "weil": {
+        "type": "causal conjunction",
+        "used": 7
+    },
+    "da": {
+        "type": "causal conjunction"
+    },
+    "welcher": {
+        "used": 7
+    },
+    "nichts": {
+        "used": 7
+    },
+    "diesem": {
+        "used": 7
+    },
+    "alles": {
+        "used": 7
+    },
+    "waren": {
+        "used": 7
+    },
+    "will": {
+        "used": 7
+    },
+    "Herr": {
+        "used": 7
+    },
+    "viel": {
+        "used": 7
+    },
+    "mein": {
+        "type": "possessive pronom",
+        "used": 7
+    },
+    "also": {
+        "used": 7
+    },
+    "soll": {
+        "used": 7
+    },
+    "worden": {
+        "used": 7
+    },
+    "lassen": {
+        "used": 7
+    },
+    "dies": {
+        "used": 7
+    },
+    "machen": {
+        "used": 7
+    },
+    "ihrer": {
+        "used": 7
+    },
+    "weiter": {
+        "used": 7
+    },
+    "Leben": {
+        "used": 7
+    },
+    "recht": {
+        "used": 7
+    },
+    "etwas": {
+        "used": 7
+    },
+    "keine": {
+        "used": 7
+    },
+    "seinem": {
+        "used": 7
+    },
+    "ob": {
+        "used": 7
+    },
+    "dir": {
+        "used": 7
+    },
+    "allen": {
+        "used": 7
+    },
+    "großen": {
+        "used": 7
+    },
+    "Jahre": {
+        "used": 7
+    },
+    "Weise": {
+        "used": 7
+    },
+    "müssen": {
+        "used": 7
+    },
+    "welches": {
+        "used": 7
+    },
+    "wäre": {
+        "used": 7
+    },
+    "erst": {
+        "used": 7
+    },
+    "einmal": {
+        "used": 7
+    },
+    "Mann": {
+        "used": 7
+    },
+    "hätte": {
+        "used": 7
+    },
+    "zwei": {
+        "used": 7
+    },
+    "dich": {
+        "used": 7
+    },
+    "allein": {
+        "used": 7
+    },
+    "Herren": {
+        "used": 7
+    },
+    "während": {
+        "type": "temporal conjunction",
+        "used": 7
+    },
+    "währenddessen": {
+        "type": "temporal conjunction"
+    },
+    "Paragraph": {
+        "used": 7
+    },
+    "anders": {
+        "used": 7
+    },
+    "Liebe": {
+        "used": 7
+    },
+    "kein": {
+        "used": 7
+    },
+    "damit": {
+        "type": "causal conjunction",
+        "used": 7
+    },
+    "gar": {
+        "used": 7
+    },
+    "Hand": {
+        "used": 7
+    },
+    "Herrn": {
+        "used": 7
+    },
+    "euch": {
+        "used": 7
+    },
+    "sollte": {
+        "used": 7
+    },
+    "konnte": {
+        "used": 7
+    },
+    "ersten": {
+        "used": 7
+    },
+    "deren": {
+        "used": 7
+    },
+    "zwischen": {
+        "used": 7
+    },
+    "wollen": {
+        "used": 7
+    },
+    "denen": {
+        "used": 7
+    },
+    "dessen": {
+        "used": 7
+    },
+    "sagen": {
+        "used": 7
+    },
+    "bin": {
+        "used": 7
+    },
+    "Menschen": {
+        "used": 7
+    },
+    "gut": {
+        "used": 7
+    },
+    "darauf": {
+        "used": 7
+    },
+    "wurden": {
+        "used": 7
+    },
+    "weiß": {
+        "used": 7
+    },
+    "gewesen": {
+        "used": 7
+    },
+    "Seite": {
+        "used": 7
+    },
+    "bald": {
+        "used": 7
+    },
+    "weit": {
+        "used": 7
+    },
+    "große": {
+        "used": 7
+    },
+    "solche": {
+        "used": 7
+    },
+    "hatten": {
+        "used": 7
+    },
+    "eben": {
+        "used": 7
+    },
+    "andern": {
+        "used": 7
+    },
+    "beiden": {
+        "used": 7
+    },
+    "macht": {
+        "used": 7
+    },
+    "sehen": {
+        "used": 7
+    },
+    "ganze": {
+        "used": 7
+    },
+    "anderen": {
+        "used": 7
+    },
+    "lange": {
+        "used": 7
+    },
+    "wer": {
+        "used": 7
+    },
+    "ihrem": {
+        "used": 7
+    },
+    "zwar": {
+        "type": "conjunction",
+        "used": 7
+    },
+    "gemacht": {
+        "used": 7
+    },
+    "dort": {
+        "used": 7
+    },
+    "kommen": {
+        "used": 7
+    },
+    "Welt": {
+        "used": 7
+    },
+    "heute": {
+        "used": 7
+    },
+    "Frau": {
+        "used": 7
+    },
+    "werde": {
+        "used": 7
+    },
+    "derselben": {
+        "used": 7
+    },
+    "ganzen": {
+        "used": 7
+    },
+    "deutschen": {
+        "used": 7
+    },
+    "lässt": {
+        "used": 7
+    },
+    "vielleicht": {
+        "used": 7
+    },
+    "meiner": {
+        "type": "possessive pronom",
+        "used": 7
+    }
+}

@@ -1,0 +1,45 @@
+<div id="mappinmodal" class="overlay mappinmodal">
+    <div id="mappinmodal-box" class="box">
+        <div class="box-content">
+            <div class="titlecontainer">
+                <div id="mappinmodal-title" class="title mappinmodal-title" swac_lang="Worldmap2d_MapPinModal.title">Measurements</div>
+                <hr>
+            </div>
+            <img id="mappinmodal-button-close" class="mappinmodal-button-close button-close" src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/x.svg">
+            <ul class="uk-flex-center" uk-tab>
+                <li class="mappinmodal-tabShowMeasurements uk-active" id="mappinmodal-tabShowMeasurements"><a swac_lang="Worldmap2d_MapPinModal.tab_measurements">Measurements</a></li>
+                <li id="mappinmodal-tabShowGallery" class="mappinmodal-tabShowGallery"><a swac_lang="Worldmap2d_MapPinModal.tab_photos">Photos</a></li>
+                <li id="mappinmodal-tabShowUpload" class="mappinmodal-tabShowUpload"><a swac_lang="Worldmap2d_MapPinModal.tab_upload">Upload</a></li>
+                <li id="mappinmodal-tabShowLabels" class="mappinmodal-tabShowLabels"><a swac_lang="Worldmap2d_MapPinModal.tab_labels">Labels</a></li>
+            </ul>
+            <div id="mappinmodal-content" class="content mappinmodal-content">
+                <select id="mappinmodal-select_status" class="select uk-select mappinmodal-select_status">
+                    <option id="mappinmodal-select_status_false" class="mappinmodal-select_status_false" value="false" type="number" swac_lang="Worldmap2d_MapPinModal.status_true">Measuring pending</option>
+                    <option id="mappinmodal-select_status_true" class="mappinmodal-select_status_true" value="true" type="number" swac_lang="Worldmap2d_MapPinModal.status_false">Measuring completed</option>
+                </select>
+                <div id="mappinmodal-data" class="data"></div>
+                <button id="mappinmodal-updateLocationButton" class="mappinmodal-updateLocationButton uk-button uk-button-default" swac_lang="Worldmap2d_MapPinModal.update_position">Update position</button>
+            </div>
+            <div id="mappinmodal-gallery-box" class="mappinmodal-gallery-box">
+                <div id="mappinmodal-button-box" class="mappinmodal-button-box">
+                    <button id="mappinmodal-slideshow-prev" class="mappinmodal-prev">
+                        <img src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/chevron-left.svg">
+                    </button>
+                    <button id="mappinmodal-slideshow-next" class="mappinmodal-next">
+                        <img src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/chevron-right.svg">
+                    </button>
+                </div>
+                    <div id="mappinmodal-slideshow-box" class="mappinmodal-slideshow">
+                      <ul id="mappinmodal-slideshow-list" class="mappinmodal-slideshow-list">
+                      </ul>
+                    </div>
+            </div>
+            <div id="mappinmodal-uploadfile-box">
+                <div id="mappinmodal-uploadfile-component" class="mappinmodal-uploadfile-component">
+                    <div id="mappinmodal-uploadfiledata" class="mappinmodal-uploadfiledata"></div>
+                </div>
+            </div>
+            <div class="mappinmodal-labels-box"></div>
+        </div>
+    </div>
+</div>

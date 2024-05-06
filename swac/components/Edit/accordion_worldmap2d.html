@@ -1,0 +1,33 @@
+<div class="swac_editNotify"></div>
+<ul uk-accordion="multiple: true" uk-sortable>
+    <li class="swac_repeatForSet">
+        <a class="uk-accordion-title swac_editFormLegend" href="#">Datensatz {id}</a>
+        <div class="uk-accordion-content">
+            <form class="swac_editForm"  swac_setid="{id}">
+                <fieldset class="uk-fieldset uk-flex uk-flex-wrap uk-flex-wrap-around uk-flex-around">
+                    <div class="uk-margin swac_repeatForValue">
+                        <label class="uk-label swac_formatLabelOptions">{attrName}</label>
+                        <input class="uk-input uk-form-width-medium swac_formatInputOptions" name="{attrName}" value="{*}">
+                    </div>
+                </fieldset>
+                <div class="uk-margin">
+                    <button class="uk-button uk-button-default swac_editSaveButton">core.save</button>
+                    <button class="uk-button uk-button-default swac_editDelButton">core.delete</button>
+                    <button class="uk-button uk-button-default swac_editThirdButton swac_dontdisplay"></button>
+                </div>
+            </form>
+        </div>
+    </li>
+</ul>
+<button class="uk-button uk-button-default swac_editAddSetButton" uk-tooltip="Edit.adddataset">
+    <span swac_lang="Edit.adddataset">Add dataset</span>
+</button>
+<!-- How to play reference information -->
+<table class="uk-table swac_edit_repeatForReftable">
+    <tbody>
+        <tr class="swac_edit_repeatForRef">
+            <td>{name}</td>
+            <td style="display:none"><a href="#" class="uk-icon-button swac_edit_deleteref" uk-icon="minus-circle" uk-tooltip="Edit.refDelete"></a></td>
+        </tr>
+    </tbody>
+</table>

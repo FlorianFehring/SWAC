@@ -1,0 +1,25 @@
+<ul class="swac_mediatags_list uk-list uk-list-striped">
+    <li class="swac_repeatForSet" uk-tooltip="title: {description}">
+        <span class="swac_mediatags_warning swac_dontdisplay" uk-icon="icon: warning"></span>
+        <span class="swac_mediatags_lititle">{title}</span>
+        <a href="#" class="swac_mediatags_delete uk-icon-button" uk-icon="trash" uk-tooltip="Mediaeditor_Mediatags.deltag"></a>
+        <a href="#" class="swac_mediatags_edit uk-icon-button" uk-icon="pencil" uk-tooltip="Mediaeditor_Mediatags.edittag"></a>
+    </li>
+</ul>
+<a href="#" class="uk-icon-button uk-margin-small-right swac_mediatags_add" uk-icon="plus" uk-tooltip="title: Mediaeditor_Mediatags.addtag"></a>
+<fieldset class="swac_mediatags_wizzard swac_dontdisplay uk-fieldset">
+    <legend class="uk-legend" swac_lang="Mediaeditor_Mediatags.wizzard"></legend>
+    <ol class="swac_mediatags_steps">
+        <li swac_lang="Mediaeditor_Mediatags.wizzard1_draw"></li>
+        <li swac_lang="Mediaeditor_Mediatags.wizzard2_tag"></li>
+        <li swac_lang="Mediaeditor_Mediatags.wizzard3_title"></li>
+        <li swac_lang="Mediaeditor_Mediatags.wizzard4_desc"></li>
+    </ol>
+    <select class="swac_mediatags_typeselect swac_dontdisplay uk-select">
+        <option value="0" selected="selected" swac_lang="Mediaeditor_Mediatags.pleaseselect"></option>
+        <!-- Possible tags will be added here by script -->
+    </select>
+    <input type="text" class="swac_mediatags_title uk-input swac_dontdisplay" value="">
+    <textarea class="swac_mediatags_description uk-textarea swac_dontdisplay"></textarea>
+    <button class="swac_mediatags_next uk-button uk-button-primary" type="button" swac_lang="Mediaeditor_Mediatags.wizzardnext"></button>
+</fieldset>

@@ -1,0 +1,32 @@
+.swac_screenboard_hidden {
+    display: none;
+}
+.swac_screenboard {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto auto auto auto auto auto auto auto;
+  background-color: #2196F3;
+  padding: 10px;
+  z-index: 100;
+  position: absolute;
+  left: 0px;
+  width: 98%;
+}
+.swac_screenboard > div {
+  background-color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  padding: 2px;
+  font-size: 30px;
+  text-align: center;
+}
+
+.swac_screenboard_enterbutton {
+  grid-column: 13;
+  grid-row: 2 / span 2;
+}
+
+.swac_screenboard-activeelement {
+    border: 2px solid red;
+    outline: none;
+    border-color: #9ecaed;
+    box-shadow: 0 0 10px red;
+}

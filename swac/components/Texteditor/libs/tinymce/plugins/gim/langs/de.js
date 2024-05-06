@@ -1,0 +1,16 @@
+tinymce.addI18n('de',{
+        'IM_DOCUMENT_SAVE': 'Dokument speichern',
+	'IM_DOCUMENT_METAINFO': 'Meta Informationen',
+	'IM_DOCUMENT_STATISTIC': 'Dokumentenstatistik',
+	'IM_DOCUMENT_ANALYSE': 'Analyse starten',
+	'IM_DOCUMENT_CHECK': 'Dokument pr\u00fcfen',
+        'IM_OPTIONS': 'Einstellungen Informationsassistent',
+        'MARK_REMOVE': 'Markierung entfernen',
+        'MARK_REMOVE_TOOLTIP': 'Entfernt die Markierung einer Information oder Dimension',
+        'ADDMARK_REFERENCED': 'Information aus referenzierten Ausw\u00E4hlen',
+        'ADDMARK_SEARCH': 'Information suchen',
+        'ADDMARK_NEW': 'Neue Information hinzuf\u00fcgen',
+	'ae': '\u00E4',
+	'ue': '\u00fc',
+	'oe': '\u00F6',
+});

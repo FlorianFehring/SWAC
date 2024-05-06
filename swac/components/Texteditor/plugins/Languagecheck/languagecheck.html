@@ -1,0 +1,352 @@
+##Texteditor.languagecheck.lang## <span class="swac_texteditor_lang"></span>
+<ul uk-accordion="multiple: true">
+    <li class="uk-open">
+        <a class="uk-accordion-title" href="#">##Texteditor.languagecheck.quality##</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-small uk-table-striped">
+                <thead>
+                    <tr>
+                        <th>##Texteditor.languagecheck.quality_factor##</th>
+                        <th>##Texteditor.languagecheck.quality_reached##</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td uk-tooltip="##Texteditor.languagecheck.quality_readability_fre_desc##">
+                            ##Texteditor.languagecheck.quality_readability_fre##
+                            <div class="swac_texteditor_quality_fre_details">
+                                + ##Texteditor.languagecheck.show_details##
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_readability_asl##">ASL:</div>
+                                <div class="swac_texteditor_quality_fre_asl"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_readability_asw##">ASW:</div>
+                                <div class="swac_texteditor_quality_fre_asw"></div>
+                            </div>
+                            <div class="swac_texteditor_quality_fre_options">
+                                + ##Texteditor.languagecheck.show_options##
+                                <form class="uk-form-stacked">
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_fre_base">
+                                            ##Texteditor.languagecheck.quality_fre_basefactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_fre_base" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_fre_aslfactor">
+                                            ##Texteditor.languagecheck.quality_fre_aslfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_fre_aslfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_fre_aswfactor">
+                                            ##Texteditor.languagecheck.quality_fre_aswfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_fre_aswfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <button class="swac_texteditor_quality_fre_recalc uk-button uk-button-small">
+                                        ##Texteditor.languagecheck.quality_fre_recalc##
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <td class="swac_texteditor_quality_readability_fre"></td>
+                    </tr>
+                    <tr>
+                        <td uk-tooltip="##Texteditor.languagecheck.quality_readability_wsf_desc##">
+                            ##Texteditor.languagecheck.quality_readability_wsf##
+                            <div class="swac_texteditor_quality_wsf_details">
+                                + ##Texteditor.languagecheck.show_details##
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_readability_mw##">MS:</div>
+                                <div class="swac_texteditor_quality_wsf_ms"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_readability_iw##">IW:</div>
+                                <div class="swac_texteditor_quality_wsf_iw"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_readability_sl##">SL:</div>
+                                <div class="swac_texteditor_quality_wsf_sl"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_readability_es##">ES:</div>
+                                <div class="swac_texteditor_quality_wsf_es"></div>
+                            </div>
+                            <div class="swac_texteditor_quality_wsf_options">
+                                + ##Texteditor.languagecheck.show_options##
+                                <form class="uk-form-stacked">
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_wsf_variant">
+                                            ##Texteditor.languagecheck.quality_wsf_variant##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <select id="swac_texteditor_quality_wsf_variant" class="uk-select uk-form-small">
+                                                <option value="1">##Texteditor.languagecheck.quality_wsf_variant1##</option>
+                                                <option value="2">##Texteditor.languagecheck.quality_wsf_variant2##</option>
+                                                <option value="3">##Texteditor.languagecheck.quality_wsf_variant3##</option>
+                                                <option value="4">##Texteditor.languagecheck.quality_wsf_variant4##</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <button class="swac_texteditor_quality_wsf_recalc uk-button uk-button-small">
+                                        ##Texteditor.languagecheck.quality_wsf_recalc##
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <td class="swac_texteditor_quality_readability_wsf"></td>
+                    </tr>
+                    <tr>
+                        <td uk-tooltip="##Texteditor.languagecheck.quality_intelligibility_desc##">
+                            ##Texteditor.languagecheck.quality_intelligibility##
+                            <div class="swac_texteditor_quality_int_details">
+                                + ##Texteditor.languagecheck.show_details##
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_int_nws##">NWS:</div>
+                                <div class="swac_texteditor_quality_int_nws"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_int_nps##">NPS:</div>
+                                <div class="swac_texteditor_quality_int_nps"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_int_ncs##">NCS:</div>
+                                <div class="swac_texteditor_quality_int_ncs"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_int_arw##">ARW:</div>
+                                <div class="swac_texteditor_quality_int_arw"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_int_afw##">AFW:</div>
+                                <div class="swac_texteditor_quality_int_afw"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_int_nas##">NAS:</div>
+                                <div class="swac_texteditor_quality_int_nas"></div>
+                            </div>
+                            <div class="swac_texteditor_quality_int_options">
+                                + ##Texteditor.languagecheck.show_options##
+                                <form class="uk-form-stacked">
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_int_nwsfactor">
+                                            ##Texteditor.languagecheck.quality_int_nwsfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_int_nwsfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_int_npsfactor">
+                                            ##Texteditor.languagecheck.quality_int_npsfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_int_npsfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_int_ncsfactor">
+                                            ##Texteditor.languagecheck.quality_int_ncsfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_int_ncsfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_int_arwfactor">
+                                            ##Texteditor.languagecheck.quality_int_arwfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_int_arwfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_int_afwfactor">
+                                            ##Texteditor.languagecheck.quality_int_afwfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_int_afwfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_int_nasfactor">
+                                            ##Texteditor.languagecheck.quality_int_nasfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_int_nasfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <button class="swac_texteditor_quality_int_recalc uk-button uk-button-small">
+                                        ##Texteditor.languagecheck.quality_fre_recalc##
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <td class="swac_texteditor_quality_intelligibility"></td>
+                    </tr>
+                    <tr>
+                        <td uk-tooltip="##Texteditor.languagecheck.quality_tqap_desc##">
+                            ##Texteditor.languagecheck.quality_tqap##
+                            <div class="swac_texteditor_quality_tqap_details">
+                                + ##Texteditor.languagecheck.show_details##
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_tqap_dowl##">DOWL:</div>
+                                <div class="swac_texteditor_quality_tqap_dowl"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_tqap_mkwo##">MKWO:</div>
+                                <div class="swac_texteditor_quality_tqap_mkwo"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_tqap_skwo##">SKWO:</div>
+                                <div class="swac_texteditor_quality_tqap_skwo"></div>
+                                <div class="desc" uk-tooltip="##Texteditor.languagecheck.quality_tqap_hwpvio##">BWPVIO:</div>
+                                <div class="swac_texteditor_quality_tqap_hwpvio"></div>
+                            </div>
+                            <div class="swac_texteditor_quality_tqap_options">
+                                + ##Texteditor.languagecheck.show_options##
+                                <form class="uk-form-stacked">
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_optwordsfactor">
+                                            ##Texteditor.languagecheck.quality_tqap_optwordsfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_optwordsfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_mainkeyword">
+                                            ##Texteditor.languagecheck.quality_tqap_mainkeyword##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_mainkeyword" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_mkwminfactor">
+                                            ##Texteditor.languagecheck.quality_tqap_mkwminfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_mkwminfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_mkwmaxfactor">
+                                            ##Texteditor.languagecheck.quality_tqap_mkwmaxfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_mkwmaxfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_skwminfactor">
+                                            ##Texteditor.languagecheck.quality_tqap_skwminfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_skwminfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_skwmaxfactor">
+                                            ##Texteditor.languagecheck.quality_tqap_skwmaxfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_skwmaxfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_hwpmaxfactor">
+                                            ##Texteditor.languagecheck.quality_tqap_hwpmaxfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_hwpmaxfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_dowlfactor">
+                                            ##Texteditor.languagecheck.quality_tqap_dowlfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_dowlfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_mkwofactor">
+                                            ##Texteditor.languagecheck.quality_tqap_mkwofactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_mkwofactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_skwofactor">
+                                            ##Texteditor.languagecheck.quality_tqap_skwofactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_skwofactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <label class="uk-form-label" for="swac_texteditor_quality_tqap_hwpvfactor">
+                                            ##Texteditor.languagecheck.quality_tqap_hwpvfactor##
+                                        </label>
+                                        <div class="uk-form-controls">
+                                            <input class="uk-input uk-form-small" id="swac_texteditor_quality_tqap_hwpvfactor" type="number" step="any">
+                                        </div>
+                                    </div>
+                                    <button class="swac_texteditor_quality_tqap_recalc uk-button uk-button-small">
+                                        ##Texteditor.languagecheck.quality_tqap_recalc##
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        <td class="swac_texteditor_quality_tqap"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </li>
+    <li>
+        <a class="uk-accordion-title" href="#">##Texteditor.languagecheck.keywords##</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-striped">
+                <tbody>
+                    <tr class="swac_texteditor_repeatForKeyword">
+                        <td class="swac_texteditor_keyword"></td>
+                        <td class="swac_texteditor_keyword_actions"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </li>
+    <li>
+        <a class="uk-accordion-title" href="#">##Texteditor.languagecheck.worduseage##</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-striped">
+                <thead>
+                    <tr>
+                        <th>##Texteditor.languagecheck.word##</th>
+                        <th>##Texteditor.languagecheck.used##</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="swac_texteditor_repeatForWord">
+                        <td class="swac_texteditor_word"></td>
+                        <td class="swac_texteditor_used"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </li>
+    <li>
+        <a class="uk-accordion-title" href="#">##Texteditor.languagecheck.statistic##</a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-striped">
+                <tbody>
+                    <tr>
+                        <td>##Texteditor.languagecheck.stat_chars##</td>
+                        <td class="swac_texteditor_stat_chars"></td>
+                    </tr>
+                    <tr>
+                        <td>##Texteditor.languagecheck.stat_sentences##</td>
+                        <td class="swac_texteditor_stat_sentences"></td>
+                    </tr>
+                    <tr>
+                        <td>##Texteditor.languagecheck.stat_words##</td>
+                        <td class="swac_texteditor_stat_words"></td>
+                    </tr>
+                    <tr>
+                        <td>##Texteditor.languagecheck.stat_wordspersentence##</td>
+                        <td class="swac_texteditor_stat_wordspersentence"></td>
+                    </tr>
+                    <tr>
+                        <td>##Texteditor.languagecheck.stat_partspersentence##</td>
+                        <td class="swac_texteditor_stat_partspersentence"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </li>
+</ul>

@@ -1,0 +1,43 @@
+.swac_question h2 {
+    border: 0px;
+}
+
+.swac_question_question {
+    text-transform: uppercase;
+}
+
+[swac_parent_setid] .swac_question_question {
+    text-indent: 50px;
+    position: relative;
+    left: 10%;
+}
+
+.swac_question_range {
+    width: 240px;
+}
+
+.swac_question_rangevalue {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 20px;
+}
+
+.swac_question_icon {
+    margin: 0px;
+}
+
+.swac_question_icon_selected {
+    border: 3px dashed yellow;
+}
+
+.swac_question_noty {
+    border: 1px solid red;
+    width: 80%;
+}
+
+.swac_question_msg {
+    font-size: 25pt;
+    font-weight: bold;
+    text-align: center;
+}

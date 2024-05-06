@@ -1,0 +1,105 @@
+<h2 swac_lang="Booking.availableitems">Available items</h2>
+<table class=" uk-table uk-table-divider uk-table-striped">
+    <tr class="swac_repeatForSet">
+        <td class="swac_booking_img">
+            <img data-src="{img}" alt="Image of the bookable item" swac_langattr="alt:Booking.itemimg">
+        </td>
+        <td class="swac_booking_description">
+            <h3>{title}</h3>
+            {desc}
+        </td>
+        <td class="swac_booking_bookopts">
+            <svg class="swac_booking_indicator" height="30" width="30">
+            <circle r="10" cx="10" cy="15" 
+                    fill="rgba(220,220,220,0.5)" stroke="#fff" stroke-width="2" />
+            </svg>
+            <span class="swac_booking_availability"></span>
+            <br>
+            <button class="swac_booking_openbooking uk-button">Booking.booknow</button>
+        </td>
+    </tr>
+</table>
+
+<div class="swac_booking_modal" uk-modal>
+    <div class="uk-modal-dialog">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+            <div class="uk-modal-title" swac_lang="Booking.booking">Booking</div>
+        </div>
+        <div class="uk-modal-body">
+            <form class="swac_booking_form uk-form-horizontal">
+                <input class="swac_booking_devid" type="hidden" name="devid">
+                <fieldset class="uk-fieldset">
+                    <legend class="uk-legend">Booking.bookingdata</legend>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="from">Booking.from</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="from" type="date" name="from">
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="until">Booking.until</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="until" type="date" name="until">
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="persons">Booking.persons</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="persons" type="number" name="persons">
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="uk-fieldset">
+                    <legend class="uk-legend">Booking.personaldata</legend>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="firstname">Booking.firstname</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="firstname" type="text" name="firstname">
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="lastname">Booking.lastname</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="lastname" type="text" name="lastname">
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="street">Booking.street</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="street" type="text" name="street">
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="housenumber">Booking.housenumber</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="housenumber" type="text" name="housenumber">
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="zipcode">Booking.zipcode</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="zipcode" type="text" name="zipcode">
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="city">Booking.city</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="city" type="text" name="city">
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <label class="uk-form-label" for="country">Booking.country</label>
+                        <div class="uk-form-controls">
+                            <input class="uk-input" id="country" type="text" name="country">
+                        </div>
+                    </div>
+                </fieldset>
+            </form>    
+        </div>
+        <div class="uk-modal-footer uk-text-right">
+            <button class="uk-button uk-button-default uk-modal-close" type="button">Booking.cancle</button>
+            <button class="swac_booking_submit uk-button uk-button-default">Booking.submit</button>
+        </div>
+    </div>
+</div>

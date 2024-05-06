@@ -1,0 +1,24 @@
+<div uk-filter="target: .swac_present_filtersort_sets">
+
+    <div class="swac_present_fitlersort_filterarea swac_dontdisplay">
+        <ul class="uk-subnav uk-subnav-pill" uk-margin>
+            <li class="uk-active" uk-filter-control><a href="#" swac_lang="Present_FilterSort.all">All</a></li>
+        </ul>
+        <ul class="swac_present_filtersort_filter uk-subnav uk-subnav-pill swac_dontdisplay">
+            <li class="swac_present_filtersort_filtername"></li>
+        </ul>
+    </div>
+    <div class="swac_present_fitlersort_sortarea swac_dontdisplay">
+        <label swac_lang="Present_FilterSort.sort">Sort</label>
+        <select class="swac_present_filtersort_sortselect uk-input"></select>
+    </div>
+
+    <div class="swac_present_filtersort_sets">
+        <div class="swac_repeatForSet">
+            <table class="uk-table uk-table-divider uk-table-striped">
+                <tr><th swac_lang="Present.property">Property</th><th swac_lang="Present.value">Value</th></tr>
+                <tr class="swac_repeatForValue"><td swac_lang="{attrName}">{attrName}</td><td>{*}</td></tr>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,81 @@
+{
+    "elements": {},
+    "attributes": {
+        "swac_lang": {},
+        "uk-filter-control": {
+            "context": "li"
+        },
+        "uk-tooltip": {},
+        "uk-navbar": {
+            "context": "nav"
+        },
+        "uk-navbar-toggle-icon": {
+            "context": "span"
+        },
+        "uk-accordion": {
+            "context": "ul"
+        },
+        "swac_translator": {},
+        "uk-switcher": {},
+        "uk-switcher-item": {},
+        "uk-modal": {
+            "context": "div"
+        },
+        "swac_datalistvalue": {},
+        "uk-cover": {
+            "context": "img"
+        },
+        "uk-close": {
+            "context": "button"
+        },
+        "swac_langattr": {},
+        "uk-dropdown": {
+            "context": "div"
+        },
+        "uk-form-custom": {
+            "context": "div"
+        },
+        "uk-offcanvas": {
+            "context": "div"
+        },
+        "filterval": {},
+        "uk-height-viewport": {},
+        "uk-spinner": {
+            "context": "div"
+        },
+        "swac_bp": {},
+        "uk-grid": {
+            "context": "div"
+        },
+        "swac_lang_format": {
+            "context": "span"
+        },
+        "uk-icon": {},
+        "uk-filter": {
+            "context": "div"
+        },
+        "uk-margin": {},
+        "uk-img": {
+            "context": "img"
+        },
+        "uk-sticky": {},
+        "uk-toggle": {
+            "context": "button"
+        },
+        "swac_fromname": {},
+        "swac_id": {},
+        "uk-search-icon": {
+            "context": "span"
+        },
+        "swa": {
+            "context": "div"
+        },
+        "swac_parent": {},
+        "uk-drop": {
+            "context": "div"
+        },
+        "uk-tab": {
+            "context": "ul"
+        }
+    }
+}

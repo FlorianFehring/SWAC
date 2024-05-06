@@ -1,0 +1,33 @@
+.swac_sync_chart {
+    position:relative;
+    margin:10px;
+    width:220px;
+    height:220px;
+    left: 50%;
+    -webkit-transform: translate(-50%);
+    transform: translate(-50%);
+}
+.swac_sync_chart canvas {
+    display: block;
+    position:absolute;
+    top:0;
+    left:0;
+}
+.swac_sync_chart span {
+    color:#555;
+    display:block;
+    line-height:220px;
+    text-align:center;
+    width:220px;
+    font-family:sans-serif;
+    font-size:40px;
+    font-weight:100;
+    margin-left:5px;
+}
+
+.swac_sync_chart input {
+    width: 200px;
+}
+.swac_sync_repeatForError {
+    display: none;
+}

@@ -1,0 +1,31 @@
+<span swac_lang="Datafilter.filters_active"></span>
+<a href="#filters_settings" class="uk-icon-button" uk-toggle uk-icon="settings" aria-label="Datafilter.filtersettings_open"></a>
+
+<div id="filters_settings" uk-offcanvas>
+    <div class="uk-offcanvas-bar">
+        <button class="uk-offcanvas-close" type="button" uk-close></button>
+        <h3 swac_lang="Datafilter.filters">Filters</h3>
+        <div class="swac_repeatForSet">
+            <h4 uk-tooltip="{desc}">{name}</h4>
+            <label class="uk-form-label">Datafilter.attr</label>
+            <div class="uk-form-controls">
+                <select class="uk-select uk-form-small" name="attr">
+                </select>
+            </div>
+            <label class="uk-form-label">Datafilter.types</label>
+            <div class="uk-form-controls">
+                <select class="uk-select uk-form-small" name="type">
+                    <option value="none">Datafilter.none</option>
+                    <option value="eq">Datafilter.eq</option>
+                    <option value="lt">Datafilter.lt</option>
+                    <option value="gt">Datafilter.gt</option>
+                </select>
+            </div>
+            <label class="uk-form-label">Datafilter.values</label>
+            <div class="uk-form-controls">
+                <input class="uk-input uk-form-small" name="values" type="text" placeholder="Datafilter.values" value="{values}">
+            </div>
+        </div>
+        <button class="swac_datafilter_addfilter uk-button uk-button-default">Datafilter.addfilter</button>
+    </div>
+</div>

@@ -1,0 +1,9 @@
+#swac_user_logining {
+    position:fixed;
+    top: 30%;
+    left: 50%;
+    width:20em;
+    height:16em;
+    margin-top: -8em; /*set to a negative number 1/2 of your height*/
+    margin-left: -10em; /*set to a negative number 1/2 of your width*/
+}

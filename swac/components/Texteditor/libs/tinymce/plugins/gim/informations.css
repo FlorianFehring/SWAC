@@ -1,0 +1,44 @@
+body {
+    background: #000000;
+}
+
+.information{
+    border: 1px solid black;
+}
+
+.inf_technologies {
+    background-image: url(libs/tinymce/plugins/gim/img/inf_technologies.png);
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: contain;
+    padding-right: 17px;
+}
+
+.inf_persons {
+    background-image: url(libs/tinymce/plugins/gim/img/inf_persons.png);
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: contain;
+    padding-right: 17px;
+}
+
+.gim_dimselection {
+    background-image: url(libs/tinymce/plugins/gim/img/dim_selection.png);
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: contain;
+    padding-right: 17px;
+    border: 1px #0077b3 dotted;
+}
+
+.gim_dimselection span {
+    display: none;
+}
+
+.dim_inncorrect {
+    background-color: firebrick;
+}
+
+.inf_notreferenced {
+    background-color: tomato;
+}

@@ -1,0 +1,17 @@
+.swac_edit_repeatForReftable {
+    display: none;
+}
+.swac_edit_repeatForRef {
+    display: none;
+}
+input:required {
+    border: 1px solid #F0E68C;
+}
+
+input:valid {
+    border: 1px solid #90EE90;
+}
+
+input:invalid {
+    border: 1px solid #F08080;
+}

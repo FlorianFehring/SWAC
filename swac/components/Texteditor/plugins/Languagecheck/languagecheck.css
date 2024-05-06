@@ -1,0 +1,52 @@
+.swac_texteditor_repeatForWord {
+    display: none;
+}
+.swac_texteditor_repeatForKeyword {
+    display: none;
+}
+
+.swac_texteditor_quality_fre_details, .swac_texteditor_quality_fre_options,
+.swac_texteditor_quality_wsf_details, .swac_texteditor_quality_wsf_options,
+.swac_texteditor_quality_int_details, .swac_texteditor_quality_int_options,
+.swac_texteditor_quality_tqap_details, .swac_texteditor_quality_tqap_options{
+    height: 20px;
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+}
+
+.swac_texteditor_quality_fre_details:hover {
+    height: 140px;
+}
+
+.swac_texteditor_quality_fre_options:hover {
+    height: 275px;
+}
+
+.swac_texteditor_quality_wsf_details:hover {
+    height: 275px;
+}
+
+.swac_texteditor_quality_wsf_options:hover {
+    height: 150px;
+}
+
+.swac_texteditor_quality_int_details:hover {
+    height: 350px;
+}
+
+.swac_texteditor_quality_int_options:hover {
+    height: 520px;
+}
+
+.swac_texteditor_quality_tqap_details:hover {
+    height: 200px;
+}
+
+.swac_texteditor_quality_tqap_options:hover {
+    height: 200px;
+}
+
+.desc {
+    font-weight: bold;
+}

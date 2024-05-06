@@ -1,0 +1,51 @@
+<div>
+    <div>
+        <button class="swac_comments_new uk-button uk-button-default uk-button-small" uk-toggle="target: .swac_comments_form">
+            <span uk-icon="icon: comment; ratio: 0.85"></span>
+            <span swac_lang="Comments.newcomment"></span>
+        </button>
+        <form class="swac_comments_form uk-margin-top" aria-hidden="true" hidden>
+            <textarea class="uk-textarea" rows="2" name="message" placeholder="Comments.comment" required></textarea>
+            <button class="swac_comments_save uk-button uk-button-default uk-button-small uk-margin-small-top">Comments.save</button>
+        </form>
+    </div>
+    <ul class="uk-comment-list">
+        <li class="swac_repeatForSet uk-margin-remove">
+            <article class="uk-comment" swac_id="{id}" swac_parent="{parent_id}">
+                <header class="uk-comment-header uk-position-relative uk-margin-remove-bottom">
+                    <span class="uk-text-bold uk-margin-remove">{user_name}</span>
+                    <span class="uk-comment-meta uk-margin-remove-top">·  {ts}</span>
+                </header>
+                <div class="uk-comment-body">
+                    <p>{message}</p>
+                </div>
+                <footer>
+                    <a uk-toggle="target: .swac_comment_replyes_{id}" uk-tooltip="Comments.showreplys" class="uk-icon-link uk-margin-small-right" uk-icon="icon: comments; ratio: 0.8"></a>
+                    <a uk-toggle="target: .swac_comment_reply_{id}" uk-tooltip="Comments.newreply" class="swac_comments_reply uk-icon-link" uk-icon="icon: reply; ratio: 0.9"></a>
+                    <form class="uk-margin-top swac_comment_reply_{id} swac_comments_form" aria-hidden="true" hidden>
+                        <textarea class="uk-textarea" rows="2" name="message" placeholder="Comments.reply" required></textarea>
+                        <button class="uk-button uk-button-default uk-button-small uk-margin-small-top swac_comments_save">Comments.save</button>
+                    </form>
+                </footer>
+                <hr class="uk-margin-small-top uk-margin-small-bottom">
+            </article>
+            
+            <ul class="swac_comment_replyes_{id} uk-margin-remove uk-comment-list swac_forChilds" aria-hidden="true" hidden> 
+                <li class="uk-margin-remove swac_child">
+                    <article class="uk-comment" swac_id="{id}">
+                        <header class="uk-comment-header uk-position-relative uk-margin-remove-bottom">
+                            <span class="uk-text-bold uk-margin-remove">{user_name}</span>
+                            <span class="uk-comment-meta uk-margin-remove-top">·  {ts}</span>
+                        </header>
+                        <div class="uk-comment-body">
+                            <p>{message}</p>
+                        </div>
+                    </article>
+                    <hr class="uk-margin-small-top uk-margin-small-bottom"/>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+

@@ -1,0 +1,6 @@
+.swac_ecomode_btn {
+    position: fixed;
+    right: 100px;
+    bottom: 10px;
+    z-index:999;
+}

@@ -1,0 +1,6 @@
+.swac_mediapreview_filterattr .uk-subnav {
+    height:100px;
+    max-width: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

@@ -1,0 +1,28 @@
+var JsonReader_de = {
+    fileurl: 'URL zur JSON-Datei',
+    fileselect: 'Dateiauswahl',
+    nextstep: 'Nächster Schritt',
+    prevstep: 'Vorheriger Schritt',
+    config: 'Konfiguration',
+    configcontent: '',
+    preview: 'Vorschau',
+    save: 'Speichern',
+    restart: 'Neu starten',
+    jsonselect: 'Datei auswählen',
+    jsoncontent: 'Wählen Sie oben eine Datei aus, geben sie eine URL ein oder kopieren sie JSON in dieses Textfeld.',
+    fileurl_error_cors: 'Die Datei konnte nicht heruntergeladen werden, vermutlich wegen eines CORS Fehlers.',
+    fileurl_error: 'Die Datei konnte nicht heruntergeladen werden.',
+    toconfig_missingjson: 'Es wurde kein JSON eingegeben. Bitte geben Sie zuerst einen JSON Inhalt an.',
+    configurl: 'URL zur Konfigurationsdatei',
+    configselect: 'Dateiauswahl',
+    jsonelement: 'JSON Element',
+    targetcollection: 'Ziel Collection',
+    targetcolumn: 'Ziel Spalte',
+    noimport: 'Nicht importieren',
+    noselection: 'Keine Auswahl',
+    saveconfig: 'Konfiguration speichern',
+    save_start: 'Import starten',
+    save_succsessfull: 'Daten erfolgreich gespeichert',
+    save_failed: 'Es ist ein Fehler beim Speichern aufgetreten.'
+};
+export default JsonReader_de;

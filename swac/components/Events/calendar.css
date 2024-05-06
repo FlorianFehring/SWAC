@@ -1,0 +1,85 @@
+ul {list-style-type: none;}
+
+.swac_events_month {
+    padding-bottom: 70px;
+    padding-top: 25px;
+    width: 100%;
+    background: #9ACD32;
+    text-align: center;
+}
+.swac_events_month ul {
+    margin: 0;
+    padding: 0;
+}
+.swac_events_month ul li {
+    color: white;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+.swac_events_prevmonth {
+    float: left;
+    padding-top: 10px;
+    padding-left: 10px;
+}
+.swac_events_nextmonth {
+    float: right;
+    padding-top: 10px;
+    padding-right: 10px;
+}
+.swac_events_year {
+    font-size: 18px;
+}
+
+.swac_events_weekdays {
+    margin: 0;
+    padding: 10px 0;
+    background-color:#ddd;
+}
+
+.swac_events_weekdays li {
+    display: inline-block;
+    width: 13.6%;
+    color: #666;
+    text-align: center;
+}
+
+.swac_events_days {
+    padding: 10px 0;
+    background: #eee;
+    margin: 0;
+}
+
+.swac_events_days li {
+    list-style-type: none;
+    width: 13.6%;
+    height: 100px;
+    border: 1px solid #222;
+    text-align: center;
+    margin-bottom: 5px;
+    font-size:12px;
+}
+
+.swac_events_day {
+    display: inline-table;
+    color: #000;
+}
+.swac_events_premday, .swac_events_nexmday {
+    display: inline-table;
+    color: #555;
+}
+
+.swac_events_day .swac_events_event {
+    background-color: #9ACD32;
+    width: 80%;
+    position: relative;
+    left: 20%;
+    color: #000000;
+    text-align: left;
+    margin-top: 2px;
+}
+
+.swac_events_actualday {
+    background: #9ACD32;
+    border-radius: 10px;
+}

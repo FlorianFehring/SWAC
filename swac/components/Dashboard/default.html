@@ -1,0 +1,83 @@
+<div class="uk-child-width-1-2@s uk-child-width-1-4@m" uk-grid="masonry: true">
+    <div id="tile-{id}" class="swac_repeatForSet" swac_parent="{parent}" draggable="true">
+        <div class="uk-card uk-card-default uk-card-small uk-card-body">
+            <div class="uk-card-badge"><span uk-icon="icon: cog"></span></div>
+            <div uk-dropdown="mode: click;pos: top-right">
+                <ul class="uk-nav uk-dropdown-nav">
+                    <li class="swac_dashboard_visibility" swac_lang="Dashboard.visibility_hide">Hide</li>
+                    <li class="swac_dashboard_data uk-nav-header" swac_lang="Dashboard.data_span">Data span</li>
+                    <li class="swac_dashboard_data"><span swac_lang="Dashboard.data_from"></span> <input class="swac_dashboard_datafrom uk-input uk-form-small" type="datetime-local"></li>
+                    <li class="swac_dashboard_data"><span swac_lang="Dashboard.data_until"></span> <input class="swac_dashboard_datauntil uk-input uk-form-small" type="datetime-local"></li>
+                    <li class="uk-nav-divider"></li>
+                    <li class="swac_dashboard_advoptslink" swac_lang="Dashboard.advanced_options">Advanced options</li>
+                </ul>
+            </div>
+            <h3 class="uk-card-title" swac_lang="{title}">{title}</h3>
+            <p swac_lang="{desc}">{desc}</p>
+            <div class="swac_dashboard_cardcont"></div>
+        </div>
+    </div>
+</div>
+<br>
+<p swac_lang="Dashboard.hiddencards">Hidden cards</p>
+<div class="swac_dashboard_hiddencards uk-child-width-1-2@s uk-child-width-1-4@m uk-grid-match" uk-grid>
+    <div class="swac_repeatForSet swac_dontdisplay">
+        <button class="uk-button uk-form-small swac_dashboard_visibility" swac_lang="{title}">{title}</button>
+    </div>
+</div>
+
+<!-- This is the modal with advanced options -->
+<div class="swac_dashbord_advopts" uk-modal>
+    <div class="uk-modal-dialog">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+            <h2 class="uk-modal-title" swac_lang="Dashboard.advanced_options">Advanced options</h2>
+        </div>
+        <div class="uk-modal-body">
+            <fieldset class="swac_dashboard_data uk-fieldset">
+                <legend class="uk-legend">Dashboard.data_span</legend>
+                <label class="swac_dashboard_data uk-label">Dashboard.data_from</label>
+                <input type="datetime-local" class="swac_dashboard_datafrom uk-input uk-form-width-large" name="data_from">
+                <label class="swac_dashboard_data uk-label">Dashboard.data_until</label>
+                <input type="datetime-local" class="swac_dashboard_datauntil uk-input uk-form-width-large" name="data_until">
+            </fieldset>
+
+            <fieldset class="swac_dashboard_admopts swac_dontdisplay uk-fieldset">
+                <legend class="uk-legend">Dashboard.admopts</legend>
+                <label class="uk-label">Dashboard.title</label>
+                <input type="text" class="uk-input uk-form-width-large" name="card_title" placeholder="Dashboard.title">
+                <label class="uk-label">Dashboard.desc</label>
+                <input type="text" class="uk-input uk-form-width-large" name="card_desc" placeholder="Dashbord.desc">
+                <label class="uk-label">
+                    <span swac_lang="Dashboard.card_avail"></span>
+                    <input type="checkbox" name="card_avail">
+                </label>
+                <br><label class="uk-label">
+                    <span swac_lang="Dashboard.card_visible_default"></span>
+                    <input type="checkbox" name="card_visible_default">
+                </label>
+                <br><label class="swac_dashboard_data uk-label">Dashboard.datasource</label>
+                <input type="text" class="swac_dashboard_data uk-input uk-form-width-large" name="card_datasource">
+                <label class="swac_dashboard_data uk-label">Dashboard.data_from_default</label>
+                <input type="datetime-local" class="swac_dashboard_data uk-input uk-form-width-large" name="data_from_default">
+                <label class="swac_dashboard_data uk-label">Dashboard.data_until_default</label>
+                <input type="datetime-local" class="swac_dashboard_data uk-input uk-form-width-large" name="data_until_default">
+                <label class="swac_dashboard_data uk-label">Dashboard.data_from_min</label>
+                <input type="datetime-local" class="swac_dashboard_data uk-input uk-form-width-large" name="data_from_min">
+                <label class="swac_dashboard_data uk-label">Dashboard.data_until_max</label>
+                <input type="datetime-local" class="swac_dashboard_data uk-input uk-form-width-large" name="data_until_max">
+                <label class="swac_dashboard_data uk-label">Dashboard.data_comp</label>
+                <select class="swac_dashboard_data uk-select uk-form-width-large" name="data_comp">
+                    <!-- Filled by Dashbord.js -->
+                </select>
+                <label class="swac_dashboard_data uk-label">Dashboard.data_comp_opts</label>
+                <textarea class="swac_dashboard_data uk-input" name="data_comp_opts"></textarea>
+            </fieldset>
+
+        </div>
+        <div class="uk-modal-footer uk-text-right">
+            <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+            <button class="swac_advopts_save uk-button uk-button-primary" type="button">Save</button>
+        </div>
+    </div>
+</div>

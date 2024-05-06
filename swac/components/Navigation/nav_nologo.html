@@ -1,0 +1,39 @@
+<!-- Menu mobile -->
+<div class="uk-offcanvas-content uk-hidden@s">
+    <nav class="uk-navbar-container" uk-navbar>
+        <div class="uk-navbar-right">
+            <a class="uk-navbar-item" href="#offcanvas-nav" uk-toggle>
+                <span uk-navbar-toggle-icon></span>
+            </a>
+        </div>
+    </nav>
+
+    <div id="offcanvas-nav" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+            <ul class="uk-nav uk-nav-default">
+                <li class="swac_repeatForSet">
+                    <a href="{rto}" swac_id="{id}" swac_parent="{parent}">{name}</a>
+                    <ul class="uk-nav-sub swac_forChilds">
+                        <li class="swac_child"><a href="{rto}">{name}</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Menu desktop -->
+<nav class="uk-navbar-container uk-box-shadow-medium uk-visible@s" uk-navbar>
+    <div class="uk-navbar-right">
+        <ul class="uk-navbar-nav">
+            <li class="swac_repeatForSet">
+                <a href="{rto}" swac_id="{id}" swac_parent="{parent}">{name}</a>
+                <div class="uk-navbar-dropdown">
+                    <ul class="uk-nav uk-navbar-dropdown-nav swac_forChilds">
+                        <li class="swac_child"><a href="{rto}">{name}</a></li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>

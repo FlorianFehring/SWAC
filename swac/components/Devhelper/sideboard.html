@@ -1,0 +1,40 @@
+<div class="devhelper_tools uk-card uk-card-secondary swac_dontdisplay">
+    <ul class="uk-subnav uk-subnav-pill" uk-switcher>
+        <li><a href="#" swac_langattr="title:Devhelper.errors"><img src="/SWAC/swac/components/Icon/imgs/error.svg" alt="err"> <span swac_lang="Devhelper.errors">Errors</span></a></li>
+        <li><a href="#"><img src="/SWAC/swac/components/Icon/imgs/warning.svg" alt="Devhelper.warnings"> <span swac_lang="Devhelper.warnings">Warnings</span></a></li>
+        <li><a href="#"><img src="/SWAC/swac/components/Icon/imgs/true.svg" alt="Devhelper.infos"> <span swac_lang="Devhelper.infos">Infos</span></a></li>
+        <li><a href="#"><img src="/SWAC/swac/components/Icon/imgs/idea.svg" alt="Devhelper.hints"> <span swac_lang="Devhelper.hints">Hints</span></a></li>
+        <li><a href="#"><img src="/SWAC/swac/components/Icon/imgs/todolist_view.svg" alt="Devhelper.flows"> <span swac_lang="Devhelper.flows">Flows</span></a></li>
+        <li><a href="#"><img src="/SWAC/swac/components/Icon/imgs/data/database_view.svg" alt="Devhelper.datasources"> <span swac_lang="Devhelper.datasources">Datasources</span></a></li>
+        <li><a href="#"><img src="/SWAC/swac/components/Icon/imgs/network.svg" alt="Devhelper.plugins"> <span swac_lang="Devhelper.plugins">Plugins</span></a></li>
+    </ul>
+    <a href="#" class="devhelper_close" uk-close></a>
+
+    <ul class="uk-switcher uk-margin">
+        <li><ul class="devhelper_errors uk-list"></ul></li>
+        <li><ul class="devhelper_warnings uk-list"></ul></li>
+        <li><ul class="devhelper_infos uk-list"></ul></li>
+        <li><ul class="devhelper_hints uk-list"></ul></li>
+        <li><ul class="devhelper_flows uk-list"></ul></li>
+        <li><ul class="devhelper_datasources uk-list">
+                <ul uk-accordion>
+                    <li class="repeatForDataSource">
+                        <a class="uk-accordion-title" href="#">
+                            <span class="swac_devhelper_sourcename"></span>
+                        </a>
+                        <div class="swac_devhelper_sets uk-accordion-content"></div>
+                    </li>
+                </ul>
+            </ul></li>
+        <li><ul class="devhelper_plugins uk-list">
+                <ul uk-accordion>
+                    <li class="repeatForPlugin">
+                        <a class="uk-accordion-title" href="#">
+                            <span class="swac_devhelper_pluginname"></span>
+                        </a>
+                        <div class="swac_devhelper_plugininfo uk-accordion-content"></div>
+                    </li>
+                </ul>
+            </ul></li>
+    </ul>
+</div>

@@ -1,0 +1,53 @@
+.swac_mediaeditor {
+  width: 100%;
+  height: 100%;
+}
+
+.swac_mediacontent {
+  position: relative;
+}
+/* Place all canvas over each other */
+.swac_mediacontent canvas {
+  position: absolute;
+}
+
+.swac_mediacontent video {
+  position: absolute;
+}
+
+.swac_drawlayer {
+  border: 2px solid green;
+}
+
+/*.swac_mediacontent {
+    width: 100%;
+    height: ;
+    overflow: scroll;
+}*/
+
+/*.swac_mediaeditorplugin {
+    display: none;
+}
+.swac_medialayer {
+    position:absolute;
+    left:0px;
+    top:0px;
+    max-height:100%;
+}
+
+#mediaeditor_hidden {
+    height: 1.65em;
+    transition:0.5s;
+}
+
+#deactivateThreshold:checked ~ #mediaeditor_hidden {
+    height:0px;
+    overflow: hidden;
+}
+
+.heatbridges_invisible {
+    margin-top: 1em;
+    transition: 0.5s;
+    height: 0px;
+    overflow: hidden;
+}*/

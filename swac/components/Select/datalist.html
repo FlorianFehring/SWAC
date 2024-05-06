@@ -1,0 +1,10 @@
+<input list="swac_select_datalist" class="uk-select" name="{requestor.id}">
+<datalist id="swac_select_datalist">
+    <option class="swac_repeatForSet" value="{id}" name="{name}">{name}</option>
+</datalist>
+<div class="swac_repeatForSet swac_dontdisplay" swac_datalistvalue="{id}">
+    <table class="uk-table uk-table-divider uk-table-striped">
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr class="swac_repeatForValue"><td>{attrName}</td><td>{*}</td></tr>
+    </table>
+</div>

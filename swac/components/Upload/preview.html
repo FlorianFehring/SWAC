@@ -1,0 +1,34 @@
+<div class="swac_upload uk-placeholder uk-text-center">
+    <span uk-icon="icon: cloud-upload"></span>
+    <span class="uk-text-middle" swac_lang="Upload.selectfile">Select file</span>
+    <div uk-form-custom>
+        <input class="uk-input swac_fileselect" type="file">
+        <span class="uk-link" swac_lang="Upload.draganddropfile">Drop file here</span>
+    </div>
+</div>
+<table class="uk-table uk-table-divider">
+    <thead>
+        <tr>
+            <th swac_lang="Upload.column_file">Datei</th>
+            <th swac_lang="Upload.column_type">Typ</th>
+            <th swac_lang="Upload.column_status">Status</th>
+            <th swac_lang="Upload.column_remove" class="uk-width-small">Löschen</th>
+        </tr>
+    </thead>
+    <tbody class="swac_upload_status">
+        <tr class="swac_repeatForSet">
+            <td><input attrname="title" value="{title}" class="uk-input uk-form-width-medium" /></td>
+            <td>{type}</td>
+            <td>{state}</td>
+            <td><button class="swac_upload_removeBtn uk-button uk-button-danger"><span uk-icon="icon: trash"></span></button></td>
+        </tr>
+    </tbody>
+</table>
+<progress class="uk-progress swac_upload_progressbar" value="0" max="100" hidden></progress>
+<button class="swac_upload_doBtn uk-input" swac_lang="Upload.uploadFilesButton">Ausstehende Dateien hochladen</button>
+<button class="swac_upload_ClrBtn uk-input" swac_lang="Upload.removeFilesButton">Alle Dateien entfernen</button>
+<div id="help_container"></div>
+<div class="uk-margin-large">
+    <h2>Vorschau</h2>
+    <div class="swac_upload_preview uk-grid uk-grid-medium uk-flex-center"></div>
+</div>

@@ -1,0 +1,21 @@
+@media screen {
+    .swac_visualmodel_drawarea {
+        border: 1px solid blue;
+    }
+}
+
+.swac_visualmodel_menue {
+    z-index: 2;
+}
+
+.swac_visualmodel_scenegraph li {
+    list-style-type: none;
+}
+
+.swac_visualmodel_ulhidden ul {
+    display: none;
+}
+
+.swac_visualmodel_legenddrop {
+    width: 750px;
+}

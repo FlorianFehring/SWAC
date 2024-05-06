@@ -1,0 +1,17 @@
+<fieldset class="uk-fieldset">
+    <ul class="swac_repeatForSet uk-list">
+        <li swac_id="{id}" swac_parent="{parent}">
+            <div class="swac_select_expandbutton uk-button">+</div>
+            <input id="select_{id}" class="uk-checkbox" type="checkbox" name="{name}" value="{id}">
+            <label for="select_{id}">{name}</label>
+            <ul class="swac_forChilds uk-list uk-list-disc">
+                <li class="swac_child">
+                    <div class="swac_select_expandbutton uk-button">+</div>
+                    <input id="select_{id}" class="uk-checkbox" type="checkbox" name="{name}" value="{id}">
+                    <label for="select_{id}">{name}</label>
+                    <ul class="swac_forChilds uk-list uk-list-disc"></ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</fieldset> 

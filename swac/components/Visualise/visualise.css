@@ -1,0 +1,26 @@
+[swa^="Visualise"] .swac_repeatedForSet {
+    margin: 2px;
+}
+.swac_visualise_legend_name {
+    font-weight: bold;
+}
+
+.swac_visualise_attributions {
+    font-size: 8pt;
+}
+
+.swac_percebtageLabel {
+    font-size: 2vw !important;
+}
+
+@media screen and (max-width: 959px) {
+    .swac_percebtageLabel {
+        font-size: 4vw !important;
+    }
+}
+
+@media screen and (max-width: 639px) {
+    .swac_percebtageLabel {
+        font-size: 6vw !important;
+    }
+}

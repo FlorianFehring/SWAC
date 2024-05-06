@@ -1,0 +1,40 @@
+.help-menu-wrapper{
+
+}
+.help .uk-offcanvas {
+    position: absolute;
+}
+
+.help .uk-offcanvas-bar{
+  background: rgb(248, 248, 248);
+  color: black;
+}
+
+.help .uk-offcanvas-bar h2{
+  color: black;
+}
+
+.help .uk-offcanvas a[aria-expanded="true"] {
+  color: black !important;
+}
+
+.uk-offcanvas-bar .requirements{
+  font-weight: bold;
+}
+
+.help span {
+  color: black;
+}
+
+/*close button*/
+.help .uk-offcanvas-bar .uk-offcanvas-close svg > line {
+    color: black;
+}
+
+/*makes offcanvas-bar fill entire screen on mobile*/
+@media only screen and (max-width: 600px) {
+    .uk-offcanvas-bar {
+        width: 100%;
+        padding-left: 2rem;
+    }
+}

@@ -1,0 +1,52 @@
+<div class="swac_worldmap2d_timelinedetail">
+    <div class="uk-grid-small uk-child-width-expand@s uk-text-center" uk-grid>
+    <div>
+        <table class="uk-table uk-table-divider uk-table-small">
+            <tr>
+                <td><span uk-icon="icon: clock"></span> <span swac_lang="Worldmap2d_Timeline.viewdate">Viewdate</span></td>
+                <td>
+                   <input class="swac_worldmap2d_timeline_viewdate uk-input uk-form-small uk-form-width-medium" id="form-horizontal-text" type="datetime-local" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"> 
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        
+    </div>
+    <div>
+        <table class="uk-table uk-table-divider uk-table-small">
+            <tr>
+                <td><span uk-icon="icon: eye"></span> <span swac_lang="Worldmap2d_Timeline.setscount">Sets</span></td>
+                <td class="swac_worldmap2d_timeline_setscount"></td>
+            </tr>
+            <tr>
+                <td><span uk-icon="icon: history"></span> <span swac_lang="Worldmap2d_Timeline.setfrom">Sets from</span></td>
+                <td> <span class="swac_worldmap2d_timeline_setsfrom"></span></td>
+            </tr>
+            <tr>
+                <td><span uk-icon="icon: future"></span> <span swac_lang="Worldmap2d_Timeline.setsuntil">Sets until</span></td>
+                <td><span class="swac_worldmap2d_timeline_setsuntil"></span></td>
+            </tr>
+        </table>
+    </div>
+</div>
+</div>
+<div class="swac_worldmap2d_timeline">
+    <span>
+        <a href="" class="swac_worldmap2d_playBtn uk-icon-button" uk-icon="play" uk-tooltip="Worldmap2d_Timeline.play"></a>
+        <span class="swac_worldmap2d_timeline_startTS" swac_lang_format="datetime"></span>
+    </span>
+    <input class="swac_worldmap2d_timeline_progress" type="range" value="0">
+    <span>
+        <span class="swac_worldmap2d_timeline_endTS" swac_lang_format="datetime"></span>
+        <a href="" class="swac_worldmap2d_downloadBtn uk-icon-button" uk-icon="download" uk-tooltip="Worldmap2d_Timeline.download"></a>
+    </span>
+</div>

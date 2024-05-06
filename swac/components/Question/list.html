@@ -1,0 +1,44 @@
+<form class="swac_question">
+    <div class="swac_repeatForSet">
+        <div class="uk-card uk-card-default uk-card-body" swac_id="{id}" swac_parent="{parent}">
+            <h1 class="uk-heading-line uk-text-center">{name}</h1>
+            <span class="swac_question_question">{question}</span>
+            <div class="swac_question_answerContainer uk-container">
+            </div>
+            <div class="swac_question_noty swac_dontdisplay"></div>
+            <div class="swac_forChilds">
+                <div class="swac_child">
+                    <h2 class="uk-heading-line">{name}</h2>
+                    <span class="swac_question_question">{question}</span>
+                    <div class="swac_question_answerContainer uk-container">
+                    </div>
+                    <div class="swac_question_noty swac_dontdisplay"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<button class="swac_question_sendbutton uk-button uk-button-primary uk-align-center">Question.send</button>
+<div class="swac_question_msg">
+</div>
+<div class="swac_question_countdown swac_dontdisplay uk-grid-small uk-child-width-auto" uk-grid uk-countdown="date: 2030-03-13T11:55:33+00:00">
+    <div>
+        <div class="uk-countdown-number uk-countdown-days"></div>
+        <div class="uk-countdown-label uk-margin-small uk-text-center uk-visible@s" swac_lang="Question.days"></div>
+    </div>
+    <div class="uk-countdown-separator">:</div>
+    <div>
+        <div class="uk-countdown-number uk-countdown-hours"></div>
+        <div class="uk-countdown-label uk-margin-small uk-text-center uk-visible@s" swac_lang="Question.hours"></div>
+    </div>
+    <div class="uk-countdown-separator">:</div>
+    <div>
+        <div class="uk-countdown-number uk-countdown-minutes"></div>
+        <div class="uk-countdown-label uk-margin-small uk-text-center uk-visible@s" swac_lang="Question.minutes"></div>
+    </div>
+    <div class="uk-countdown-separator">:</div>
+    <div>
+        <div class="uk-countdown-number uk-countdown-seconds"></div>
+        <div class="uk-countdown-label uk-margin-small uk-text-center uk-visible@s" swac_lang="Question.seconds"></div>
+    </div>
+</div>

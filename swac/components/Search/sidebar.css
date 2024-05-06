@@ -1,0 +1,36 @@
+/* 
+    Created on : 30.01.2019, 14:42:24
+    Author     : ffehring
+*/
+
+/* Style for left side main menue */
+#swac_searchbar {
+    position: static;
+    width: 300px;
+    position: absolute;
+    top: 100px;
+    z-index: 990;
+}
+
+#swac_searchbar_offcanvas {
+    position: absolute;
+    bottom: 0px;
+    height: 500px;
+    z-index: 9;
+}
+
+#swac_searchbar_toggle > span {
+    margin: 6px;
+    color: #ffffff;
+    background: #000000;
+    border: 1px solid #ffffff;
+}
+
+.swac_searchbar_toggle {
+    background: #FFFFDF;
+    display: block;
+    height: 31px;
+    width: 31px;
+    border: 1px solid black;
+    box-shadow: 5px 5px 10px silver inset;
+}

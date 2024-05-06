@@ -1,0 +1,27 @@
+<div class="swac_user_userarea">
+    <button class="uk-button uk-button-default " type="button"><span uk-icon="icon: user"></span><span class="user_username"></span></button>
+    <div uk-dropdown>
+        <ul class="uk-nav uk-dropdown-nav">
+            <li id="swac_user_logindialog" class="swac_dontdisplay">
+                <h3 swac_lang="User.login">Login</h3>
+                <div class="message-placeholder" swac_lang="User.enterlogindata">Enter your logindata</div>
+                <form class="swac_user_loginForms">
+                    <input name="swac_user_username" type="text" placeholder="User.username" class="swac_user_username uk-input uk-form-small uk-form-width-small" required autocomplete="username">
+                    <br><input name="swac_user_password" type="password" placeholder="User.userpwd" class="swac_user_password uk-input uk-form-small uk-form-width-small" required autocomplete="current-password">
+                    <br><button class="swac_user_loginButtons uk-button uk-button-default uk-form-small" type="button">User.login</button>
+                </form>
+                <a href="#" class="swac_user_register">User.registerhere</a>
+                <a href="#" class="swac_user_pwdlost">User.pwdlost</a>
+            </li>
+            <li class="swac_user_userarea swac_dontdisplay">
+                <a href="#" class="swac_user_logout">User.logout</a>
+            </li>
+            <li class="swac_user_usraccount swac_dontdisplay">
+                <a>User.account</a>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="swac_user_logining uk-card uk-card-body uk-card-primary swac_dontdisplay">
+    <div class="uk-align-center" uk-spinner="ratio: 5"></div> <span swac_lang="User.loginprogress"></span>
+</div>

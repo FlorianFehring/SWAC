@@ -1,0 +1,48 @@
+<ul uk-accordion>
+    <li class="uk-open">
+        <a class="uk-accordion-title" href="#"><span swac_lang="TestComponents.functiontests">Function tests</span></a>
+        <div class="uk-accordion-content">
+            <table class="uk-table uk-table-divider">
+                <thead>
+                    <tr>
+                        <th swac_lang="TestComponents.function">Function</th>
+                        <th swac_lang="TestComponents.parameters">Parameters</th>
+                        <th swac_lang="TestComponents.result">Result</th>
+                        <th swac_lang="TestComponents.messages">Messages</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="swac_testcomponents_repForFuncTestDesc">
+                        <td class="swac_testcomponents_funcname"></td>
+                        <td class="swac_testcomponents_params">
+                            <i class="swac_testcomponents_param"></i>
+                        </td>
+                        <td class="swac_testcomponents_result" colspan="2"></td>
+                    </tr>
+                    <tr class="swac_testcomponents_repForFuncTest">
+                        <td class="swac_testcomponents_testname"></td>
+                        <td class="swac_testcomponents_testparams">
+                            <u class="swac_testcomponents_value"></u>
+                        </td>
+                        <td class="swac_testcomponents_testresult"></td>
+                        <td class="swac_testcomponents_testmessages">
+                            <span class="swac_testcomponents_msgs uk-margin-small-right" uk-icon="mail"></span>
+                            <div class="uk-width-large" uk-drop>
+                                <div class="uk-card uk-card-body uk-card-default">
+                                    <div class="uk-drop-grid uk-child-width-1-2@m" uk-grid>
+                                        <div class="swac_testcomponents_errmsgs">
+                                            <b swac_lang="TestComponents.errors">Errors</b>
+                                        </div>
+                                        <div class="swac_testcomponents_warnmsgs">
+                                            <b swac_lang="TestComponents.warnings">Warnings</b>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </li>
+</ul>

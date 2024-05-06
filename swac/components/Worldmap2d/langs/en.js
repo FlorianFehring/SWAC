@@ -1,0 +1,27 @@
+var Worldmap2d_en = {
+    errorloadingmodel: "The model could not be loaded",
+    modelnotfound: "The model could not be found.",
+    no_model: "No model is available for this building.",
+    no_grounddata: "No address data is available for this building.",
+    value: "Value",
+    datafrom: "Data from",
+    setid: "Dataset No.",
+    lat: "Latitude",
+    lon: "Longitude",
+    height: "Height",
+    model_add: "Add model",
+    model_url: "Model url",
+    model_typeunknown: "Filetype not recognised",
+    model_typechoose: "Please select the matching filetype.",
+    model_typeselect: "Please select type",
+    fileurl_error: 'Could not download the file',
+    fileurl_html: 'It seems that the file is not a data file, but a HTML-Page. Klick <a href="%url%" target="_blank">here</a> to visit the page.',
+    model_selectsubmodel: 'Choose sub model',
+    model_subchoose: 'The resouce contains more than one submodel. Please choos which submodel(s) you want to show.',
+    model_subselectbtn: 'Show selected',
+    model_subsseperate: 'Show each sub model in separate layer.',
+    geojson_featuresmissing: 'The recived data is invalid geoJSON. Object >features< is missing.',
+    wms_tileerror: 'Atleast one tile could not be loaded. Click <a href="%url%" target="_blank">here</a> to view the WMS Server error.',
+    wms_baseurlentered: 'You entered a WMS base URL. The available layer could not be determined automatically. Please insert the name of the layer(s) you want to display. (Seperated by commata)'
+};
+export default Worldmap2d_en;

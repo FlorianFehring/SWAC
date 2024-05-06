@@ -1,0 +1,25 @@
+/* 
+    Created on : 17.07.2018, 13:26:26
+    Author     : ffehring
+*/
+#swac_guide_message {
+    z-index: 999;
+    position: fixed;
+    top: 33%;
+    left: 33%;
+}
+
+.swac_guide_highlight {
+    border: 1px solid red;
+    box-shadow: 5px 5px 5px red;
+}
+
+.bodybadage {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50px;
+    text-align: center;
+}

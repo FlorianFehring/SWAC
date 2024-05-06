@@ -1,0 +1,52 @@
+<div class="worldmap2d">
+    <div class="swac_worldmap2d_addmodel swac_dontdisplay"><input class="uk-input uk-width-5-6" type="url" placeholder="Worldmap2d.model_url"><button class="uk-button uk-width-1-6">Worldmap2d.model_add</button></div>
+    <div id="swac_worldmap_map" class="swac_worldmap_map">
+        <div id="plugins-wrapper" class="plugins-wrapper">
+            <div id="plugins" class="plugins">
+                <div class="swac_repeatForPluginCont"></div>
+            </div>
+        </div>
+    </div>
+    <div class="swac_worldmap_tooltip swac_dontdisplay">
+        <div class="swac_worldmap_tooltip_value">
+            <h3 class="swac_worldmap_valuename swac_dontdisplay"></h3>
+            <span swac_lang="Worldmap.value"></span>: <div class="swac_worldmap_value"></div>
+            <hr><span swac_lang="Worldmap.datafrom"></span>: <div class="swac_worldmap_ts"></div>
+            <br><span swac_lang="Worldmap.setid"></span>: <div class="swac_worldmap_setid"></div>
+        </div>
+        <div class="swac_worldmap_tooltip_position swac_dontdisplay">
+            <span swac_lang="Worldmap.lat"></span> <span class="swac_worldmap_latout"></span>
+            <br><span swac_lang="Worldmap.lon"></span> <span class="swac_worldmap_lonout"></span>
+            <br><span swac_lang="Worldmap.height"></span> <span class="swac_worldmap_heightout"></span>
+        </div>
+    </div>
+    <div class="swac_worldmap2d_addModelDialog" uk-modal>
+        <div class="uk-modal-dialog">
+            <div class="uk-modal-body">
+                <h2 class="uk-modal-title" swac_lang="Worldmap2d.model_typeunknown">Filetype unknown</h2>
+                <p swac_lang="Worldmap2d.model_typechoose">Please select the matching type:</p>
+                <select class="swac_worldmap2d_typeselect uk-select">
+                    <option value="none">Worldmap2d.model_typeselect</option>
+                    <option value="json">JSON</option>
+                    <option value="geojson">GeoJSON</option>
+                    <option value="shapefile">Shapefile</option>
+                    <option value="geotiff">GeoTIFF</option>
+                    <option value="wms">WMS</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="swac_worldmap2d_selectSubModel" uk-modal>
+        <div class="uk-modal-dialog">
+            <div class="uk-modal-body">
+                <h2 class="uk-modal-title" swac_lang="Worldmap2d.model_selectsubmodel">Select submodel</h2>
+                <p swac_lang="Worldmap2d.model_subchoose">Please select the submodels you want to show:</p>
+                <ul class="swac_worldmap2d_subselect uk-form-controls">
+                    <li class="swac_worldmap2d_repeatableForSubSelect"><label><input class="uk-checkbox" type="checkbox"> <span class="swac_worldmap2d_subselect_displayname"></span></label></li>
+                </ul>
+                <label><input class="swac_worldmap2d_subSelectSeparate uk-checkbox" type="checkbox" checked><span swac_lang="Worldmap2d.model_subsseperate"></span></label>
+                <button class="swac_worldmap2d_subselectbtn uk-button uk-button-primary" swac_lang="Worldmap2d.model_subselectbtn">Show</button>
+            </div>
+        </div>
+    </div>
+</div> 

@@ -1,0 +1,12 @@
+.swac_present_sort_un:before {
+    content: "\2195";
+    padding-right: 2px;
+}
+.swac_present_sort_up:before {
+    content: "\2191";
+    padding-right: 2px;
+}
+.swac_present_sort_dw:before {
+    content: "\2193";
+    padding-right: 2px;
+}

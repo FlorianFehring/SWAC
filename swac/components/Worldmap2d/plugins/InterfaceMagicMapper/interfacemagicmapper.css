@@ -1,0 +1,37 @@
+.interfacemagicmapper{
+    width: 100%;
+    height: 100%;
+}
+
+.interfacemagicmapper-buttons {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.interfacemagicmapper-accept-certificate-button {
+    margin-top: 10px;
+}
+
+@media only screen and (min-width: 768px) {
+    #interfacemagicmapper-accept-certificate-button {
+        margin-top: 0;
+    }
+    .interfacemagicmapper-buttons {
+        flex-direction: row;
+    }
+}
+
+.interfacemagicmapper-on-connected{
+    display: none;
+}
+.interfacemagicmapper-on-not-connected{
+    display: none;
+}
+.interfacemagicmapper-starting-connection{
+    display: none;
+}
+
+.interfacemagicmapper-ip-box .menu-button {
+    align-self: center;
+}

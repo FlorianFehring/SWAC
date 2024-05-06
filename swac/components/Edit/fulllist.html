@@ -1,0 +1,28 @@
+<div class="swac_editNotify"></div>
+<ul class="uk-list">
+    <li class="swac_repeatForSet" draggable="true">
+        <form class="swac_editForm">
+            <fieldset class="uk-fieldset">
+                <legend class="swac_edit_name uk-legend swac_editFormLegend">{name}</legend>
+                <div class="uk-margin swac_repeatForValue">
+                    <label class="uk-label">{attrName}</label>
+                    <br><input class="uk-input" name="{attrName}" value="{*}">
+                </div>
+            </fieldset>
+            <div class="uk-margin">
+                <button class="uk-button uk-button-default swac_editSaveButton">Edit.save</button>
+                <button class="uk-button uk-button-default swac_editDelButton">core.delete</button>
+            </div>
+        </form>
+    <li>
+</ul>
+<a class="swac_editAddSetButton uk-icon-button" href="#" uk-icon="plus" uk-tooltip="Edit.adddataset"></a>
+<!-- How to play reference information -->
+<table class="uk-table swac_edit_repeatForReftable">
+    <tbody>
+        <tr class="swac_edit_repeatForRef">
+            <td>{name}</td>
+            <td style="display:none"><a href="#" class="uk-icon-button swac_edit_deleteref" uk-icon="minus-circle" uk-tooltip="Edit.refDelete"></a></td>
+        </tr>
+    </tbody>
+</table>

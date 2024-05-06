@@ -1,0 +1,30 @@
+.navigation-menu {
+    position: absolute;
+    bottom: 0;
+    height: 300px;
+    z-index: 1003;
+    background: rgba(248, 248, 248, 0.97);
+    width: 100%;
+}
+
+.leaflet-control-container .leaflet-routing-container-hide {
+    display: none;
+}
+
+.pulse {
+    border: 5px solid #f34d4d;
+    -webkit-border-radius: 30px;
+    height: 30px;
+    width: 30px;
+    -webkit-animation: pulsate 1s ease-out;
+    -webkit-animation-iteration-count: infinite;
+}
+
+.navigation-menu .uk-table-small td {
+    padding: 5px 12px;
+    line-height: 1.25;
+}
+
+.navigation-menu:hover hr {
+    width: 100%;
+}

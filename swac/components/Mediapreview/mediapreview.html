@@ -1,0 +1,28 @@
+<div uk-filter="target: .swac_mediapreview_filter">
+    <!--Filter controls-->
+    <div class="uk-first-column">
+        <ul class="uk-subnav uk-subnav-pill swac_mediapreview_filterarea" uk-margin>
+            <li class="uk-active uk-first-column" uk-filter-control><a href="#">Mediapreview.filternone</a></li>
+            <li class="swac_mediapreview_filterattr swac_dontdisplay">
+                <div class="swac_mediapreview_filterattrname">AttributName</div>
+                <div class="uk-subnav uk-subnav-pill">
+                    <div uk-filter-control="filter: [AttributName='AttributWert']; group: AttributName">
+                        <a href="#" filterval="AttributWert">AttributWert</a>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <!--Filter items-->
+    <div class="swac_mediapreview_filter uk-grid-match uk-child-width-1-2@s uk-child-width-1-5@m uk-text-center" uk-grid>
+        <div class="swac_repeatForSet uk-grid-margin">
+            <span>{title}</span> <span>{name}</span>
+            <div class="uk-card uk-card-default uk-card-body">
+                <a class="swac_mediapreview_mediaarea" href="{link}" uk-tooltip="{title}"></a>
+                <div>
+                    <a href="" class="swac_mediapreview_editbutton uk-icon-button" uk-icon="pencil" uk-tooltip="Mediapreview.edit"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

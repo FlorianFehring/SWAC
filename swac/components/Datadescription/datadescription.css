@@ -1,0 +1,241 @@
+.swac_datadescription_value_col {
+    --color: transparent; 
+    height: 25px;
+    width: 25px;
+    /* border: 1px solid white; */
+    float: left;
+    background-color: var(--color);
+    border: 1px solid black;
+    margin: 0;
+    padding: 0;
+    text-align: inherit;
+    font: inherit;
+    border-radius: 0;
+    appearance: none;
+    cursor: pointer;
+}
+.swac_datadescription_value_col::-webkit-color-swatch {
+    border-color: transparent;
+}
+.swac_datadescription_value_col::-webkit-color-swatch {
+    border-color: transparent;
+}
+
+.swac_datadescription_attribute_border_color {
+    display: none;
+    --color: transparent; 
+    height: 30px;
+    width: 30px;
+    /* border: 1px solid white; */
+    float: left;
+    background-color: var(--color);
+    border: 1px solid black;
+    margin: 0;
+    padding: 0;
+    text-align: inherit;
+    font: inherit;
+    border-radius: 0;
+    appearance: none;
+    cursor: pointer;
+}
+.swac_datadescription_attribute_border_color::-webkit-color-swatch {
+    border-color: transparent;
+}
+.swac_datadescription_attribute_border_color::-webkit-color-swatch {
+    border-color: transparent;
+}
+
+.swac_datadescription_modal_border_col {
+    --color: transparent; 
+    display: inline-block;
+    vertical-align: middle;
+    height: 40px;
+    width: 100%;
+    max-width: 100%;
+    /* border: 1px solid white; */
+    float: left;
+    background-color: var(--color);
+    border: 1px solid black;
+    margin: 0;
+    padding: 0;
+    text-align: inherit;
+    font: inherit;
+    border-radius: 0;
+    appearance: none;
+    cursor: pointer;
+}
+.swac_datadescription_modal_border_col::-webkit-color-swatch {
+    border-color: transparent;
+}
+.swac_datadescription_modal_border_col::-webkit-color-swatch {
+    border-color: transparent;
+}
+
+.swac_repeatForLegend {
+    display: none;
+}
+
+.swac_datadescription_value_txt {
+    height: 25px;
+    color: #666;
+    cursor: pointer;
+}
+.swac_datadescription_value_txt:focus {
+    background: local;
+    border: 1px solid black;
+    color: black;
+    cursor: text;
+}
+.swac_datadescription_value_txt:focus-visible {
+    border: 1px solid black;
+    color: black;
+    cursor: text;
+}
+
+.swac_datadescription_value_value {
+    height: 25px;
+    color: #666;
+    cursor: pointer;
+}
+.swac_datadescription_value_value:focus {
+    background: local;
+    border: 1px solid black;
+    color: black;
+    cursor: text;
+}
+.swac_datadescription_value_value:focus-visible {
+    border: 1px solid black;
+    color: black;
+    cursor: text;
+}
+
+
+.input_nostyle {
+    border: none;
+    margin: 0;
+    padding: 0;
+    text-align: inherit;
+    font: inherit;
+    border-radius: 0;
+    appearance: none;
+    background: none;
+}
+.input_nostyle:focus {
+    outline: none;
+}
+.input_nostyle:focus-visible {
+    outline: none;
+}
+
+.uk-accordion {
+    display: grid;
+    grid-template-columns: max-content;
+    grid-template-rows: auto;
+    grid-template-areas: "swac_repeatedForLegend";
+}
+
+.swac_datadescription_datatitle {
+    grid-area: datatitle;
+    display: block;
+    font-size: 1.25rem;
+    line-height: 1.4;
+    color: #333;
+    overflow: hidden;
+    cursor: pointer;
+}
+.swac_datadescription_datatitle:focus {
+    border: 1px solid black;
+    color: black;
+    cursor: text;
+}
+.swac_datadescription_datatitle:focus-visible {
+    border: 1px solid black;
+    color: black;
+    cursor: text;
+}
+.swac_datadescription_removebutton {
+    display: none;
+    border: 1px dashed;
+    width: 25px;
+    height: 25px;
+    margin-left: 50px;
+}
+.swac_datadescription_removebutton > svg {
+    display: block;
+    margin: 0 auto;
+    transform: translateY(5%);
+}
+
+.swac_datadescription_removebutton:hover {
+    color: #F43434;
+}
+
+.swac_datadescription_wrapper_datadesc {
+    grid-area: datadesc;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+.swac_datadescription_datadesc {
+    color: #666;
+    cursor: pointer;
+}
+.swac_datadescription_datadesc:focus {
+    border: 1px solid black;
+    color: black;
+    cursor: text;
+}
+.swac_datadescription_datadesc:focus-visible {
+    border: 1px solid black;
+    color: text;
+}
+.swac_datadescription_attribution {
+    display: flex;
+    flex-direction: column;
+}
+.swac_datadescription_datacheck {
+    grid-area: datacheck;
+    transform:translateY(45%);
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.uk-accordion-title {
+    grid-area: accordion;
+}
+.swac_repeatedForLegend {
+    display: grid;
+    grid-template-columns: 30px auto 50px;
+    grid-template-rows: auto;
+    grid-template-areas: 
+        "datacheck datatitle accordion"
+        ". datadesc ."
+        ". wrapper_attribution .";
+}
+.swac_datadescription_wrapper_attribution {
+    grid-area: wrapper_attribution;
+    display: flex;
+    flex-direction: column;
+    width: max-content;
+    margin-top: 10px; 
+}
+.swac_datadescription_wrapper_title {
+    display: flex;
+}
+.swac_datadescription_attribute_delete {
+    display: none;
+    border: 1px dashed;
+    width: 30px;
+    height: 30px;
+    margin-left: 20px;
+    margin-right: 10px;
+}
+.swac_datadescription_attribute_delete:hover {
+    color: #F43434;
+}
+.swac_datadescription_attribute_delete > svg {
+    display: block;
+    margin: 0 auto;
+    transform: translateY(20%);
+}
+

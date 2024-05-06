@@ -1,0 +1,94 @@
+/* 
+    Created on : 30.01.2019, 15:21:18
+    Author     : ffehring
+*/
+.swac_worldmap_modelmenue {
+    width: 60%;
+    height: 205px;
+    border-radius: 100px;
+    z-index: 999;
+}
+
+.swac_worldmap_modelmenue div {
+    height: 40px;
+    border-radius: 10px;
+}
+
+.swac_worldmap_modelmenue_right {
+    z-index: 999;
+    width: 50px;
+}
+
+.swac_worldmap_modelmenue_right a {
+    color: white;
+    background-color: black;
+}
+
+.swac_worldmap_modelmenue_left {
+    z-index: 999;
+    width: 50px;
+}
+
+.swac_worldmap_modelmenue_left a {
+    color: white;
+    background-color: black;
+}
+
+.suitability_0 svg {
+    border: 2px solid red;
+}
+
+.suitability_1 svg {
+    border: 2px solid yellow;
+}
+
+.suitability_2 svg {
+    border: 2px solid green;
+}
+
+.suitability_7 svg {
+    border: 2px solid orange;
+}
+
+.colorbutton_red {
+    height: 25px;
+    width: 25px;
+    background-color: red;
+    border: 1px solid white;
+    float: left;
+}
+
+.colorbutton_yellow {
+    height: 25px;
+    width: 25px;
+    background-color: yellow;
+    border: 1px solid white;
+    float: left;
+}
+
+.colorbutton_orange {
+    height: 25px;
+    width: 25px;
+    background-color: orange;
+    border: 1px solid white;
+    float: left;
+}
+
+.colorbutton_green {
+    height: 25px;
+    width: 25px;
+    background-color: green;
+    border: 1px solid white;
+    float: left;
+}
+
+.swac_worldmap_modelmenue_showdetail {
+    text-transform: uppercase;
+    text-shadow: 1px 1px #333333;
+    font-weight: bolder;
+}
+
+.swac_loading {
+    border: 1px solid #333333;
+    background-color: #FFFFDF;
+}

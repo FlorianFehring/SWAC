@@ -1,0 +1,72 @@
+
+.swac_worldmap2d_timeline {
+    position: absolute;
+    bottom: 0px;
+    z-index: 9999;
+    display: inline-grid;
+    grid-template-columns: 150px auto 150px;
+    width: 100%;
+    background: #4d4444;
+    color: #ffffff;
+}
+
+.swac_worldmap2d_timeline_progress {
+    -webkit-appearance: none; /* Hides the slider so that custom slider can be made */
+    width: auto; /* Specific width is required for Firefox. */
+    background: transparent; /* Otherwise white in Chrome */
+}
+
+input[class="swac_worldmap2d_timeline_progress"]::-webkit-slider-runnable-track, input[class="swac_worldmap2d_timeline_progress"]::-moz-range-track, input[class="swac_worldmap2d_timeline_progress"]::-ms-track {
+    box-sizing: border-box;
+    border: solid 1px #da974e;
+    height: 0.5em;
+    border-radius: 0.25em;
+    color: transparent; /* needed for input[type='range']::-ms-track */
+}
+
+input[type=range]::-moz-range-track {
+ width: 100%;
+ height: 19px;
+ cursor: pointer;
+ box-shadow: 0 4px 4px rgba(0,0,0,0.3) inset;
+ background: #F0FFFF;
+ border-radius: 20px;
+ border: 0.2px solid #010101;
+}
+
+.swac_worldmap2d_timelinedetail {
+    position: absolute;
+    left: 50%;
+    -webkit-transform: translate(-50%, 10px);
+    transform: translate(-50%, 10px);
+    bottom: 25px;
+    width: 90%;
+    height: 70px;
+    border: 1px solid black;
+    border-radius: 25px;
+    background: #4d4444;
+    color: #fff;
+    overflow: hidden;
+}
+
+[swac_lang_format="datetime"] {
+    font-size: 8pt;
+}
+
+.swac_worldmap2d_timelinedetail:hover {
+  height: 150px;
+  animation-name: scrollin;
+  animation-duration: 2s;
+  transform: translate(-50%, 0px);
+  -webkit-transform: translate(-50%, 0px);
+}
+
+@keyframes scrollin {
+  from {
+    transform: translate(-50%, 100px);
+    -webkit-transform: translate(-50%, 100px);
+  }
+  to {
+    transform: translate(-50%, 0px);
+    -webkit-transform: translate(-50%, 0px);}
+}

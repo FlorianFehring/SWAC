@@ -1,0 +1,42 @@
+<div uk-grid>
+    <div class="uk-width-expand@m">
+        <div class="swac_visualmodel_drawarea"></div>
+        <div class="swac_visualmodel_legend">
+            <a uk-icon="info" alt="Visualmodel.legend"></a>
+            <div class="swac_visualmodel_legenddrop" uk-drop="pos: left-center">
+                <div class="uk-card uk-card-body uk-card-default uk-card-small uk-column-1-4">
+                    <dl>
+                        <dt class="swac_visualmodel_legenddt"></dt>
+                        <dd class="swac_visualmodel_legenddd"></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="swac_visualmodel_menue uk-width-1-5@m">
+        <ul class="swac_visualmodel_menueswitcher uk-subnav uk-subnav-pill" uk-switcher>
+            <li class="swac_visualmodel_scenegraph_menue"><a href="#">Visualmodel.scenegraph</a></li>
+            <li class="swac_repeatForPluginNav"><a href="#"></a></li>
+        </ul>
+
+        <ul class="uk-switcher uk-margin">
+            <li class="swac_visualmodel_scenegraph">
+                <ul>
+                    <li class="swac_repeatForSet" swac_parent="{parent}">
+                        <span><a href="#" uk-icon="icon: plus; ratio: 0.5"></a> <a href="#" swac_id="{id}">{name}</a></span>
+                        <ul class="swac_forChilds">
+                            <li class="swac_child swac_visualmodel_ulhidden">
+                                <span><a href="#" uk-icon="icon: plus; ratio: 0.5"></a> <a href="#" swac_id="{id}">{name}</a></span>
+                                <ul class="swac_forChilds"></ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li class="swac_repeatForPluginCont">
+                <!-- Plugin will add content here -->
+            </li>
+        </ul>
+    </div>
+</div>

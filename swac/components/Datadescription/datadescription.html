@@ -1,0 +1,49 @@
+<h2 class="swac_datadescription_legendtitle" swac_lang="Datadescription.legendtitle"></h2>
+<ul uk-accordion="uk-accordion" class="uk-accordion" animation="false" multiple="true" style="width: max-content">
+<!-- <ul> -->
+    <li class="swac_repeatForLegend uk-open">
+        <input class="uk-checkbox swac_datadescription_datacheck" type="checkbox">
+        <div class="swac_datadescription_wrapper_title">
+            <input class="swac_datadescription_datatitle input_nostyle" href="#" uk-tooltip="{txt_desc}" />
+            <input class="swac_datadescription_attribute_border_color" type="color" />
+            <span class="swac_datadescription_attribute_delete" uk-icon="icon: trash; ratio: 1" uk-toggle="target: .swac_datadescription_delete_modal"></span>
+        </div>
+        <a class="uk-accordion-title"></a>
+        <div class="swac_datadescription_wrapper_datadesc">
+        <input class="swac_datadescription_datadesc input_nostyle" value="{txt_desc}" />
+        </div>
+        <div class="swac_datadescription_wrapper_attribution uk-accordion-content">
+            <div class="swac_datadescription_attribution"></div>
+            <div class="swac_datadescription_wrapper_button">
+                <button class="uk-button uk-button-small uk-button-default swac_datadescription_addbutton" type="button" swac_lang="Datadescription.addButton"></button>
+            </div>
+        </div>
+    </li>
+</ul>
+<button class="uk-button uk-bottom-small uk-button-default" type="button" uk-toggle="target: .swac_datadescription_modal" swac_lang="Datadescription.addNewAttribute"></button>
+
+<!-- Modal for new Attribute -->
+<div class="swac_datadescription_modal"uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title" swac_lang="Datadescription.modal_title"></h2>
+        <div class="uk-margin">
+            <label class="uk-form-label" swac_lang="Datadescription.modal_attribute"></label>
+            <input class="uk-input swac_datadescription_modal_attribute_name" type="text" />
+        </div>
+        <div style="margin-top: 10px; margin-bottom: 60px"> 
+            <label class="uk-form-label" swac_lang="Datadescription.modal_border_color"></label>
+            <input class="swac_datadescription_modal_border_col" type="color" style="--color: #000000" />
+        </div>
+        <div class="uk-margin">
+            <label class="uk-form-label" swac_lang="Datadescription.modal_visualise"></label>    
+            <input class="uk-checkbox swac_datadescription_modal_visualise" style="width: 20px; height: 20px" type="checkbox" checked />
+        </div>
+        <p class="uk-text-right">
+            <input class="uk-button uk-button-default uk-modal-close" type="button" value="Datadescription.cancelButton" />
+            <input class="uk-button uk-button-primary swac_datadescription_new_attribute_button" type="button" value="Datadescription.saveButton" />
+        </p>
+    </div>
+</div>
+<!--##Datadescription.attribution##: <div class="swac_datadescrpiton_attribution">
+    <a href="{sourcelink}">{sourcename}</a>
+</div>-->

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title swac_lang="core.appOffline_title">SWAC offline</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+<!--        <link rel="stylesheet" type="text/css" href="/SWAC/swac/offline/css/offline.css">
+        <noscript>
+        <link rel="stylesheet" type="text/css" href="../../../css/noscript.css">
+        </noscript>-->
+
+        <link rel="stylesheet" type="text/css" href="/SWAC/swac/libs/uikit/css/uikit.min.css">
+        <script src="/SWAC/swac/libs/uikit/js/uikit.min.js"></script>
+        <script src="/SWAC/swac/libs/uikit/js/uikit-icons.min.js"></script>
+        <script src="/SWAC/swac/swac.js" type="module"></script>
+    </head>
+    <body>
+        <header id="head_navigation" swa="Navigation FROM ../../../data/routes.json"></header>
+        <div id="translate" swa="Translator FROM ../../../data/translator/translatorexample.json"></div>
+        <noscript>
+        <div class="noscript_nav">
+            <a href="sitemap.html" class="uk-button uk-button-primary">Sitemap</a>
+            <br>Bitte aktiviere Javascript, um die bestmögliche Ansicht zu haben. / Please activate Javascript for the best experience.
+        </div>
+        </noscript>
+
+        <article>
+            <div class="uk-align-center uk-card uk-card-default uk-card-body uk-width-1-2@m">
+                <h3 class="uk-card-title" swac_lang="core.appOffline_title">Content offline not available</h3>
+                <span uk-icon="icon: bolt; ratio: 5"></span>
+                <p swac_lang="core.appOffline_pagedesc">You are working offline and the content you requested is not available offline.
+                    <br>Please connect to the network to get this page.</p>
+            </div>
+        </article>
+        <footer>
+            <a href="about/privacy.html">Privacy policy / Datenschutzerklärung</a>
+            <a href="about/imprint.html">Imprint / Impressum</a>
+            <a class="toplink" href="#">Top</a>
+        </footer>
+    </body>
+</html>

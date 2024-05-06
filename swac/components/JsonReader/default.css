@@ -1,0 +1,12 @@
+textarea {
+    width: 100%;
+    height: 400px;
+}
+
+.swac_jsonreader_repeatForKey {
+    display: none;
+}
+
+.swac_jsonreader_repeatForCollection, .swac_jsonreader_repeatForDataKey, .swac_jsonreader_repeatForDataset, .swac_jsonreader_repeatForDataValue {
+    display: none;
+}

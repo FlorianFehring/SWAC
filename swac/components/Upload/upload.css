@@ -1,0 +1,22 @@
+.swac_upload_ident {
+    width: 50px;
+    height: 5px;
+    float: left;
+}
+
+.swac_upload_uploading {
+    animation: swac_uploading_fade 5s infinite;
+}
+
+.swac_upload_uploaded {
+    background: #66CDAA;
+}
+
+@keyframes swac_uploading_fade {
+  from {background: #FFA500;}
+  to {background: #FFFACD;}
+}
+
+.swac_repeatForUpload {
+    display: none;
+}
