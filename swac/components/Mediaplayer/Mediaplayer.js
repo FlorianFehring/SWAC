@@ -444,6 +444,7 @@ export default class Mediaplayer extends View {
         this.titleEnded = null;
         this.synth = window.speechSynthesis;
         this.clickedTitle; // Title last clicked on
+        this.cortryTo = null;
     }
 
     init() {
@@ -529,7 +530,7 @@ export default class Mediaplayer extends View {
                 }
                 document.addEventListener("swac_serviceworker_msg", (msg) => {
                     // Only use the cached messages and do not look at non media files
-                    if (msg.detail.includes('"type":"cached"') && !msg.detail.includes('.css') 
+                    if (msg.detail.includes('"type":"cached"') && !msg.detail.includes('.css')
                             && !msg.detail.includes('.html') && !msg.detail.includes('.json')
                             && !msg.detail.includes('.js') && !msg.detail.includes('.php')) {
                         let forTitle = JSON.parse(msg.detail);
@@ -1104,24 +1105,19 @@ export default class Mediaplayer extends View {
                 }
             }
         }
-        let curTimeStr = this.formatSecondsToReadable(this.progressElem.value);
-        for (let curCurTimeElem of this.curListTimeElems)
-            curCurTimeElem.innerHTML = curTimeStr;
+
         // Get title at second
         let secTitle = this.getTitleAtSecond(this.progressElem.value);
         if (!secTitle) {
             clearInterval(this.interval);
             UIkit.modal.alert(SWAC.lang.dict.Mediaplayer.title_none);
         }
-//        console.log('play second ' + this.progressElem.value + ' with title ' + secTitle.title, this.actMediaElem);
         // Get next to play title
         let nextTitle = this.getNextTitle();
-//        console.log('next title >' + nextTitle.title + '< on ' + nextTitle.startsec);
         if (secTitle.skip && this.clickedTitle !== secTitle) {
             this.progressElem.value = nextTitle.startsec;
             return;
         }
-
         // Check if title is at end and should be stopped
         if (this.actTitle && this.actTitle.autostop && this.progressElem.value >= nextTitle.startsec) {
             this.stopPlay();
@@ -1131,7 +1127,7 @@ export default class Mediaplayer extends View {
             this.progressElem.value++;
             return;
         }
-
+        // Switch to next title
         if (this.actTitle !== secTitle) {
             this.actTitle = secTitle;
             this.titleEnded = null;
@@ -1177,6 +1173,7 @@ export default class Mediaplayer extends View {
                     thisRef.titleEnded = thisRef.actTitle;
                 });
             }
+
             // Update playnow information
             this.updateCurrentTitleInformation(this.actTitle);
 
@@ -1196,30 +1193,25 @@ export default class Mediaplayer extends View {
                 navigator.mediaSession.playbackState = 'playing';
             }
         }
-
-        // update playtime for title
-        let playtime = this.progressElem.value - this.actTitle.startsec;
-        for (let curTimeElem of this.curTitleTimeElems) {
-            curTimeElem.innerHTML = this.formatSecondsToReadable(playtime);
-        }
-
+        // Update media playtime if timeline was clicked before
         if (this.timelineclicked) {
-            this.actMediaElem.currentTime = playtime;
+            this.actMediaElem.currentTime = this.progressElem.value - this.actTitle.startsec;
             this.timelineclicked = false;
         }
-
-        // Check if playtime matches playpoint on element
-        if (this.actMediaElem && (this.actMediaElem.currentTime < playtime - 1 || this.actMediaElem.currentTime > playtime + 1)) {
-            let mediaRoundTime = Math.round(this.actMediaElem.currentTime);
-            Msg.info('Mediaplayer', 'Correcting playtime from ' + playtime + ' to ' + mediaRoundTime, this.requestor);
-            let diff = playtime - mediaRoundTime;
-            playtime = playtime - diff;
-            this.progressElem.value = this.progressElem.value - diff;
+        // Update playlist progress
+        this.progressElem.value = this.actTitle.startsec + this.actMediaElem.currentTime;
+        let listPlayTime = this.formatSecondsToReadable(this.progressElem.value);
+        for (let curCurTimeElem of this.curListTimeElems)
+            curCurTimeElem.innerHTML = listPlayTime;
+        // update playtime for title
+        let titlePlayTime = this.formatSecondsToReadable(this.actMediaElem.currentTime);
+        for (let curTimeElem of this.curTitleTimeElems) {
+            curTimeElem.innerHTML = titlePlayTime;
         }
 
         // Start fadeout if title has reached position of fadeout
         if (this.actMediaElem && this.actTitle.fadeout) {
-            let leftseconds = this.actMediaElem.duration - playtime;
+            let leftseconds = this.actMediaElem.duration - this.actMediaElem.currentTime;
             if (this.actTitle.fadeout === leftseconds)
                 this.fadeout(this.actMediaElem, this.actTitle.fadeout);
         }
@@ -1929,7 +1921,7 @@ export default class Mediaplayer extends View {
         for (let curSource in this.data) {
             // iterate over titles
             for (let curSet of this.data[curSource].getSets()) {
-                if(!curSet)
+                if (!curSet)
                     continue;
                 // Get media path
                 let basepath = this.options.mediaBasePath;
