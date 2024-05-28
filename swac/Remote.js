@@ -14,7 +14,7 @@ remoteHandler.running = 0;
 
 document.addEventListener('uiComplete', function () {
     // Clear syncstates
-    if (window.location.search.indexOf('cleardatasourcestates=true') > 0) {
+    if (window.location.search.indexOf('clearstates=true') > 0) {
         localStorage.removeItem('swac_datasourceStates');
         Msg.warn('Remote', 'Cleared datasourceStates');
     }
@@ -418,7 +418,7 @@ remoteHandler.determineMatchingResource = function (fromName, mode) {
             Msg.warn('Remove', 'URL >' + sourceRef.url + '< is known as protected and you dont have access.');
         } else if (remoteHandler.datasourceStates[sourceRef.url + '_' + mode].status >= 400) {
             let link = window.location.href;
-            link += link.includes('?') ? '&cleardatasourcestates=true' : '?cleardatasourcestates=true';
+            link += link.includes('?') ? '&clearstates=true' : '?clearstates=true';
 
             Msg.warn('Remote', 'URL >' + sourceRef.url
                     + '< is known as not applicable for operation >' + mode + '<. Last test on: '
