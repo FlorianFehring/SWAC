@@ -1,5 +1,5 @@
-<input list="swac_select_datalist" class="uk-select" name="{requestor.id}">
-<datalist id="swac_select_datalist">
+<input list="swac_select_datalist_{requestor.id}" class="uk-select" name="{requestor.id}">
+<datalist id="swac_select_datalist_{requestor.id}">
     <option class="swac_repeatForSet" value="{id}" name="{name}">{name}</option>
 </datalist>
 <div class="swac_repeatForSet swac_dontdisplay" swac_datalistvalue="{id}">
