@@ -177,6 +177,13 @@ Example parameter:\n\
                     });
                 }
             }, this.requestor.id);
+
+            // Transfer required attribute from SWA-Statement to input element (allows browser check of required inputs)
+            let selectElem = this.requestor.querySelector('select');
+            if (selectElem && this.requestor.getAttribute('required')) {
+                selectElem.setAttribute('required', true);
+            }
+
             resolve();
         });
     }
@@ -212,8 +219,9 @@ Example parameter:\n\
         for (let curInputElem of inputElems) {
             if (curInputElem.type === 'checkbox')
                 curInputElem.addEventListener('change', this.onChangeCheckbox.bind(this));
-            else
+            else {
                 curInputElem.addEventListener('change', this.onChangeInput.bind(this));
+            }
         }
 
         if (this.options.expandSources.size > 0) {
@@ -225,7 +233,6 @@ Example parameter:\n\
                 expandElem.parentNode.removeChild(expandElem);
             }
         }
-
     }
 
 // Deprecated use registerBehavior instead
@@ -280,9 +287,9 @@ Example parameter:\n\
             if (this.options.onSelect !== null) {
                 this.options.onSelect(evt, elem.value);
                 // Set selection for direct access
-                if(this.requestor.value.length < 1)
+                if (this.requestor.value.length < 1)
                     this.requestor.value = elem.value;
-                else 
+                else
                     this.requestor.value += ',' + elem.value;
             }
         } else {
@@ -290,7 +297,7 @@ Example parameter:\n\
             if (this.options.onUnselect !== null) {
                 this.options.onUnselect(evt, elem.value);
                 // Set selection for direct access
-                this.requestor.value = this.requestor.value.replace(','+elem.value,'').replace(elem.value);
+                this.requestor.value = this.requestor.value.replace(',' + elem.value, '').replace(elem.value);
             }
         }
         // Call onChange function
