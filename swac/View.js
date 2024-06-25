@@ -501,7 +501,7 @@ export default class View extends Component {
                 this.remCoverMsg();
                 // Copy innerHTML as template                
                 // Replace special placeholder for requestor.id
-                this.requestor.innerHTML = this.requestor.innerHTML.replace('{requestor.id}', this.requestor.id);
+                this.requestor.innerHTML = this.requestor.innerHTML.replaceAll('{requestor.id}', this.requestor.id);
                 // Readd error msg
                 if (dataloadErrorMsg)
                     this.requestor.appendChild(dataloadErrorMsg);
@@ -534,7 +534,7 @@ export default class View extends Component {
                     // Get content from response
                     txtprom.then(function (templatecode) {
                         // Replace special placeholder for requestor.id
-                        thisRef.requestor.innerHTML = templatecode.replace('{requestor.id}', thisRef.requestor.id);
+                        thisRef.requestor.innerHTML = templatecode.replaceAll('{requestor.id}', thisRef.requestor.id);
                         // Add bottomInView element
                         let endViElem = document.createElement('span');
                         thisRef.requestor.appendChild(endViElem);
