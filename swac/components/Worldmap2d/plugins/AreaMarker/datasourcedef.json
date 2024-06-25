@@ -1,0 +1,229 @@
+{
+    "list": [
+        {
+            "name": "Base tables",  
+            "desc": "SmartMonitoring base tables",
+            "version": "3.0 Alpha",
+            "state": [
+                {
+                    "name": "tbl_observedobject",
+                    "type": "rest",
+                    "method": "defs",
+                    "fromName": "tbl_observedobject"
+                },
+                {
+                    "name": "tbl_location",
+                    "type": "rest",
+                    "method": "defs",
+                    "fromName": "tbl_location"
+                },
+                {
+                    "name": "tbl_location_join_oo",
+                    "type": "rest",
+                    "method": "defs",
+                    "fromName": "tbl_location_join_oo"
+                },
+                {
+                    "name": "tbl_area",
+                    "type": "rest",
+                    "method": "defs",
+                    "fromName": "tbl_area"
+                }
+            ],
+            "collections": [
+                {
+                    "name": "tbl_observedobject",
+                    "fromName": "tbl_observedobject",
+                    "method": "cdefs",
+                    "body": {
+                        "name": "tbl_observedobject",
+                        "attributes": [
+                            {
+                                "isIdentity": true,
+                                "isAutoIncrement": true,
+                                "isNullable": false,
+                                "name": "id",
+                                "type": "bigserial"
+                            },
+                            {
+                                "name": "name",
+                                "type": "varchar(255)"
+                            },
+                            {
+                                "name": "description",
+                                "type": "varchar(255)"
+                            },
+                            {
+                                "name": "mac",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "ip",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "icon",
+                                "type": "varchar(255)"
+                            },
+                            {
+                                "name": "manualcapture",
+                                "type": "boolean"
+                            },
+                            {
+                                "name": "datacapture",
+                                "type": "boolean"
+                            },
+                            {
+                                "name": "data_collection",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "measurerate",
+                                "type": "int4"
+                            },
+                            {
+                                "name": "meta_collection",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "ootype_id",
+                                "type": "int8"
+                            },
+                            {
+                                "name": "parent_id",
+                                "type": "int8"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "tbl_location",
+                    "fromName": "tbl_location",
+                    "method": "cdefs",
+                    "body": {
+                        "name": "tbl_location",
+                        "attributes": [
+                            {
+                                "isIdentity": true,
+                                "isAutoIncrement": true,
+                                "isNullable": false,
+                                "name": "id",
+                                "type": "bigserial"
+                            },
+                            {
+                                "name": "name",
+                                "type": "varchar(255)"
+                            },
+                            {
+                                "name": "description",
+                                "type": "varchar(255)"
+                            },
+                            {
+                                "name": "street",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "houseno",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "postcode",
+                                "type": "varchar(10)"
+                            },
+                            {
+                                "name": "city",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "country",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "floor",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "apartment",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "room",
+                                "type": "varchar(64)"
+                            },
+                            {
+                                "name": "coordinates",
+                                "type": "geometry(Point,4326)"
+                            },
+                            {
+                                "name": "parent_id",
+                                "type": "int8"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "tbl_location_join_oo",
+                    "fromName": "tbl_location_join_oo",
+                    "method": "cdefs",
+                    "body": {
+                        "name": "tbl_location_join_oo",
+                        "attributes": [
+                            {
+                                "isIdentity": true,
+                                "isAutoIncrement": true,
+                                "isNullable": false,
+                                "name": "id",
+                                "type": "bigserial"
+                            },
+                            {
+                                "name": "valid_from",
+                                "type": "timestamp"
+                            },
+                            {
+                                "name": "valid_until",
+                                "type": "timestamp"
+                            },
+                            {
+                                "name": "loc_id",
+                                "type": "int8"
+                            },
+                            {
+                                "name": "oo_id",
+                                "type": "int8"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "tbl_area",
+                    "fromName": "tbl_area",
+                    "method": "cdefs",
+                    "body": {
+                        "name": "tbl_area",
+                        "attributes": [
+                            {
+                                "isIdentity": true,
+                                "isAutoIncrement": true,
+                                "isNullable": false,
+                                "name": "id",
+                                "type": "bigserial"
+                            },
+                            {
+                                "name": "name",
+                                "type": "varchar"
+                            },
+                            {
+                                "name": "description",
+                                "type": "varchar"
+                            },
+                            {
+                                "name": "color",
+                                "type": "varchar"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

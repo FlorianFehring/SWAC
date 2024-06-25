@@ -1,0 +1,37 @@
+<div id="com" class="overlay com">
+    <div id="com-box" class="com-box box-medium">
+        <div class="box-medium-content">
+            <img id="com-button-close" class="com-button-close button-close" src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/x.svg">
+            <div class="titlecontainer">
+                <div class="title" swac_lang="Worldmap2d_CreateObjectModal.title">Create new object at point</div>
+                <hr>
+            </div>
+            <form class="com-form uk-form-stacked">
+                <label class="uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateObjectModal.name">Object's name</label>
+                <input type="text" class="com-name uk-input uk-margin-small-bottom" placeholder="Worldmap2d_CreateObjectModal.name_placeholder" maxlength="255" required>
+                <label class="com-type-label uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateObjectModal.type">Object type</label>
+                <div class="com-type-placeholder"></div>
+                <label class="com-parent-label uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateObjectModal.parent">Parent object</label>
+                <div class="com-parent-placeholder"></div>
+                <label class="uk-form-label" swac_lang="Worldmap2d_CreateObjectModal.description">Description</label>
+                <textarea class="com-description uk-textarea uk-margin-small-bottom" placeholder="Worldmap2d_CreateObjectModal.description_placeholder" maxlength="255"></textarea>
+                
+                <label class="uk-form-label" swac_lang="Worldmap2d_CreateObjectModal.status">Status</label>
+                <select class="com-status uk-select uk-margin-small-bottom">
+                    <option value="false" type="number" default swac_lang="Worldmap2d_CreateObjectModal.status_true">Measuring pending</option>
+                    <option value="true" type="number" swac_lang="Worldmap2d_CreateObjectModal.status_false">Measuring completed</option>
+                </select>
+                <label class="uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateObjectModal.lat">Latitude</label>
+                <input class="com-lat uk-input uk-margin-small-bottom" type="number" min="-90" max="90" step="any" required="">
+                <label class="uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateObjectModal.lng">Longitude</label>
+                <input class="com-lng uk-input uk-margin-small-bottom" type="number" min="-180" max="180" step="any" required="">
+                <label class="uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateObjectModal.collection">Table name for object values</label>
+                <input type="text" class="com-collection uk-input uk-margin-small-bottom" placeholder="Worldmap2d_CreateObjectModal.collection_placeholder" maxlength="255">
+                <div class="button-wrapper uk-margin-small">
+                    <button id="com-back-button" class="com-back-button uk-button uk-button-default" swac_lang="Worldmap2d_CreateObjectModal.buttonCancel">Cancel</button>
+                    <button class="uk-button uk-button-default" type="submit" swac_lang="Worldmap2d_CreateObjectModal.buttonCreate">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

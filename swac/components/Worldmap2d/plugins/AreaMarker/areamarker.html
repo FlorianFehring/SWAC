@@ -1,0 +1,50 @@
+<div
+  id="savebutton"
+  class="savebutton sidebar-button"
+>
+  <img
+    class="toggleclickinteractionbutton-map-pin sidebar-icon"
+    src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/map-pin.svg"
+  />
+</div>
+<div
+  id="toggleeditorbutton"
+  class="toggleeditorbutton sidebar-button"
+>
+<img
+class="toggleclickinteractionbutton-map-pin sidebar-icon"
+src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/map-pin.svg"
+/>
+</div>
+<div
+  id="examplebutton"
+  class="examplebutton sidebar-button"
+>
+<img
+class="toggleclickinteractionbutton-map-pin sidebar-icon"
+src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/map-pin.svg"
+/>
+</div>
+<div id="createareamodal" class="overlay createareamodal">
+  <div id="createareamodal-box" class="createareamodal-box box-medium">
+      <div class="box-medium-content">
+          <img id="createareamodal-button-close" class="createareamodal-button-close button-close" src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/x.svg">
+          <div class="titlecontainer">
+              <div class="title" swac_lang="Worldmap2d_CreateAreaModal.title">Create Area </div>
+              <hr>
+          </div>
+          <form class="createareamodal-form uk-form-stacked">
+              <label class="uk-form-label uk-text-bold" swac_lang="Worldmap2d_CreateAreaModal.name">Name of the Area Point</label>
+              <input type="text" class="createareamodal-name uk-input uk-margin-small-bottom" placeholder="Worldmap2d_CreateAreaModal.name_placeholder" maxlength="255" required="">
+              <label class="uk-form-label" swac_lang="Worldmap2d_CreateAreaModal.color">Color</label>
+              <input type="text" class="createareamodal-color uk-input uk-margin-small-bottom" placeholder="Worldmap2d_CreateAreaModal.color_placeholder" maxlength="255" required="">
+             <label class="uk-form-label" swac_lang="Worldmap2d_CreateAreaModal.description">Description</label>
+              <textarea class="createareamodal-description uk-textarea uk-margin-small-bottom" placeholder="Worldmap2d_CreateAreaModal.description_placeholder" maxlength="255"></textarea>
+              <div class="button-wrapper uk-margin-small">
+                  <button id="createareamodal-back-button" class="createareamodal-back-button uk-button uk-button-default" swac_lang="Worldmap2d_CreateAreaModal.buttonCancel">Cancel</button>
+                  <button class="uk-button uk-button-default" type="submit" swac_lang="Worldmap2d_CreateAreaModal.buttonCreate">Create</button>
+              </div>
+          </form>
+      </div>
+  </div>
+</div>

@@ -1,6 +1,6 @@
-var Worldmap2d_CreateMeasurementModal_en = {
-  title: 'Create Measurement Point',
-  name: 'Name of the Measurement Point',
+var Worldmap2d_CreateObjectModal_en = {
+  title: 'Create Object',
+  name: 'Name of the object',
   name_placeholder: 'Type new name',
   status: 'Status',
   status_true: 'Measuring pending',
@@ -13,7 +13,8 @@ var Worldmap2d_CreateMeasurementModal_en = {
   description: 'Description',
   description_placeholder: 'Type description',
   buttonCancel: 'Cancel',
-  buttonCreate: 'Create'
+  buttonCreate: 'Create',
+  createsuc: 'Object was created successfully at the position.'
 };
 
-export default Worldmap2d_CreateMeasurementModal_en;
+export default Worldmap2d_CreateObjectModal_en;
