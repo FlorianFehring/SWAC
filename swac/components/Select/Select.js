@@ -179,9 +179,15 @@ Example parameter:\n\
             }, this.requestor.id);
 
             // Transfer required attribute from SWA-Statement to input element (allows browser check of required inputs)
-            let selectElem = this.requestor.querySelector('select');
-            if (selectElem && this.requestor.getAttribute('required')) {
-                selectElem.setAttribute('required', true);
+            if (this.requestor.getAttribute('required')) {
+                let selectElem = this.requestor.querySelector('select');
+                if (selectElem) {
+                    selectElem.setAttribute('required', true);
+                }
+                let inputElem = this.requestor.querySelector('input');
+                if (inputElem) {
+                    inputElem.setAttribute('required', true);
+                }
             }
 
             resolve();
