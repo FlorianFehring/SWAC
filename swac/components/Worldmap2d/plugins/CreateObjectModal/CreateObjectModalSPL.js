@@ -66,7 +66,8 @@ export default class CreateObjectModalSPL extends Plugin {
                 ooTypeAttr: 'ootype_id',
                 ooParentAttr: 'parent_id',
                 ooCompletedAttr: 'complete',
-                ooCollectionAttr: 'collection',
+                ooDataCollectionAttr: 'data_collection',
+                ooMetaCollectionAttr: 'meta_collection',
                 locLatAttr: 'lat',
                 locLonAttr: 'lon',
                 locLatLonAttr: 'coordinates',
@@ -85,7 +86,7 @@ export default class CreateObjectModalSPL extends Plugin {
             this.options.requiredAttrs.set('default', ['']);
         }
 
-        this.desc.opts[0] = {
+        this.desc.opts[6] = {
             name: 'parentRequestor',
             desc: 'Requestor for getting possible parents for the new created object. Null value disables the selection of parent object.',
             example: {
@@ -131,7 +132,8 @@ export default class CreateObjectModalSPL extends Plugin {
             this.input_lng = this.com.querySelector('.com-lng');
             this.input_name = this.com.querySelector('.com-name');
             this.input_description = this.com.querySelector('.com-description');
-            this.input_collection = this.com.querySelector('.com-collection');
+            this.input_data_collection = this.com.querySelector('.com-datacollection');
+            this.input_meta_collection = this.com.querySelector('.com-metacollection');
             this.select_status = this.com.querySelector('.com-status');
 
             // dynmically import type selection with select comp for measurement point based on datasource
@@ -252,7 +254,8 @@ export default class CreateObjectModalSPL extends Plugin {
                     [this.options.saveMapping.ooTypeAttr]: typeId,
                     [this.options.saveMapping.ooParentAttr]: this.select_parent.value,
                     [this.options.saveMapping.ooCompletedAttr]: this.select_status.value,
-                    [this.options.saveMapping.ooCollectionAttr]: this.input_collection.value.toLowerCase(),
+                    [this.options.saveMapping.ooDataCollectionAttr]: this.input_data_collection.value.toLowerCase(),
+                    [this.options.saveMapping.ooMetaCollectionAttr]: this.input_meta_collection.value.toLowerCase(),
                     [this.options.saveMapping.locLatAttr]: this.input_lat.value,
                     [this.options.saveMapping.locLonAttr]: this.input_lng.value,
                     [this.options.saveMapping.locLatLonAttr]: 'POINT( ' + this.input_lng.value + ' ' + this.input_lat.value + ')',
@@ -273,7 +276,8 @@ export default class CreateObjectModalSPL extends Plugin {
                         [this.options.saveMapping.ooTypeAttr]: typeId,
                         [this.options.saveMapping.ooParentAttr]: this.select_parent.value,
                         [this.options.saveMapping.ooCompletedAttr]: this.select_status.value,
-                        [this.options.saveMapping.ooCollectionAttr]: this.input_collection.value.toLowerCase(),
+                        [this.options.saveMapping.ooDataCollectionAttr]: this.input_data_collection.value.toLowerCase(),
+                        [this.options.saveMapping.ooMetaCollectionAttr]: this.input_meta_collection.value.toLowerCase(),
                         [this.options.saveMapping.locLatAttr]: this.input_lat.value,
                         [this.options.saveMapping.locLonAttr]: this.input_lng.value,
                         [this.options.saveMapping.locLatLonAttr]: 'POINT( ' + this.input_lng.value + ' ' + this.input_lat.value + ')',
@@ -346,7 +350,8 @@ export default class CreateObjectModalSPL extends Plugin {
     clearInputs() {
         this.input_name.value = '';
         this.input_description.value = '';
-        this.input_collection.value = '';
+        this.input_data_collection.value = '';
+        this.input_meta_collection.value = '';
         this.select_status.value = 'false';
         if (this.select_type)
             this.select_type.value = 0;
