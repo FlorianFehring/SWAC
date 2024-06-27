@@ -218,7 +218,9 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                             fromWheres: fromWheres
                                         });
                                     } else {
-                                        resolve({});
+                                        resolve({
+                                            origresponse: txt
+                                        });
                                     }
                                 }).catch(function (err) {
                                     reject(err);
