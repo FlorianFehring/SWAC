@@ -394,11 +394,13 @@ Example parameter:\n\
             let inputElem = this.requestor.querySelector('input');
             let value = inputElem.value;
             let listElem = this.requestor.querySelector('[value="' + value + '"]');
-            let selected = {
-                name: listElem.getAttribute('name'),
-                value: value
-            };
-            inputs.push(selected);
+            if (listElem) {
+                let selected = {
+                    name: listElem.getAttribute('name'),
+                    value: value
+                };
+                inputs.push(selected);
+            }
         }
 
         return inputs;
