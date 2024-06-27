@@ -265,6 +265,9 @@ export default class CreateObjectModalSPL extends Plugin {
         }, true)
         // Search for oid in response
         let oid = this.searchAttrInStruct('id', lastres);
+        // If oid could not extracted try useing the whole answer (may is the id)
+        if (!oid)
+            oid = parseInt(lastres[0].origresponse);
 
         // Save location
         if (this.options.locationRequestor) {
@@ -287,7 +290,9 @@ export default class CreateObjectModalSPL extends Plugin {
             }, true)
             // Search for oid in response
             let locid = this.searchAttrInStruct('id', lastres);
-
+            // If locid could not extracted try useing the whole answer (may is the id)
+            if (!locid)
+                locid = parseInt(lastres[0].origresponse);
             // Save join
             if (this.options.joinRequestor) {
                 if (oid == null || locid === null) {
