@@ -2,6 +2,7 @@ import SWAC from '../../../../swac.js';
 import Msg from '../../../../Msg.js';
 import Plugin from '../../../../Plugin.js';
 import ViewHandler from '../../../../ViewHandler.js';
+import Model from '../../../../Model.js';
 
 export default class CreateObjectModalSPL extends Plugin {
     constructor(options = {}) {
@@ -96,6 +97,34 @@ export default class CreateObjectModalSPL extends Plugin {
         if (!options.parentRequestor)
             this.options.parentRequestor = null;
 
+        this.desc.opts[7] = {
+            name: 'dataTablesRequestors',
+            desc: 'Requestors for getting possible data tables. Requestors are organised in a map, where the type name is the key. Requestors can use placeholder {typeId}'
+        };
+        if (!options.dataTablesRequestors) {
+            this.options.dataTablesRequestors = new Map();
+            this.options.dataTablesRequestors.set('default', {
+                fromName: 'tbl_datatype',
+                fromWheres: {
+                    filter: 'ootype_id,eq,{typeId}',
+                }
+            });
+        }
+
+        this.desc.opts[8] = {
+            name: 'metaTablesRequestors',
+            desc: 'Requestors for getting possible meta tables. Requestors are organised in a map, where the type name is the key. Requestors can use placeholder {typeId}'
+        };
+        if (!options.metaTablesRequestors) {
+            this.options.metaTablesRequestors = new Map();
+            this.options.metaTablesRequestors.set('default', {
+                fromName: 'tbl_metatype',
+                fromWheres: {
+                    filter: 'ootype_id,eq,{typeId}',
+                }
+            });
+        }
+
         // Attributes for internal usage
         this.com = null;
         this.buttonCloseMeasurementmodal = null;
@@ -145,8 +174,11 @@ export default class CreateObjectModalSPL extends Plugin {
                 this.select_type.setAttribute('swa', 'Select FROM ' + this.options.typesRequestor.fromName + ' TEMPLATE datalist');
                 this.select_type.setAttribute('required', true);
                 type_placeholder.appendChild(this.select_type);
-                let viewHandler = new ViewHandler()
-                viewHandler.load(this.select_type);
+                let viewHandler = new ViewHandler();
+                let thisRef = this;
+                viewHandler.load(this.select_type).then(function () {
+                    thisRef.select_type.querySelector('input').addEventListener('input',thisRef.onChangeType.bind(thisRef));
+                });
             } else {
                 let type_label = this.com.querySelector('.com-type-label');
                 type_label.classList.add('swac_dontdisplay');
@@ -228,6 +260,68 @@ export default class CreateObjectModalSPL extends Plugin {
     }
 
     /**
+     * Will be executed, if the type of the new object was changed.
+     */
+    onChangeType() {
+        // clear last values
+        this.dataTableDef = null;
+        this.metaTableDef = null;
+
+        // Check if input is empty
+        if(!this.select_type.swac_comp.getInputs())
+            return;
+
+        // Get typeId
+        let typeId = this.select_type.swac_comp.getInputs()[0].value;
+        let typeName = this.select_type.swac_comp.getInputs()[0].name;
+
+        let thisRef = this;
+        // Get dataTableRequestor for selected type
+        let dtr = this.options.dataTablesRequestors.get(typeName);
+        if(!dtr) {
+            Msg.info('CreateObjectModalSPL','There is no dataTabelRequestor defined for >'+typeName+'< useing >default>',this.requestor.parent);
+            dtr = this.options.dataTablesRequestors.get('default');
+        }
+        let jdtr = Object.assign({}, dtr);
+        jdtr.fromWheres = JSON.parse(JSON.stringify(jdtr.fromWheres).replaceAll('{typeId}',typeId));
+
+        // Load possibile data attributes
+        Model.load(jdtr).then(function (colDefs) {
+            thisRef.dataTableDef = colDefs;
+            let labelElem = thisRef.requestor.parent.querySelector('.com-datacollection_label');
+            let inputElem = thisRef.requestor.parent.querySelector('.com-datacollection');
+            if (!colDefs || colDefs.length === 0) {
+                labelElem.classList.add('swac_dontdisplay');
+                inputElem.classList.add('swac_dontdisplay');
+            } else {
+                labelElem.classList.remove('swac_dontdisplay');
+                inputElem.classList.remove('swac_dontdisplay');
+            }
+        });
+
+        let mtr = this.options.metaTablesRequestors.get(typeName);
+        if(!mtr) {
+            Msg.info('CreateObjectModalSPL','There is no metaTabelRequestor defined for >'+typeName+'< useing >default>',this.requestor.parent);
+            mtr = this.options.metaTablesRequestors.get('default');
+        }
+        let jmtr = Object.assign({}, mtr);
+        jmtr.fromWheres = JSON.parse(JSON.stringify(jmtr.fromWheres).replaceAll('{typeId}',typeId));
+        // Load possible meta attributes
+        Model.load(jmtr).then(function (colDefs) {
+            thisRef.metaTableDef = colDefs;
+            let labelElem = thisRef.requestor.parent.querySelector('.com-metacollection_label');
+            let inputElem = thisRef.requestor.parent.querySelector('.com-metacollection');
+            if (!colDefs || colDefs.length === 0) {
+                labelElem.classList.add('swac_dontdisplay');
+                inputElem.classList.add('swac_dontdisplay');
+            } else {
+                labelElem.classList.remove('swac_dontdisplay');
+                inputElem.classList.remove('swac_dontdisplay');
+            }
+        });
+    }
+
+    /**
      * updates the marker to the current longitude/latitude from the input fields
      * moves the map to the new marker position
      */
@@ -237,13 +331,28 @@ export default class CreateObjectModalSPL extends Plugin {
         this.map.viewer.panTo({lat: this.input_lat.value, lng: this.input_lng.value});
     }
 
-    // save new measurement point to database
+    // save new object to database
     async save() {
         let Model = window.swac.Model;
         let typeId = null;
         if (this.select_type) {
             typeId = this.select_type.swac_comp.getInputs()[0].value;
         }
+
+        let data_col_name = this.input_data_collection.value.toLowerCase();
+        let thisRef = this;
+        if (data_col_name) {
+            thisRef.createTableForObject(data_col_name, this.dataTableDef);
+        }
+
+        let meta_col_name = this.input_meta_collection.value.toLowerCase();
+        if (meta_col_name) {
+            thisRef.createTableForObject(meta_col_name, this.metaTableDef);
+        }
+
+
+        return;
+
 
         // Save object
         let lastres = await Model.save({
@@ -254,8 +363,8 @@ export default class CreateObjectModalSPL extends Plugin {
                     [this.options.saveMapping.ooTypeAttr]: typeId,
                     [this.options.saveMapping.ooParentAttr]: this.select_parent.value,
                     [this.options.saveMapping.ooCompletedAttr]: this.select_status.value,
-                    [this.options.saveMapping.ooDataCollectionAttr]: this.input_data_collection.value.toLowerCase(),
-                    [this.options.saveMapping.ooMetaCollectionAttr]: this.input_meta_collection.value.toLowerCase(),
+                    [this.options.saveMapping.ooDataCollectionAttr]: data_col_name,
+                    [this.options.saveMapping.ooMetaCollectionAttr]: meta_col_name,
                     [this.options.saveMapping.locLatAttr]: this.input_lat.value,
                     [this.options.saveMapping.locLonAttr]: this.input_lng.value,
                     [this.options.saveMapping.locLatLonAttr]: 'POINT( ' + this.input_lng.value + ' ' + this.input_lat.value + ')',
@@ -279,8 +388,8 @@ export default class CreateObjectModalSPL extends Plugin {
                         [this.options.saveMapping.ooTypeAttr]: typeId,
                         [this.options.saveMapping.ooParentAttr]: this.select_parent.value,
                         [this.options.saveMapping.ooCompletedAttr]: this.select_status.value,
-                        [this.options.saveMapping.ooDataCollectionAttr]: this.input_data_collection.value.toLowerCase(),
-                        [this.options.saveMapping.ooMetaCollectionAttr]: this.input_meta_collection.value.toLowerCase(),
+                        [this.options.saveMapping.ooDataCollectionAttr]: data_col_name,
+                        [this.options.saveMapping.ooMetaCollectionAttr]: meta_col_name,
                         [this.options.saveMapping.locLatAttr]: this.input_lat.value,
                         [this.options.saveMapping.locLonAttr]: this.input_lng.value,
                         [this.options.saveMapping.locLatLonAttr]: 'POINT( ' + this.input_lng.value + ' ' + this.input_lat.value + ')',
@@ -324,8 +433,75 @@ export default class CreateObjectModalSPL extends Plugin {
     }
 
     /**
+     * Creates a table for an object, useing given datadefinition (SmartDataDDL)
+     *
+     * @param {String} tableName Name of the table to create
+     * @param {Object[]} colDefs Column definitions @see at SmartDataDDL
+     */
+    createTableForObject(tableName, colDefs) {
+        // If there are no colDefs no table should be generated
+        if (!colDefs || colDefs.length === 0) {
+            Msg.info('CreateObjectModalSPL', 'There is no definitions for coloumns of a datatabel. No datatable will be created for >' + this.input_name.value + '<', this.requestor.parent);
+            return;
+        }
+
+        // Get SmartData datasource
+        let csource, storage;
+        for (let curSource of window.swac.config.datasources) {
+            let urlstartIndex = curSource.url.indexOf('/smartdata/');
+            if (urlstartIndex > 0) {
+                csource = curSource.url.substring(0, urlstartIndex + 11);
+            }
+            let storagestartIndex = curSource.url.indexOf('?storage=');
+            if (storagestartIndex > 0) {
+                storage = curSource.url.substring(storagestartIndex);
+            }
+            if (csource)
+                break;
+        }
+        if (!csource) {
+            Msg.warn('CreateObjectModalSPL', 'There is no datasource available for createing new tables.', this.requestor.parent);
+            return;
+        }
+
+        let body = {
+            name: tableName,
+            attributes: []
+        };
+        for (let curDef of colDefs) {
+            if (!curDef)
+                continue;
+            let colDef = {
+                name: curDef.name,
+                type: curDef.type,
+                isNullable: curDef.isnullable,
+                isIdentity: curDef.isidentity,
+                isAutoIncrement: curDef.isautoincrement,
+                refCollection: curDef.refcollection,
+                refAttribute: curDef.refattribute,
+                refStorage: curDef.refstorage,
+                refOnDelete: curDef.refondelete,
+                refOnUpdate: curDef.refonupdate
+            }
+            body.attributes.push(colDef);
+        }
+
+        let url = csource + 'collection/' + tableName;
+        if (storage)
+            url += storage;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+    }
+
+    /**
      * Searches an attribute in a struct (object, array) and returns it's value.
-     * 
+     *
      * @param {String} attr Attribute to search
      * @param {Array | Object} struct Array or object to search in
      * @returns {Mixed} Value of that attribute or null if not found
