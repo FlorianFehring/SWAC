@@ -77,6 +77,26 @@ export default class Worldmap2d extends View {
             path: SWAC.config.swac_root + 'libs/turf/turf.min.js',
             desc: 'turf geospatial algorithms'
         }
+        this.desc.depends[11] = {
+            name: 'draw',
+            path: SWAC.config.swac_root + 'libs/leaflet/draw/leaflet.draw.js',
+            desc: 'leaflet.draw extension'
+        }
+        this.desc.depends[12] = {
+            name: 'draw-style',
+            path: SWAC.config.swac_root + 'libs/leaflet/draw/leaflet.draw.css',
+            desc: 'leaflet.draw style extension'
+        }
+        this.desc.depends[13] = {
+            name: 'polyline',
+            path: SWAC.config.swac_root + 'libs/leaflet/PolylineMeasure/Leaflet.PolylineMeasure.js',
+            desc: 'leaflet.PolylineMeasure extension'
+        }
+        this.desc.depends[14] = {
+            name: 'polyline-style',
+            path: SWAC.config.swac_root + 'libs/leaflet/PolylineMeasure/Leaflet.PolylineMeasure.css',
+            desc: 'leaflet.PolylineMeasure style extension'
+        }
 
         this.desc.templates[0] = {
             name: 'Worldmap2d',
@@ -336,16 +356,23 @@ export default class Worldmap2d extends View {
         }
         if (!options.corsavoidurl)
             this.options.corsavoidurl = null;
-        
+
         this.desc.opts[27] = {
             name: 'customMarkerTooltip',
             desc: 'HTML code to show in tooltips of Markers. Can use placeholders like {name} for replacement with sets data. Is a map with default entry and entries for datasources (fromName). Each entry is an object with >content> and >options< attribute. Content is HTML code, options is an object containing options that are availabel for leaflet popups. (See leaflet docu)'
         }
         if (!options.customMarkerTooltip)
             this.options.customMarkerTooltip = new Map();
-            this.options.customMarkerTooltip.set("default", {
-                content: '<b>{name}</b><br><img swac_hideOnEmpty="{icon}" src="{icon} widht="200" height="100">',
-                options: { direction: 'top', sticky: false, opacity: 0.8, offset: [0, -22] }});
+        this.options.customMarkerTooltip.set("default", {
+            content: '<b>{name}</b><br><img swac_hideOnEmpty="{icon}" src="{icon} widht="200" height="100">',
+            options: {direction: 'top', sticky: false, opacity: 0.8, offset: [0, -22]}});
+
+        this.desc.opts[28] = {
+            name: 'showMeasureingTool',
+            desc: 'Shows a measureing tool that allows the user to measure distances.'
+        }
+        if (typeof options.showMeasureingTool === 'undefined')
+            this.options.showMeasureingTool = true;
 
         // document plugins
         if (!options.plugins) {
@@ -475,7 +502,7 @@ export default class Worldmap2d extends View {
             center: [this.options.startPointLat, this.options.startPointLon],
             zoom: this.options.zoom,
             attributionControl: this.options.attributionControl,
-            zoomControl: false,
+            zoomControl: false
         });
 
         // Add base layers
@@ -504,6 +531,95 @@ export default class Worldmap2d extends View {
             document.dispatchEvent(new CustomEvent(thisRef.requestor.id + '_map_moved', {detail: e}));
             thisRef.onViewportChange(e);
         });
+
+        // Activate measureing tools
+        if (this.options.showMeasureingTool) {
+            L.control.polylineMeasure({
+                position: 'topleft', // Position to show the control. Values: 'topright', 'topleft', 'bottomright', 'bottomleft'
+                unit: 'kilometres', // Default unit the distances are displayed in. Values: 'kilometres', 'landmiles', 'nauticalmiles'
+                useSubunits: true, // Use subunits (metres/feet) in tooltips if distances are less than 1 kilometre/landmile
+                clearMeasurementsOnStop: true, // Clear all measurements when Measure Control is switched off
+                showBearings: false, // Whether bearings are displayed within the tooltips
+                bearingTextIn: 'In', // language dependend label for inbound bearings
+                bearingTextOut: 'Out', // language dependend label for outbound bearings
+                tooltipTextFinish: 'Click to <b>finish line</b><br>',
+                tooltipTextDelete: 'Press SHIFT-key and click to <b>delete point</b>',
+                tooltipTextMove: 'Click and drag to <b>move point</b><br>',
+                tooltipTextResume: '<br>Press CTRL-key and click to <b>resume line</b>',
+                tooltipTextAdd: 'Press CTRL-key and click to <b>add point</b>',
+                // language dependend labels for point's tooltips
+                measureControlTitleOn: 'Turn on PolylineMeasure', // Title for the Measure Control going to be switched on
+                measureControlTitleOff: 'Turn off PolylineMeasure', // Title for the Measure Control going to be switched off
+                measureControlLabel: '&#8614;', // Label of the Measure Control (Unicode symbols are possible)
+                measureControlClasses: [], // Classes to apply to the Measure Control
+                showClearControl: false, // Show a control to clear all the measurements
+                clearControlTitle: 'Clear Measurements', // Title text to show on the Clear Control
+                clearControlLabel: '&times', // Label of the Clear Control (Unicode symbols are possible)
+                clearControlClasses: [], // Classes to apply to Clear Control
+                showUnitControl: false, // Show a control to change the units of measurements
+                unitControlUnits: ["kilometres", "landmiles", "nauticalmiles"],
+                // measurement units being cycled through by using the Unit Control
+                unitControlTitle: {// Title texts to show on the Unit Control
+                    text: 'Change Units',
+                    kilometres: 'kilometres',
+                    landmiles: 'land miles',
+                    nauticalmiles: 'nautical miles'
+                },
+                unitControlLabel: {// Unit symbols to show in the Unit Control and measurement labels
+                    metres: 'm',
+                    kilometres: 'km',
+                    feet: 'ft',
+                    landmiles: 'mi',
+                    nauticalmiles: 'nm'
+                },
+                unitControlClasses: [], // Classes to apply to the Unit Control
+                tempLine: {// Styling settings for the temporary dashed line
+                    color: '#00f', // Dashed line color
+                    weight: 2                   // Dashed line weight
+                },
+                fixedLine: {// Styling for the solid line
+                    color: '#006', // Solid line color
+                    weight: 2                   // Solid line weight
+                },
+                arrow: {// Styling of the midway arrow 
+                    color: '#000', // Color of the arrow
+                },
+                startCircle: {// Style settings for circle marker indicating the starting point of the polyline
+                    color: '#000', // Color of the border of the circle
+                    weight: 1, // Weight of the circle
+                    fillColor: '#0f0', // Fill color of the circle
+                    fillOpacity: 1, // Fill opacity of the circle
+                    radius: 3                   // Radius of the circle
+                },
+                intermedCircle: {// Style settings for all circle markers between startCircle and endCircle
+                    color: '#000', // Color of the border of the circle
+                    weight: 1, // Weight of the circle
+                    fillColor: '#ff0', // Fill color of the circle
+                    fillOpacity: 1, // Fill opacity of the circle
+                    radius: 3                   // Radius of the circle
+                },
+                currentCircle: {// Style settings for circle marker indicating the latest point of the polyline during drawing a line
+                    color: '#000', // Color of the border of the circle
+                    weight: 1, // Weight of the circle
+                    fillColor: '#f0f', // Fill color of the circle
+                    fillOpacity: 1, // Fill opacity of the circle
+                    radius: 6                   // Radius of the circle
+                },
+                endCircle: {// Style settings for circle marker indicating the last point of the polyline
+                    color: '#000', // Color of the border of the circle
+                    weight: 1, // Weight of the circle
+                    fillColor: '#f00', // Fill color of the circle
+                    fillOpacity: 1, // Fill opacity of the circle
+                    radius: 3                   // Radius of the circle
+                },
+            }).addTo(this.viewer);
+        }
+
+        // Activate context menu
+//        let popup = L.popup().setContent(this.requestor.querySelector('.swac_worldmap2d_contextMenue'));
+//        this.viewer.on('contextmenu', function (e) {
+//            popup.setLatLng(e.latlng).openOn(thisRef.viewer);
+//        });
     }
 
     /**
@@ -522,7 +638,7 @@ export default class Worldmap2d extends View {
             try {
                 geoJSON.geometry.coordinates = [eval('set.' + datasource.latitudeAttr), eval('set.' + datasource.longitudeAttr)]
             } catch (e) {
-                Msg.error('Worldmap2d', 'Configured latitude attribute >' + datasource.latitudeAttr 
+                Msg.error('Worldmap2d', 'Configured latitude attribute >' + datasource.latitudeAttr
                         + '< or longitude attribute >' + datasource.longitudeAttr + '< where not found in set >' + set.swac_fromName + '[' + set.id + ']<.', this.requestor);
                 return;
             }
@@ -608,13 +724,13 @@ export default class Worldmap2d extends View {
             marker = L.marker(latlng, markeropts);
             // Create tooltip
             let popopts = this.options.customMarkerTooltip.get(geoJSON.set.swac_fromName);
-            if(!popopts) {
+            if (!popopts) {
                 popopts = this.options.customMarkerTooltip.get('default');
             }
             let content = popopts.content;
             // Replace placeholder in code
-            for(let curVar in geoJSON.set) {
-                content = content.replaceAll('{'+curVar+'}',geoJSON.set[curVar]);
+            for (let curVar in geoJSON.set) {
+                content = content.replaceAll('{' + curVar + '}', geoJSON.set[curVar]);
             }
             marker.bindTooltip(content, popopts.options);
         }
@@ -649,52 +765,52 @@ export default class Worldmap2d extends View {
      * 
      * @returns {Object} The Area that was added to the map.
      */
-  addArea(geoJSON, color="red") {
-    if (!geoJSON.geometry) {
-      Msg.error(
-        'Worldmap2d',
-        'Feature does not contain a geometry can not create Area.',
-        this.requestor
-      )
-      return
+    addArea(geoJSON, color = "red") {
+        if (!geoJSON.geometry) {
+            Msg.error(
+                    'Worldmap2d',
+                    'Feature does not contain a geometry can not create Area.',
+                    this.requestor
+                    )
+            return
+        }
+        let lines_arr = []
+        geoJSON.geometry.coordinates.forEach((coordinate) => {
+            const latlng = L.latLng(coordinate[1], coordinate[0])
+            if (!latlng) {
+                Msg.warn(
+                        'Worldmap2d',
+                        'Could not create area for set >' +
+                        geoJSON.set.swac_fromName +
+                        '[' +
+                        geoJSON.set.id +
+                        ']<: Geocoordinates are missing or invalid.',
+                        this.requestor
+                        )
+                return
+            }
+            lines_arr.push([latlng.lng, latlng.lat])
+        })
+        let lines = L.polygon(lines_arr, {color: color})
+        lines.feature = geoJSON
+        if (!this.areas[geoJSON.set.swac_fromName])
+            this.areas[geoJSON.set.swac_fromName] = []
+        this.areas[geoJSON.set.swac_fromName][geoJSON.set.id] = lines
+        if (!this.overlayLayers[geoJSON.set.swac_fromName]) {
+            this.overlayLayers[geoJSON.set.swac_fromName] = new L.layerGroup().addTo(
+                    this.viewer
+                    )
+            this.layerControl.addOverlay(
+                    this.overlayLayers[geoJSON.set.swac_fromName],
+                    geoJSON.set.swac_fromName
+                    )
+        } else {
+            this.overlayLayers[geoJSON.set.swac_fromName].clearLayers()
+        }
+        this.overlayLayers[geoJSON.set.swac_fromName].addLayer(lines)
+        return lines
     }
-    let lines_arr = []
-    geoJSON.geometry.coordinates.forEach((coordinate) => {
-      const latlng = L.latLng(coordinate[1], coordinate[0])
-      if (!latlng) {
-        Msg.warn(
-          'Worldmap2d',
-          'Could not create area for set >' +
-            geoJSON.set.swac_fromName +
-            '[' +
-            geoJSON.set.id +
-            ']<: Geocoordinates are missing or invalid.',
-          this.requestor
-        )
-        return
-      }
-      lines_arr.push([latlng.lng, latlng.lat])
-    })
-    let lines = L.polygon(lines_arr,{color: color})
-    lines.feature = geoJSON
-    if (!this.areas[geoJSON.set.swac_fromName])
-      this.areas[geoJSON.set.swac_fromName] = []
-    this.areas[geoJSON.set.swac_fromName][geoJSON.set.id] = lines
-    if (!this.overlayLayers[geoJSON.set.swac_fromName]) {
-      this.overlayLayers[geoJSON.set.swac_fromName] = new L.layerGroup().addTo(
-        this.viewer
-      )
-      this.layerControl.addOverlay(
-        this.overlayLayers[geoJSON.set.swac_fromName],
-        geoJSON.set.swac_fromName
-      )
-    } else {
-      this.overlayLayers[geoJSON.set.swac_fromName].clearLayers()
-    }
-    this.overlayLayers[geoJSON.set.swac_fromName].addLayer(lines)
-    return lines
-  }
-  /**
+    /**
      * Removes given marker from the map.
      * @param {Object} marker The marker that will be removed
      */
@@ -702,18 +818,18 @@ export default class Worldmap2d extends View {
         this.overlayLayers[marker.feature.set.swac_fromName].removeLayer(marker);
         delete this.markers[marker.feature.set.swac_fromName][marker.feature.set.id];
     }
-  /**
-   * Removes given markers and Area from the map.
-   * @param {Object} marker The markers that will be removed
-   * @param {Object} area The Area that will be removed
-   */
-  removeArea(markers,area) {
-    for (let marker of markers) {
-      this.overlayLayers[marker.feature.set.swac_fromName].removeLayer(marker)
-      delete this.markers[marker.feature.set.swac_fromName][marker.feature.set.id]
+    /**
+     * Removes given markers and Area from the map.
+     * @param {Object} marker The markers that will be removed
+     * @param {Object} area The Area that will be removed
+     */
+    removeArea(markers, area) {
+        for (let marker of markers) {
+            this.overlayLayers[marker.feature.set.swac_fromName].removeLayer(marker)
+            delete this.markers[marker.feature.set.swac_fromName][marker.feature.set.id]
+        }
+        this.overlayLayers[area.feature.set.swac_fromName].removeLayer(area)
     }
-    this.overlayLayers[area.feature.set.swac_fromName].removeLayer(area)
-  }
 
     /**
      * Load the data from the datasources option.
