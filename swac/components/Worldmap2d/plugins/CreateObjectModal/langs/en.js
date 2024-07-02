@@ -1,4 +1,5 @@
 var Worldmap2d_CreateObjectModal_en = {
+    object_add: 'Create object',
   title: 'Create Object',
   name: 'Name of the object',
   name_placeholder: 'Type new name',

@@ -153,8 +153,48 @@ export default class CreateObjectModalSPL extends Plugin {
             }
 
             this.map = this.requestor.parent.swac_comp;
+
+            L.Control.CreateObjectModal = L.Control.extend({
+                onAdd: function (map) {
+                    var img = document.createElement('img');
+                    img.src = '../../docs/images/logo.png';
+                    img.style.width = '200px';
+
+                    let div = document.createElement('div');
+                    div.classList.add('leaflet-bar');
+                    div.classList.add('leaflet-control');
+                    let a = document.createElement('a');
+                    a.classList.add('swac_worldmap2d_com_toolbtn');
+                    a.setAttribute('uk-icon','plus');
+                    a.setAttribute('uk-tooltip',SWAC.lang.dict.Worldmap2d_CreateObjectModal.object_add);
+                    a.addEventListener('click',function(evt) {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        // Toggle object creation mode
+                        if(thisRef.createMode) {
+                            thisRef.createMode = false;
+                            a.setAttribute('style','color: black;');
+                        } else {
+                            thisRef.createMode = true;
+                            a.style.color = 'red';
+                        }
+                    });
+                    div.appendChild(a);
+                    return div;
+                },
+
+                onRemove: function (map) {
+                    // Nothing to do here
+                }
+            });
+            L.control.createobjectmodal = function (opts) {
+                return new L.Control.CreateObjectModal(opts);
+            }
+            L.control.createobjectmodal({position: 'topleft'}).addTo(this.map.viewer);
+
             document.addEventListener('swac_' + this.requestor.parent.id + '_map_click', (e) => {
-                this.onMapClick(e);
+                if(thisRef.createMode)
+                    this.onMapClick(e);
             })
 
             this.input_lat = this.com.querySelector('.com-lat');
@@ -177,7 +217,7 @@ export default class CreateObjectModalSPL extends Plugin {
                 let viewHandler = new ViewHandler();
                 let thisRef = this;
                 viewHandler.load(this.select_type).then(function () {
-                    thisRef.select_type.querySelector('input').addEventListener('input',thisRef.onChangeType.bind(thisRef));
+                    thisRef.select_type.querySelector('input').addEventListener('input', thisRef.onChangeType.bind(thisRef));
                 });
             } else {
                 let type_label = this.com.querySelector('.com-type-label');
@@ -201,11 +241,17 @@ export default class CreateObjectModalSPL extends Plugin {
 
             // get close measurementmodal menu button
             this.buttonCloseMeasurementmodal = this.com.querySelector('.com-button-close');
-            this.buttonCloseMeasurementmodal.onclick = () => this.closeModal();
-            L.DomEvent.on(this.buttonCloseMeasurementmodal, 'click', L.DomEvent.stopPropagation);
+            let thisRef = this;
+            this.buttonCloseMeasurementmodal.addEventListener('click', function (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                thisRef.closeModal();
+            });
 
             //when window is opened, a click outside of the window should close it and remove the temporary marker.
             this.com.onclick = (e) => {
+                e.stopPropagation();
+                e.preventDefault();
                 if (e.target.closest('.com-box') == null) {
                     this.closeModal();
                     this.clearInputs();
@@ -223,13 +269,13 @@ export default class CreateObjectModalSPL extends Plugin {
                 this.clearInputs();
             };
 
-            const form = this.com.querySelector('.com-form');
-            form.onsubmit = (e) => {
-                e.preventDefault();
-                this.map.enableMapInteractions();
-                this.save();
-                this.com.style.display = 'none';
-            };
+            const saveBtn = this.com.querySelector('.com-save-button');
+            saveBtn.addEventListener('click', function(evt) {
+                evt.preventDefault();
+                thisRef.map.enableMapInteractions();
+                thisRef.save();
+                thisRef.com.style.display = 'none';
+            });
             resolve();
         });
     }
@@ -268,7 +314,7 @@ export default class CreateObjectModalSPL extends Plugin {
         this.metaTableDef = null;
 
         // Check if input is empty
-        if(!this.select_type.swac_comp.getInputs())
+        if (!this.select_type.swac_comp.getInputs())
             return;
 
         // Get typeId
@@ -278,12 +324,12 @@ export default class CreateObjectModalSPL extends Plugin {
         let thisRef = this;
         // Get dataTableRequestor for selected type
         let dtr = this.options.dataTablesRequestors.get(typeName);
-        if(!dtr) {
-            Msg.info('CreateObjectModalSPL','There is no dataTabelRequestor defined for >'+typeName+'< useing >default>',this.requestor.parent);
+        if (!dtr) {
+            Msg.info('CreateObjectModalSPL', 'There is no dataTabelRequestor defined for >' + typeName + '< useing >default>', this.requestor.parent);
             dtr = this.options.dataTablesRequestors.get('default');
         }
         let jdtr = Object.assign({}, dtr);
-        jdtr.fromWheres = JSON.parse(JSON.stringify(jdtr.fromWheres).replaceAll('{typeId}',typeId));
+        jdtr.fromWheres = JSON.parse(JSON.stringify(jdtr.fromWheres).replaceAll('{typeId}', typeId));
 
         // Load possibile data attributes
         Model.load(jdtr).then(function (colDefs) {
@@ -300,12 +346,12 @@ export default class CreateObjectModalSPL extends Plugin {
         });
 
         let mtr = this.options.metaTablesRequestors.get(typeName);
-        if(!mtr) {
-            Msg.info('CreateObjectModalSPL','There is no metaTabelRequestor defined for >'+typeName+'< useing >default>',this.requestor.parent);
+        if (!mtr) {
+            Msg.info('CreateObjectModalSPL', 'There is no metaTabelRequestor defined for >' + typeName + '< useing >default>', this.requestor.parent);
             mtr = this.options.metaTablesRequestors.get('default');
         }
         let jmtr = Object.assign({}, mtr);
-        jmtr.fromWheres = JSON.parse(JSON.stringify(jmtr.fromWheres).replaceAll('{typeId}',typeId));
+        jmtr.fromWheres = JSON.parse(JSON.stringify(jmtr.fromWheres).replaceAll('{typeId}', typeId));
         // Load possible meta attributes
         Model.load(jmtr).then(function (colDefs) {
             thisRef.metaTableDef = colDefs;
@@ -333,9 +379,10 @@ export default class CreateObjectModalSPL extends Plugin {
 
     // save new object to database
     async save() {
+        Msg.flow('CreateObjectModalSPL','save() called',this.requestor.parent);
         let Model = window.swac.Model;
         let typeId = null;
-        if (this.select_type) {
+        if (this.select_type && this.select_type.swac_comp.getInputs()[0]) {
             typeId = this.select_type.swac_comp.getInputs()[0].value;
         }
 
@@ -349,10 +396,6 @@ export default class CreateObjectModalSPL extends Plugin {
         if (meta_col_name) {
             thisRef.createTableForObject(meta_col_name, this.metaTableDef);
         }
-
-
-        return;
-
 
         // Save object
         let lastres = await Model.save({
