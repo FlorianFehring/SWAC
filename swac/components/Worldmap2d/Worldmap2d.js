@@ -450,8 +450,6 @@ export default class Worldmap2d extends View {
         this.models = [];
         this.failedmodels = [];
 
-        this.preciseLocationPlugin = null;
-
         this.state = {
             mapInteractions: true,
             mapClickInteraction: true,
@@ -1124,41 +1122,12 @@ export default class Worldmap2d extends View {
      * SECTION for geolocation functions
      */
 
-    /*
-     * Registeres the Plugin that will be used for receiving the users location.
-     * @param {Object} plugin The plugin that is about to be registered.
-     */
-    setPreciseLocationPlugin(plugin) {
-        this.preciseLocationPlugin = plugin;
-    }
-
-    /*
-     * Removes the Plugin that is currently used for receiving the users location.
-     * @param {Object} plugin The plugin that is about to be unregistered. Functions as a key to avoid the accidental removal by another unregistered plugin.
-     */
-    removePreciseLocationPlugin(plugin) {
-        if (this.preciseLocationPlugin === plugin) {
-            this.preciseLocationPlugin = null;
-        }
-    }
-
-    /*
-     * Used by the navigators geolocation. 
-     * Functions as a check if a more precise plugin for geolocation is activated so that the navigator does not override the more precise data.
-     * @param {Object} position The Position of the user
-     */
-    onUserLocation(position) {
-        if (!this.preciseLocationPlugin) {
-            this.saveUserLocation(position);
-        }
-    }
-
     /**
      * Saves the users location in the worldmap2d and places a marker at their position. 
      * If the option latchOnLocaton is turned on, the viewer pans to the users location on a location update.
      * @param {Object} position Contains the coordinates and the timestamp
      */
-    saveUserLocation(position) {
+    onUserLocation(position) {
         this.lastReceivedPosition = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
