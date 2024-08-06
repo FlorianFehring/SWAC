@@ -1,0 +1,40 @@
+.OLDinterfacemagicmapper{
+    width: 300px;
+    height: 200px;
+    position: relative;
+    top: 150px;
+    border: 2px solid red;
+}
+
+.OLDinterfacemagicmapper-buttons {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+
+.OLDinterfacemagicmapper-accept-certificate-button {
+    margin-top: 10px;
+}
+
+@media only screen and (min-width: 768px) {
+    #OLDinterfacemagicmapper-accept-certificate-button {
+        margin-top: 0;
+    }
+    .OLDinterfacemagicmapper-buttons {
+        flex-direction: row;
+    }
+}
+
+.OLDinterfacemagicmapper-on-connected{
+    display: none;
+}
+.OLDinterfacemagicmapper-on-not-connected{
+    display: none;
+}
+.OLDinterfacemagicmapper-starting-connection{
+    display: none;
+}
+
+.OLDinterfacemagicmapper-ip-box .menu-button {
+    align-self: center;
+}
