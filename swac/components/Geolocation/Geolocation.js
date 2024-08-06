@@ -12,21 +12,15 @@ export default class Geolocation extends View {
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {
-            name: 'geolocation',
-            style: 'geolocation',
-            desc: 'Shows dialog for accepting, stopping and restarting geolocation.'
-        };
-
-        this.desc.templates[1] = {
-            name: 'geolocation_worldmap2d',
-            style: 'geolocation_worldmap2d',
-            desc: 'Same functionality as default template, modified to be responsive and display nicely on Worldmap2d component.'
+            name: 'default',
+            style: 'default',
+            desc: 'Default controls for geolocation.'
         };
 
         this.desc.reqPerTpl = [];
         this.desc.reqPerTpl[0] = {
             selc: '.swac_geolocation_ask',
-            desc: 'Container that holds the user privacy information and the buttons for allow and deny geolocation'
+            desc: 'Modal that holds the user privacy information and the buttons for allow and deny geolocation'
         };
         this.desc.reqPerTpl[1] = {
             selc: '.swac_geolocation_oncelocate',
@@ -61,33 +55,16 @@ export default class Geolocation extends View {
             desc: 'Container which shows the actual adress of the user'
         };
         this.desc.reqPerTpl[9] = {
-            selc: '.swac_geolocation_geoprovider',
-            desc: 'Container which shows the name of the used geolocation provider (google, bingmaps or openstreetmap)'
-        };
-        this.desc.reqPerTpl[10] = {
             selc: '.swac_geolocation',
             desc: 'Container contianting ui elements for geolocation.'
         };
-        this.desc.reqPerTpl[11] = {
+        this.desc.reqPerTpl[10] = {
             selc: '.swac_geolocation_remember',
             desc: 'Checkbox to select if the kind of allow should be remembered.'
         };
-        this.desc.reqPerTpl[12] = {
-            selc: '.swac_geolocation_unavailable',
-            desc: 'Element to show when geolocation is unavailable.'
-        };
-        this.desc.reqPerTpl[13] = {
+        this.desc.reqPerTpl[11] = {
             selc: '.swac_geolocation_info',
             desc: 'Element containing info text about availability of geolocation.'
-        };
-        this.desc.reqPerTpl[14] = {
-            selc: '.swac_geolocation_close_unavailable',
-            desc: 'Button to close unavailable info.'
-        };
-
-        this.desc.optPerPage[0] = {
-            selc: '.swac_geolocation',
-            desc: 'Elements with this class are hidden by the component, if there is no geolocation support or the user disallows all geolocation useage'
         };
 
         this.options.showWhenNoData = true;
@@ -135,6 +112,11 @@ export default class Geolocation extends View {
             data: 'Delivers the JS event object of the click event.'
         }
 
+        if (!options.plugins) {
+            this.options.plugins = new Map();
+            this.options.plugins.set('MagicMapperInterface', {id: 'MagicMapperInterface', active: true});
+        }
+
         // Internal values from here
         this.watchid = null;
         this.lastLocation = null;
@@ -164,6 +146,9 @@ export default class Geolocation extends View {
                 return;
             }
 
+            
+
+
             // Bind event handler
             let yesonceElem = this.requestor.querySelector('.swac_geolocation_oncelocate');
             yesonceElem.addEventListener('click', this.oncelocate.bind(this));
@@ -171,13 +156,11 @@ export default class Geolocation extends View {
             yeswatchElem.addEventListener('click', this.watchlocate.bind(this));
             let nolocElem = this.requestor.querySelector('.swac_geolocation_nolocate');
             nolocElem.addEventListener('click', this.nolocate.bind(this));
-            let closeUnavailableElem = this.requestor.querySelector('.swac_geolocation_close_unavailable');
-            closeUnavailableElem.addEventListener('click', this.closeUnavailableModal.bind(this));
 
             // Hide start element
             let startElem = this.requestor.querySelector('.swac_geolocation_start');
             startElem.addEventListener('click', this.showAsk.bind(this));
-            startElem.style.display = 'none';
+
             let stopElem = this.requestor.querySelector('.swac_geolocation_stop');
             stopElem.addEventListener('click', this.stoplocate.bind(this));
 
@@ -185,32 +168,18 @@ export default class Geolocation extends View {
             if (this.requestor.swac_comp.options.locateOnStart === true
                     && this.requestor.swac_comp.options.watchlocation === false) {
                 // Hide stop element
-                let stopElem = requestor.querySelector('.swac_geolocation_stop');
+                let stopElem = this.requestor.querySelector('.swac_geolocation_stop');
                 stopElem.style.display = 'none';
-                requestor.swac_comp.oncelocate();
+                this.requestor.swac_comp.oncelocate();
             } else if (this.requestor.swac_comp.options.locateOnStart === true
                     && this.requestor.swac_comp.options.watchlocation === true) {
                 this.requestor.swac_comp.watchlocate();
             } else {
                 // Show dialog
                 this.showAsk();
-                // Hide stop button
-                stopElem.style.display = 'none';
             }
             resolve();
         });
-    }
-
-    /**
-     * checks if the browser supports geolocation and if the page is served in a secure context,  
-     * secure contexts are https pages or localhost
-     * 
-     * @returns {Boolean} true if geolocation is supported and the page is served in a secure context
-     * @see https://developer.mozilla.org/en-US/docs/Web/API/Geolocation_API
-     * @see https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts
-     */
-    canUseGeolocation() {
-        return navigator.geolocation && (window.isSecureContext === true);
     }
 
     /**
@@ -229,15 +198,13 @@ export default class Geolocation extends View {
      * @returns {undefined}
      */
     showAsk() {
-        if (!this.canUseGeolocation()) {
-            // Hide all elements with class .swac_geolocation
-            let geoElems = document.querySelectorAll(".swac_geolocation");
-            for (let geoElem of geoElems) {
-                geoElem.style.display = "none";
-            }
-            // Show unavailable message
-            let unavailableElem = document.querySelector('.swac_geolocation_unavailable');
-            unavailableElem.style.display = 'block';
+        let infoElem = document.querySelector(".swac_geolocation_info");
+        if(!window.isSecureContext) {
+            infoElem.innerHTML = SWAC.lang.dict.Geolocation.unsecure;
+            return;
+        }
+        if (!navigator.geolocation) {
+            infoElem.innerHTML = SWAC.lang.dict.Geolocation.unavailable;
             return;
         }
         // Get actual geoprovider
@@ -249,10 +216,12 @@ export default class Geolocation extends View {
         } else {
             geoprovider = 'OpenStreetMap';
         }
+        // Open ask dialog
         let askElem = document.querySelector('.swac_geolocation_ask');
-        let descElem = askElem.querySelector('p');
-        descElem.innerHTML = descElem.innerHTML.replace('%geoprovider%', geoprovider);
-        askElem.style.display = 'block';
+        let askInfoElem = askElem.querySelector('.swac_geolocation_askinfo');
+        let askInfo = window.swac.lang.dict.Geolocation.asklocationInfo;
+        askInfoElem.innerHTML = window.swac.lang.replacePlaceholders(askInfo, 'geoprovider', geoprovider);
+        UIkit.modal(askElem).show();
     }
 
     /**
@@ -262,16 +231,21 @@ export default class Geolocation extends View {
      */
     oncelocate() {
         navigator.geolocation.getCurrentPosition(this.located.bind(this), this.onError.bind(this));
-        // Hide ask dialog
-        let askElem = document.querySelector('.swac_geolocation_ask');
-        askElem.style.display = 'none';
+        // Hide start button
+        let startElem = document.querySelector('.swac_geolocation_start');
+        startElem.classList.remove('swac_dontdisplay');
+        // Show stop button
+        let stopElem = document.querySelector('.swac_geolocation_stop');
+        stopElem.classList.add('swac_dontdisplay');
         // Set icon color and info text
         let icoElem = document.querySelector('.swac_geolocation_icon');
         icoElem.style.color = 'orange';
         icoElem.setAttribute('uk-tooltip', SWAC.lang.dict.Geolocation.oncelocated);
-        // Show the relocate button
-        let startElem = document.querySelector('.swac_geolocation_start');
-        startElem.style.display = 'inline';
+        // Set status text
+        let stateElem = document.querySelector('.swac_geolocation_info');
+        stateElem.innerHTML = window.swac.lang.dict.Geolocation.oncelocated;
+        stateElem.setAttribute('swac_lang','Geolocation.oncelocated');
+        
         // Prevent from asking again
         if (document.querySelector('.swac_geolocation_remember').checked) {
             document.cookie = 'swac_geolocation_memo=oncelocate';
@@ -285,19 +259,20 @@ export default class Geolocation extends View {
      */
     watchlocate() {
         this.watchid = navigator.geolocation.watchPosition(this.located.bind(this), this.onError.bind(this));
-        // Hide ask dialog
-        let askElem = document.querySelector('.swac_geolocation_ask');
-        askElem.style.display = 'none';
         // Hide start button
         let startElem = document.querySelector('.swac_geolocation_start');
-        startElem.style.display = 'none';
+        startElem.classList.add('swac_dontdisplay');
         // Show stop button
         let stopElem = document.querySelector('.swac_geolocation_stop');
-        stopElem.style.display = 'inline';
+        stopElem.classList.remove('swac_dontdisplay');
         // Set icon color and info text
         let icoElem = document.querySelector('.swac_geolocation_icon');
         icoElem.style.color = 'red';
         icoElem.setAttribute('uk-tooltip', SWAC.lang.dict.Geolocation.watchlocated);
+        // Set state
+        let stateElem = document.querySelector('.swac_geolocation_info');
+        stateElem.innerHTML = window.swac.lang.dict.Geolocation.watchlocated;
+        stateElem.setAttribute('swac_lang','Geolocation.watchlocated');
         // Prevent from asking again
         if (document.querySelector('.swac_geolocation_remember').checked) {
             document.cookie = 'swac_geolocation_memo=watchlocate';
@@ -314,10 +289,6 @@ export default class Geolocation extends View {
         if (this.watchid !== null) {
             navigator.geolocation.clearWatch(this.watchid);
             this.watchid = null;
-        }
-        let geoElems = document.querySelectorAll(".swac_geolocation");
-        for (let geoElem of geoElems) {
-            geoElem.style.display = "none";
         }
         // Prevent from asking again
         if (document.querySelector('.swac_geolocation_remember').checked) {
@@ -362,7 +333,6 @@ export default class Geolocation extends View {
             func(position);
         }
         // get adress from google if api key exists
-        let geoprovider = '';
         let thisRef = this;
         if (this.options.googleApiKey) {
             this.reverseGeocodeGoogle(position.coords.latitude, position.coords.longitude).then(
@@ -376,7 +346,6 @@ export default class Geolocation extends View {
                             }}))
                     }
             ).catch(console.error);
-            geoprovider = 'Google';
         } else if (this.options.bingApiKey) {
             this.reverseGeocodeBingMaps(position.coords.latitude, position.coords.longitude).then(
                     function (address) {
@@ -389,7 +358,6 @@ export default class Geolocation extends View {
                             }}))
                     }
             ).catch(console.error);
-            geoprovider = 'BingMaps';
         } else {
             this.reverseGeocodeNominatim(position.coords.latitude, position.coords.longitude).then(
                     function (address) {
@@ -402,11 +370,7 @@ export default class Geolocation extends View {
                             }}))
                     }
             ).catch(console.error);
-            geoprovider = 'OpenStreetMap';
         }
-
-        let serviceElem = document.querySelector('.swac_geolocation_geoprovider');
-        serviceElem.innerHTML = geoprovider;
     }
 
     /**
@@ -416,21 +380,16 @@ export default class Geolocation extends View {
      * @returns {undefined}
      */
     onError(error) {
-        let askElem = document.querySelector('.swac_geolocation_nav');
-        let infoElem = askElem.querySelector('.swac_geolocation_info');
+        let infoElem = this.requestor.querySelector('.swac_geolocation_info');
 
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 Msg.warn('geolocation', 'User denied the request for Geolocation.');
-                let geoElems = document.querySelectorAll(".swac_geolocation");
-                for (let geoElem of geoElems) {
-                    geoElem.style.display = "none";
-                }
+                infoElem.innerHTML = SWAC.lang.dict.Geolocation.apiusedenied;
                 break;
             case error.POSITION_UNAVAILABLE:
                 Msg.warn('geolocation', "Location information is unavailable.");
                 infoElem.innerHTML = SWAC.lang.dict.Geolocation.unavailable;
-                console.log(infoElem);
                 break;
             case error.TIMEOUT:
                 Msg.warn('geolocation', "The request to get user location timed out.");

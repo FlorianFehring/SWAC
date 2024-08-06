@@ -1,0 +1,11 @@
+.swac_geolocation_menue {
+    position: fixed;
+    bottom: 0px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+    background: #4d4444;
+    color: #ffffff;
+    border: 1px solid black;
+    border-radius: 25px;
+}

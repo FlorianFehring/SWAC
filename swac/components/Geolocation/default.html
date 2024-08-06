@@ -1,0 +1,29 @@
+<!-- Entry user for permission asking modal -->
+<div class="swac_geolocation_ask" uk-modal>
+    <div class="uk-modal-dialog">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <div class="uk-modal-header">
+            <h2 class="uk-modal-title" swac_lang="Geolocation.asklocationtitle">Would you like to use your location?</h2>
+        </div>
+        <div class="uk-modal-body">
+            <p class="swac_geolocation_askinfo"></p>
+        </div>
+        <div class="uk-modal-footer uk-text-right">
+            <button class="uk-button uk-button-default swac_geolocation_oncelocate uk-modal-close">Geolocation.asklocationyesonce</button>
+            <button class="uk-button uk-button-default swac_geolocation_watchlocate uk-modal-close">Geolocation.asklocationyeswatch</button>
+            <button class="uk-button uk-button-default swac_geolocation_nolocate uk-modal-close">Geolocation.asklocationno</button>
+            <br><label for="swac_geolocation_check">Geolocation.rememberDecision</label>
+            <input id="swac_geolocation_check" type="checkbox" class="uk-checkbox swac_geolocation_remember">
+        </div>
+    </div>
+</div>
+<!-- Location info -->
+<div class="swac_geolocation swac_geolocation_menue">
+    <span class="swac_geolocation_icon" uk-icon="icon: location; ratio: 2" uk-tooltip="Geolocation.notstarted"></span>
+    <span class="swac_geolocation_address"></span>
+    <span swac_lang="Geolocation.state"></span>: 
+    <span class="swac_geolocation_info" swac_lang="Geolocation.notstarted"></span>
+    <a href="#" class="swac_geolocation_stop uk-icon-button swac_dontdisplay" uk-icon="icon: ban; ratio: 2" uk-tooltip="Geolocation.stop"></a>
+    <a href="#" class="swac_geolocation_start uk-icon-button" uk-icon="icon: play; ratio: 2" uk-tooltip="Geolocation.start"></a>
+    <span class="swac_repeatForPluginCont"></span>
+</div>
