@@ -184,7 +184,7 @@ SWAC.loadGlobalComponents = function () {
         });
         navigator.serviceWorker.addEventListener("message", (evt) => {
             Msg.info('SWACProgressive', `Dispatch ServiceWorker send message: ${ evt.data }`);
-            let msgEvent = new CustomEvent('swac_serviceworker_msg', {detail:evt.data});
+            let msgEvent = new CustomEvent('swac_serviceworker_msg', {detail: evt.data});
             document.dispatchEvent(msgEvent);
         });
     }
@@ -427,6 +427,16 @@ SWAC.onDependencyLoaded = function (loadid, dependency, dependenciesStack, addPr
     } else {
         addPromResolve();
     }
+};
+
+/**
+ * Method for checking if an string is an valid IP
+ * 
+ * @param {type} str
+ * @returns {Boolean}
+ */
+SWAC.isValidIP = function (str) {
+    return (/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(str));
 };
 
 /**
