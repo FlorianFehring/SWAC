@@ -151,7 +151,7 @@ export default class Labeling extends View {
             let nameElem = curRepeated.querySelector('.uk-label');
             nameElem.innerHTML = this.labels[labelid].name;
             nameElem.setAttribute('swac_lang', this.labels[labelid].name);
-            if(this.labels[labelid].color) {
+            if (this.labels[labelid].color) {
                 nameElem.style.background = this.labels[labelid].color;
             }
 
@@ -187,7 +187,7 @@ export default class Labeling extends View {
         let Model = window.swac.Model;
         let newset = {};
         // Add saveAlongData
-        if(this.options.sendAlongData) {
+        if (this.options.sendAlongData) {
             newset = Object.assign({}, this.options.sendAlongData);
         }
         newset[this.options.labelidAttr] = labelid;
@@ -201,12 +201,17 @@ export default class Labeling extends View {
         let thisRef = this;
         Model.save(dataCapsule, true).then(function (datacaps) {
             // Add label to display
-            newset.id = datacaps[0].data[0].id;
+            if (datacaps[0].data) {
+                newset.id = datacaps[0].data[0].id;
+            } else {
+                newset.id = parseInt(datacaps[0].origresponse);
+            }
             newset.swac_fromName = thisRef.getMainSourceName();
             thisRef.addSet(thisRef.getMainSourceName(), newset);
             // Remove label from chooseable label list
             labelElem.remove();
         }).catch(function (e) {
+            console.log('TEST e:', e);
             UIkit.modal.alert(window.swac.lang.dict.Labeling.addfailed);
         });
     }
