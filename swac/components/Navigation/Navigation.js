@@ -123,12 +123,12 @@ export default class Navigation extends View {
             let srcsets = this.requestor.querySelectorAll('[srcset]');
             for (let curImg of srcsets) {
                 let imgsrc = curImg.getAttribute('srcset').replace('logo', this.options.logoName);
-                curImg.setAttribute('srcset', SWAC.config.app_root + '/' + imgsrc);
+                curImg.setAttribute('srcset', SWAC.config.app_root + imgsrc);
             }
             let srcs = this.requestor.querySelectorAll('[src]');
             for (let curImg of srcs) {
                 let imgsrc = curImg.getAttribute('src').replace('logo', this.options.logoName);
-                curImg.setAttribute('src', SWAC.config.app_root + '/' + imgsrc);
+                curImg.setAttribute('src', SWAC.config.app_root + imgsrc);
             }
 
             // Set logo link with url from options
