@@ -364,7 +364,7 @@ export default class Worldmap2d extends View {
         if (!options.customMarkerTooltip)
             this.options.customMarkerTooltip = new Map();
         this.options.customMarkerTooltip.set("default", {
-            content: '<b>{name}</b><br><img swac_hideOnEmpty="{icon}" src="{icon} widht="200" height="100">',
+            content: '<b>{name}</b><br><img swac_hideOnEmpty="{icon}" src="{icon}" widht="200" height="100">',
             options: {direction: 'top', sticky: false, opacity: 0.8, offset: [0, -22]}});
 
         this.desc.opts[28] = {
