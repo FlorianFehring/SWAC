@@ -83,6 +83,7 @@ export default class ViewHandler extends ComponentHandler {
                 }
             });
             document.dispatchEvent(completeEvent);
+            Msg.flow('ViewHandler', 'Dispatched event >' + 'swac_' + domrequestor.id + '_complete' + '<', domrequestor);
             SWAC.reactions.performReactions();
             resolve();
         });
