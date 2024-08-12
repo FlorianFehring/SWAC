@@ -156,9 +156,6 @@ export default class CreateObjectModalSPL extends Plugin {
 
             L.Control.CreateObjectModal = L.Control.extend({
                 onAdd: function (map) {
-                    var img = document.createElement('img');
-                    img.src = '../../docs/images/logo.png';
-                    img.style.width = '200px';
 
                     let div = document.createElement('div');
                     div.classList.add('leaflet-bar');
