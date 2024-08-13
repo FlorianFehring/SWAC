@@ -3,7 +3,7 @@ import View from '../../View.js';
 import Msg from '../../Msg.js';
 
 export default class ExplainComponents extends View {
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         this.name = 'ExplainComponents';
         this.desc.text = 'Generates explanations of SWAC components.';
