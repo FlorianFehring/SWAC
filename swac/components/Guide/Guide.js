@@ -4,7 +4,7 @@ import Msg from '../../Msg.js';
 
 export default class Guid extends View {
 
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         this.name = 'Guide';
         this.desc.text = 'This component makes it easy to create presentations and guides of your page. Simply define what message should occure on which item or start the presentation when the page loads.';
