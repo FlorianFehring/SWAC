@@ -4,7 +4,7 @@ import Msg from '../../Msg.js';
 
 export default class Lockscreen extends View {
 
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         this.name = 'Lockscreen';
         this.desc.text = 'Creates a lock for the screen.';
