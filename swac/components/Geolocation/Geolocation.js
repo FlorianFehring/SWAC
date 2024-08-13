@@ -62,6 +62,10 @@ export default class Geolocation extends View {
             selc: '.swac_geolocation_askinfo',
             desc: 'Element for information about useage of position and asking for permition.'
         };
+        this.desc.reqPerTpl[11] = {
+            selc: '.swac_geolocation_menue',
+            desc: 'Menue for geolocation controls.'
+        };
 
         this.options.showWhenNoData = true;
         this.desc.opts[0] = {
@@ -101,6 +105,15 @@ export default class Geolocation extends View {
             example: 'exampleBingAPIkey'
         };
         this.options.bingApiKey = null;
+
+        this.desc.funcs[0] = {
+            name: 'getCurrentLocation',
+            desc: 'Gets the current location.',
+            returns: {
+                desc: 'Promise that resolves with position and address attributes.',
+                type: 'Promise'
+            }
+        };
 
         this.desc.events[0] = {
             name: 'swac_REQUESTOR_ID_geolocation_newlocation',
@@ -190,7 +203,7 @@ export default class Geolocation extends View {
      */
     showAsk() {
         let infoElem = document.querySelector(".swac_geolocation_info");
-        if(!window.isSecureContext) {
+        if (!window.isSecureContext) {
             infoElem.innerHTML = SWAC.lang.dict.Geolocation.unsecure;
             return;
         }
@@ -215,6 +228,17 @@ export default class Geolocation extends View {
         UIkit.modal(askElem).show();
     }
 
+    // Public function
+    getCurrentLocation() {
+        let thisRef = this;
+        return new Promise(function (resolve, reject) {
+            thisRef.oncelocate();
+            document.addEventListener('swac_' + thisRef.requestor.id + '_geolocation_newlocation', function (evt) {
+                resolve(evt.detail);
+            });
+        });
+    }
+
     /**
      * Locates the users position once.
      * 
@@ -235,8 +259,8 @@ export default class Geolocation extends View {
         // Set status text
         let stateElem = document.querySelector('.swac_geolocation_info');
         stateElem.innerHTML = window.swac.lang.dict.Geolocation.oncelocated;
-        stateElem.setAttribute('swac_lang','Geolocation.oncelocated');
-        
+        stateElem.setAttribute('swac_lang', 'Geolocation.oncelocated');
+
         // Prevent from asking again
         if (document.querySelector('.swac_geolocation_remember').checked) {
             document.cookie = 'swac_geolocation_memo=oncelocate';
@@ -263,7 +287,7 @@ export default class Geolocation extends View {
         // Set state
         let stateElem = document.querySelector('.swac_geolocation_info');
         stateElem.innerHTML = window.swac.lang.dict.Geolocation.watchlocated;
-        stateElem.setAttribute('swac_lang','Geolocation.watchlocated');
+        stateElem.setAttribute('swac_lang', 'Geolocation.watchlocated');
         // Prevent from asking again
         if (document.querySelector('.swac_geolocation_remember').checked) {
             document.cookie = 'swac_geolocation_memo=watchlocate';
