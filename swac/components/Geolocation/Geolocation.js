@@ -35,36 +35,32 @@ export default class Geolocation extends View {
             desc: 'Button that if clicked deactivates geolocation functions on the page'
         };
         this.desc.reqPerTpl[4] = {
-            selc: '.swac_geolocation_nav',
-            desc: 'Container holding the tools for the geolocation'
-        };
-        this.desc.reqPerTpl[5] = {
             selc: '.swac_geolocation_icon',
             desc: 'Uikit icon element or svg displaying the status of the geolocation (blue = stopped, yellow = once, red = permanent)'
         };
-        this.desc.reqPerTpl[6] = {
+        this.desc.reqPerTpl[5] = {
             selc: '.swac_geolocation_stop',
             desc: 'With this button the user can stop a permanent geolocation'
         };
-        this.desc.reqPerTpl[7] = {
+        this.desc.reqPerTpl[6] = {
             selc: '.swac_geolocation_start',
             desc: 'With this button the user can start a geolocation (shows up the ask dialog)'
         };
-        this.desc.reqPerTpl[8] = {
+        this.desc.reqPerTpl[7] = {
             selc: '.swac_geolocation_address',
             desc: 'Container which shows the actual adress of the user'
         };
-        this.desc.reqPerTpl[9] = {
-            selc: '.swac_geolocation',
-            desc: 'Container contianting ui elements for geolocation.'
-        };
-        this.desc.reqPerTpl[10] = {
+        this.desc.reqPerTpl[8] = {
             selc: '.swac_geolocation_remember',
             desc: 'Checkbox to select if the kind of allow should be remembered.'
         };
-        this.desc.reqPerTpl[11] = {
+        this.desc.reqPerTpl[9] = {
             selc: '.swac_geolocation_info',
             desc: 'Element containing info text about availability of geolocation.'
+        };
+        this.desc.reqPerTpl[10] = {
+            selc: '.swac_geolocation_askinfo',
+            desc: 'Element for information about useage of position and asking for permition.'
         };
 
         this.options.showWhenNoData = true;
@@ -114,7 +110,7 @@ export default class Geolocation extends View {
 
         if (!options.plugins) {
             this.options.plugins = new Map();
-            this.options.plugins.set('MagicMapperInterface', {id: 'MagicMapperInterface', active: true});
+            this.options.plugins.set('MagicMapperInterface', {id: 'MagicMapperInterface', active: false});
         }
 
         // Internal values from here
@@ -146,21 +142,16 @@ export default class Geolocation extends View {
                 return;
             }
 
-            
-
-
+            let askElem = document.querySelector('.swac_geolocation_ask');
             // Bind event handler
-            let yesonceElem = this.requestor.querySelector('.swac_geolocation_oncelocate');
+            let yesonceElem = askElem.querySelector('.swac_geolocation_oncelocate');
             yesonceElem.addEventListener('click', this.oncelocate.bind(this));
-            let yeswatchElem = this.requestor.querySelector('.swac_geolocation_watchlocate');
+            let yeswatchElem = askElem.querySelector('.swac_geolocation_watchlocate');
             yeswatchElem.addEventListener('click', this.watchlocate.bind(this));
-            let nolocElem = this.requestor.querySelector('.swac_geolocation_nolocate');
+            let nolocElem = askElem.querySelector('.swac_geolocation_nolocate');
             nolocElem.addEventListener('click', this.nolocate.bind(this));
-
-            // Hide start element
             let startElem = this.requestor.querySelector('.swac_geolocation_start');
             startElem.addEventListener('click', this.showAsk.bind(this));
-
             let stopElem = this.requestor.querySelector('.swac_geolocation_stop');
             stopElem.addEventListener('click', this.stoplocate.bind(this));
 
