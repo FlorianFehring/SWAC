@@ -4,7 +4,7 @@ import Msg from '../../Msg.js';
 
 export default class Clock extends View {
 
-    constructor(config) {
+    constructor(config = {}) {
         super(config);
         this.name = 'Clock';
         this.desc.text = 'Shows a realtime clock with the users time.';
