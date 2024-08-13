@@ -4,7 +4,7 @@ import Msg from '../../Msg.js';
 
 export default class Comments extends View {
 
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         this.name = 'Comments';
         this.desc.text = "Component to show and add comments on page.";
