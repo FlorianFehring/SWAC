@@ -4,7 +4,7 @@ import Msg from '../../Msg.js';
 
 export default class Geolocation extends View {
 
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         this.name = 'Geolocation';
         this.desc.text = 'The geolocation component, allows the user to choose between not showing his location, or do it once or tracking his position. He can decide to remember a decition for following site calls.';
