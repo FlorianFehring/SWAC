@@ -4,7 +4,7 @@ import Msg from '../../Msg.js';
 
 export default class Devicestates extends View {
 
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         this.name = 'Devicestates';
         this.desc.text = 'Devicestates shows the status of devices from device informations';
