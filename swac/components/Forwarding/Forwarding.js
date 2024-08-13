@@ -4,7 +4,7 @@ import Msg from '../../Msg.js';
 
 export default class Forwarding extends View {
 
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         this.name = 'Forwarding';
         this.desc.text = 'The forwarding component allows automatic forwarding to another page depending on data.';
