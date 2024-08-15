@@ -19,14 +19,6 @@ export default class ContactForm extends View {
             selc: 'form',
             desc: 'Form element with input elements. Any input element value will be send with the name from the input elemtns name attribute.'
         };
-        this.desc.opts[0] = {
-            name: 'sendAlongData',
-            desc: 'Object with attributes that should be send everytime when saveing a dataset',
-            example: {attr1: 'A dataset with attributes to send'}
-        };
-        if (!options.sendAlongData)
-            this.options.sendAlongData = null;
-        // Sample for useing the general option showWhenNoData
         if (!options.showWhenNoData)
             this.options.showWhenNoData = true;
     }
@@ -59,8 +51,8 @@ export default class ContactForm extends View {
             fromName: this.getMainSourceName()
         };
         let dataset = {};
-        if (this.options.sendAlongData !== null) {
-            dataset = Object.assign({}, this.options.sendAlongData);
+        if (this.options.saveAlongData !== null) {
+            dataset = Object.assign({}, this.options.saveAlongData);
         }
         
         // Get any input field
