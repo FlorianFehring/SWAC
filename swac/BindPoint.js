@@ -180,11 +180,14 @@ export default class BindPoint extends HTMLElement {
      * @type DOMEvent change event
      */
     onValueChanged(evt) {
+        let newvalue = evt.target.value;
+        if(evt.target.type === 'checkbox')
+            newvalue = evt.target.checked;
         console.log('BindPoint.onValueChanged(): Value for >'
                 + this.getAttribute('attrName') + '< was changed from >'
-                + this.value + '< to >' + evt.target.value + '<'
+                + this.value + '< to >' + newvalue + '<'
                 + ' on input element: >' + evt.target.id + '< with an >' + evt.type + '< event.', evt.target, this);
-        this.value = evt.target.value;
+        this.value = newvalue;
     }
 }
 // Register bindpoint element
