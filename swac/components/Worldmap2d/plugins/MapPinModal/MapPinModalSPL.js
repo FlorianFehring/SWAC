@@ -18,7 +18,7 @@ export default class MapPinModalSPL extends Plugin {
             name: 'table_names',
             desc: 'Table names of database',
             example: {
-                table_names : {
+                table_names: {
                     locations_table: {
                         table_name: '',
                         idAttr: '',
@@ -39,19 +39,42 @@ export default class MapPinModalSPL extends Plugin {
                         file_id: '',
                         oo_id: ''
                     },
-                    uploadfile_options : {
+                    uploadfile_options: {
                         uploadTargetURL: '',
                         docroot: ''
                     }
                 },
             }
         };
+        if (!options.table_names) {
+            this.options.table_names = {};
+        }
+
         this.desc.opts[1] = {
             name: 'data_size',
             desc: 'Number of datasets that should be displayed in the data view.'
         };
-        if(typeof options.data_size === 'undefined')
+        if (typeof options.data_size === 'undefined')
             this.options.data_size = 10;
+
+        this.desc.opts[2] = {
+            name: 'data_iframelink',
+            desc: 'Link to the page embedding the data.'
+        };
+        if (typeof options.data_size === 'undefined')
+            this.options.data_size = 10;
+
+        this.desc.opts[3] = {
+            name: 'meta_iframelink',
+            desc: 'Link to the page embedding the meta data.'
+        };
+        if (typeof options.meta_iframelink === 'undefined')
+            this.options.meta_iframelink = null;
+
+        // Internal useage attributes
+        this.lastClickedMarker = null;
+
+
 
         // Attributes for internal usage
         this.mappinmodal = null;
@@ -65,7 +88,7 @@ export default class MapPinModalSPL extends Plugin {
         this.uploadfileAddButton = null;
         this.updateLocationButton = null;
         this.buttonCloseMappindata = null;
-        
+
         // TAB
         this.tabShowMeasurements = null;
         this.tabShowGallery = null;
@@ -81,135 +104,315 @@ export default class MapPinModalSPL extends Plugin {
 
     init() {
         return new Promise((resolve, reject) => {
-            this.map = this.requestor.parent.swac_comp;
-            // get mappinmodal element
-            this.mappinmodal = this.requestor.parent.querySelector('.mappinmodal');
             //check if all needed table_names and file spaces are defined
-            if(typeof this.options.table_names === 'undefined' 
-                    ||typeof this.options.table_names.oo_table === 'undefined' 
+            if (typeof this.options.table_names === 'undefined'
+                    || typeof this.options.table_names.oo_table === 'undefined'
                     || typeof this.options.table_names.locations_table === 'undefined'
                     || typeof this.options.table_names.file_table === 'undefined'
                     || typeof this.options.table_names.file_join_oo_table === 'undefined'
-                    || typeof this.options.table_names.uploadfile_options === 'undefined'){
-
-            Msg.info("MapPinModalSPL", "Required table names not in worldmap2d options defined");
-            //do not show mappinmodal if not all needed names are defined
-            this.mappinmodal.style.display = 'none';
-            resolve();
-            return;
-            
+                    || typeof this.options.table_names.uploadfile_options === 'undefined') {
+                Msg.warn("MapPinModalSPL", "Required table names not in worldmap2d options defined");
+                resolve();
+                return;
             }
-            L.DomEvent.on(mappinmodal, 'click', L.DomEvent.stopPropagation);
+
+            this.map = this.requestor.parent.swac_comp;
 
             // add event listener for mapMarkerClick
-            document.addEventListener('swac_' + this.requestor.parent.id + '_marker_click', (e) => {this.onMarkerClick(e)});
+            document.addEventListener('swac_' + this.requestor.parent.id + '_marker_click', this.onClickPin.bind(this));
 
+            // add event listener for update location click
+            document.querySelector('.swac_worldmap2d_mappinmodal_upd').addEventListener('click', this.onClickGPSUpdate.bind(this));
+            document.querySelector('.swac_worldmap2d_mappinmodal_sav').addEventListener('click', this.onClickGPSSave.bind(this));
 
-            // get select element and add event listener
-            this.selectStatus = this.mappinmodal.querySelector('.mappinmodal-select_status');
-            this.selectStatus.onchange = this.updateStatus.bind(this);
-            
-            this.mappinmodalTitle = this.mappinmodal.querySelector('.mappinmodal-title');
-
-            // get content element
-            this.content = this.mappinmodal.querySelector('.mappinmodal-content');
-            this.content.style.display = 'block';
-
-            // get gallery
-            this.gallery = this.mappinmodal.querySelector('.mappinmodal-gallery-box');
-            this.gallery.style.display = 'none';
-
-            // get upload file
-            this.uploadfile = this.mappinmodal.querySelector('.mappinmodal-uploadfile-component');
-            this.uploadfile.style.display = 'none';
-
-            // get label
-            this.label = this.mappinmodal.querySelector('.mappinmodal-labels-box');
-            this.label.style.display = 'none';
-            
-            // get tab showMeasurements
-            this.tabShowMeasurements = this.mappinmodal.querySelector('.mappinmodal-tabShowMeasurements');
-            this.tabShowMeasurements.onclick = this.show_mapPinData.bind(this);
-            
-            // get tab showMapPinData showGallery
-            this.tabShowGallery = this.mappinmodal.querySelector('.mappinmodal-tabShowGallery');
-            this.tabShowGallery.onclick = this.show_gallery.bind(this);
-            
-            // get tab showMapPinData showUpload
-            this.tabShowUpload = this.mappinmodal.querySelector('.mappinmodal-tabShowUpload');
-            this.tabShowUpload.onclick = this.show_uploadFile.bind(this);
-
-            // get tab label
-            this.tabShowLabels = this.mappinmodal.querySelector('.mappinmodal-tabShowLabels');
-            this.tabShowLabels.onclick = this.show_labels.bind(this);
-            this.tabShowLabels.style.display = 'none';
-
-            // get update position button
-            this.updateLocationButton = this.mappinmodal.querySelector('.mappinmodal-updateLocationButton');
-            this.updateLocationButton.onclick = this.updateLocation.bind(this)
-            this.updateLocationButton.style.display = 'none';
-            
-            // get close mappinmodal menu button
-            this.buttonCloseMappindata = this.mappinmodal.querySelector('.mappinmodal-button-close');
-            this.buttonCloseMappindata.onclick = this.closeMapPinData.bind(this)
-
-            // hide element
-            this.mappinmodal.style.display = 'none';
-
-            // hide on outside click
-            this.mappinmodal.onclick = (e) => {
-                if (e.target.closest('#mappinmodal-box') == null) {
-                    this.closeMapPinData();
-                }
-            };
-            
-            // saves images to slideshow and database when all files are uploaded
-            document.addEventListener('swac_mappinmodal_uploadfile_files_uploaded', (allFiles) => {
-                this.addImageToSlideshow(allFiles);
-            });
-
-            // SLIDESHOW
-            this.slideshowPrev = this.mappinmodal.querySelector(".mappinmodal-prev");
-            this.slideshowNext = this.mappinmodal.querySelector(".mappinmodal-next");
-            this.slideshowSlides = this.mappinmodal.getElementsByClassName("mappinmodal-slide");
-
-            // next slide
-            this.slideshowNext.addEventListener("click",(e ) => { 
-                if (this.slideshowSlides.length == 0) return;
-                this.slideshowSlides[this.slideshowCurrentSlide].classList.remove("active");
-                this.slideshowCurrentSlide ++;
-                if (this.slideshowCurrentSlide === this.slideshowSlides.length)
-                    this.slideshowCurrentSlide = 0;
-                this.slideshowSlides[this.slideshowCurrentSlide].classList.add("active");
-            });
-
-            // previous slide
-            this.slideshowPrev.addEventListener("click", (e) => {
-                if (this.slideshowSlides.length == 0) return;
-                this.slideshowSlides[this.slideshowCurrentSlide].classList.remove("active");
-                this.slideshowCurrentSlide --;
-                if (this.slideshowCurrentSlide < 0)
-                    this.slideshowCurrentSlide = (this.slideshowSlides.length - 1);
-                this.slideshowSlides[this.slideshowCurrentSlide].classList.add("active");
-            });
-
-            // set media query for images
-            const mediaQuery = window.matchMedia('(min-width: 992px)')
-            mediaQuery.addEventListener('change', (e) => {
-                if (this.slideshowSlides.length == 0) return;
-                if (e.matches) {
-                    for (var i = 0; i < this.slideshowSlides.length; i++) {
-                        this.slideshowSlides[i].style = "width: 500px; object-fit: scale-down";
-                    }
-                } else {
-                    for (var i = 0; i < this.slideshowSlides.length; i++) {
-                        this.slideshowSlides[i].style = "width: 300px; object-fit: scale-down";
-                    }
-                }
-            });
-            
             resolve();
+//return;
+//this.mappinmodal = this.requestor.parent.querySelector('.mappinmodal');
+//            L.DomEvent.on(mappinmodal, 'click', L.DomEvent.stopPropagation);
+//
+//
+//
+//
+//            // get select element and add event listener
+//            this.selectStatus = this.mappinmodal.querySelector('.mappinmodal-select_status');
+//            this.selectStatus.onchange = this.updateStatus.bind(this);
+//
+//            this.mappinmodalTitle = this.mappinmodal.querySelector('.mappinmodal-title');
+//
+//            // get content element
+//            this.content = this.mappinmodal.querySelector('.mappinmodal-content');
+//            this.content.style.display = 'block';
+//
+//            // get gallery
+//            this.gallery = this.mappinmodal.querySelector('.mappinmodal-gallery-box');
+//            this.gallery.style.display = 'none';
+//
+//            // get upload file
+//            this.uploadfile = this.mappinmodal.querySelector('.mappinmodal-uploadfile-component');
+//            this.uploadfile.style.display = 'none';
+//
+//            // get label
+//            this.label = this.mappinmodal.querySelector('.mappinmodal-labels-box');
+//            this.label.style.display = 'none';
+//
+//            // get tab showMeasurements
+//            this.tabShowMeasurements = this.mappinmodal.querySelector('.mappinmodal-tabShowMeasurements');
+//            this.tabShowMeasurements.onclick = this.show_mapPinData.bind(this);
+//
+//            // get tab showMapPinData showGallery
+//            this.tabShowGallery = this.mappinmodal.querySelector('.mappinmodal-tabShowGallery');
+//            this.tabShowGallery.onclick = this.show_gallery.bind(this);
+//
+//            // get tab showMapPinData showUpload
+//            this.tabShowUpload = this.mappinmodal.querySelector('.mappinmodal-tabShowUpload');
+//            this.tabShowUpload.onclick = this.show_uploadFile.bind(this);
+//
+//            // get tab label
+//            this.tabShowLabels = this.mappinmodal.querySelector('.mappinmodal-tabShowLabels');
+//            this.tabShowLabels.onclick = this.show_labels.bind(this);
+//            this.tabShowLabels.style.display = 'none';
+//
+//            // get update position button
+//            this.updateLocationButton = this.mappinmodal.querySelector('.mappinmodal-updateLocationButton');
+//            this.updateLocationButton.onclick = this.updateLocation.bind(this)
+//            this.updateLocationButton.style.display = 'none';
+//
+//            // get close mappinmodal menu button
+//            this.buttonCloseMappindata = this.mappinmodal.querySelector('.mappinmodal-button-close');
+//            this.buttonCloseMappindata.onclick = this.closeMapPinData.bind(this)
+//
+//            // hide element
+//            this.mappinmodal.style.display = 'none';
+//
+//            // saves images to slideshow and database when all files are uploaded
+//            document.addEventListener('swac_mappinmodal_uploadfile_files_uploaded', (allFiles) => {
+//                this.addImageToSlideshow(allFiles);
+//            });
+//
+//            // SLIDESHOW
+//            this.slideshowPrev = this.mappinmodal.querySelector(".mappinmodal-prev");
+//            this.slideshowNext = this.mappinmodal.querySelector(".mappinmodal-next");
+//            this.slideshowSlides = this.mappinmodal.getElementsByClassName("mappinmodal-slide");
+//
+//            // next slide
+//            this.slideshowNext.addEventListener("click", (e) => {
+//                if (this.slideshowSlides.length == 0)
+//                    return;
+//                this.slideshowSlides[this.slideshowCurrentSlide].classList.remove("active");
+//                this.slideshowCurrentSlide++;
+//                if (this.slideshowCurrentSlide === this.slideshowSlides.length)
+//                    this.slideshowCurrentSlide = 0;
+//                this.slideshowSlides[this.slideshowCurrentSlide].classList.add("active");
+//            });
+//
+//            // previous slide
+//            this.slideshowPrev.addEventListener("click", (e) => {
+//                if (this.slideshowSlides.length == 0)
+//                    return;
+//                this.slideshowSlides[this.slideshowCurrentSlide].classList.remove("active");
+//                this.slideshowCurrentSlide--;
+//                if (this.slideshowCurrentSlide < 0)
+//                    this.slideshowCurrentSlide = (this.slideshowSlides.length - 1);
+//                this.slideshowSlides[this.slideshowCurrentSlide].classList.add("active");
+//            });
+//
+//            // set media query for images
+//            const mediaQuery = window.matchMedia('(min-width: 992px)')
+//            mediaQuery.addEventListener('change', (e) => {
+//                if (this.slideshowSlides.length == 0)
+//                    return;
+//                if (e.matches) {
+//                    for (var i = 0; i < this.slideshowSlides.length; i++) {
+//                        this.slideshowSlides[i].style = "width: 500px; object-fit: scale-down";
+//                    }
+//                } else {
+//                    for (var i = 0; i < this.slideshowSlides.length; i++) {
+//                        this.slideshowSlides[i].style = "width: 300px; object-fit: scale-down";
+//                    }
+//                }
+//            });
+//
+//            resolve();
         });
+    }
+
+    onClickPin(e) {
+        // get mappinmodal element
+        let pinmodal = document.querySelector('#swac_worldmap2d_mappinmondal_modal');
+        UIkit.modal(pinmodal).show();
+        let set = e.detail.target.feature.set;
+        pinmodal.setAttribute('swac_setid', set.id);
+        console.log('TEST pinMarker: ', e);
+        this.lastClickedMarker = e.detail.target;
+        // Get name of table for object information
+        let ootableName = this.options.table_names.oo_table.table_name;
+
+        // Add location name
+        let titleElem = pinmodal.querySelector('.uk-modal-title');
+        titleElem.innerHTML = '';
+        if (set.name)
+            titleElem.innerHTML += set.name;
+        if (set[ootableName][0].name && set[ootableName][0].name !== set.name)
+            titleElem.innerHTML += ' (' + set[ootableName][0].name + ')';
+        // Add description
+        if (set.description) {
+            let descElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_locdesc');
+            descElem.innerHTML += set.description;
+        }
+        if (set[ootableName][0].description && set[ootableName][0].name !== set.description) {
+            let descElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_oodesc');
+            descElem.innerHTML = set[ootableName][0].description;
+        }
+        // Show latitude and longitude
+        let lonElem = document.querySelector('.swac_worldmap2d_mappinmodal_lon');
+        lonElem.value = set.coordinates.coordinates[0];
+        let latElem = document.querySelector('.swac_worldmap2d_mappinmodal_lat');
+        latElem.value = set.coordinates.coordinates[1];
+
+        // Show labels if active
+        const labelElem = document.querySelector('#mappinmodal_labels');
+        if (labelElem != null && labelElem.swac_comp) {
+            labelElem.swac_comp.removeAllData();
+            labelElem.swac_comp.addDataFromReference('ref://label_observedobject?filter=oo_id,eq,' + set[ootableName][0].id);
+        }
+
+        // Hide metadata tab if there is no metadata table
+        let metaTabElem = pinmodal.querySelector('.set_metadata');
+        if (!set[ootableName][0].meta_collection || !this.options.meta_iframelink) {
+            metaTabElem.classList.add('swac_dontdisplay');
+        } else {
+            metaTabElem.classList.remove('swac_dontdisplay');
+            let iframeElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_meta_iframe');
+            iframeElem.src = this.options.meta_iframelink.replace('{id}', set.id).replace('{meta_collection}', set[ootableName][0].meta_collection);
+        }
+
+        // Hide data tab if there is no data table
+        let dataTabElem = pinmodal.querySelector('.set_data');
+        if (!set[ootableName][0].data_collection || !this.options.data_iframelink) {
+            dataTabElem.classList.add('swac_dontdisplay');
+        } else {
+            dataTabElem.classList.remove('swac_dontdisplay');
+            let iframeElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_data_iframe');
+            iframeElem.src = this.options.data_iframelink.replace('{id}', set.id).replace('{data_collection}', set[ootableName][0].data_collection);
+        }
+
+        // Hide media tab if there is no media table
+        let mediaTabElem = pinmodal.querySelector('.set_media');
+        if (!set.media_collection) {
+            mediaTabElem.classList.add('swac_dontdisplay');
+        } else {
+            mediaTabElem.classList.remove('swac_dontdisplay');
+        }
+
+        // Redo translation
+        window.swac.lang.translateAll(pinmodal);
+    }
+
+    /**
+     * Executed when the gps position should be updated
+     * 
+     * @param {DOMEvent} evt Event requesting the update
+     */
+    async onClickGPSUpdate(evt) {
+        // Check if a position is available
+        if (!this.map.lastReceivedPosition) {
+            // Try get geolocation component
+            let geoLocElem = document.querySelector('[swa="Geolocation"]');
+            try {
+                let location = await geoLocElem.swac_comp.getCurrentLocation();
+            } catch (e) {
+                UIkit.modal.alert(e.msg);
+                return;
+            }
+            console.log('TEST geoElem:', location);
+        }
+
+        const lat = this.map.lastReceivedPosition.latitude;
+        const lng = this.map.lastReceivedPosition.longitude;
+        // Update in dialog
+        let latElem = document.querySelector('.swac_worldmap2d_mappinmodal_lat');
+        latElem.value = lat;
+        let lonElem = document.querySelector('.swac_worldmap2d_mappinmodal_lon');
+        lonElem.value = lng;
+
+        this.onClickGPSSave(evt);
+    }
+
+    /**
+     * Executed when the gps position should be saved
+     * 
+     * @param {DOMEvent} evt Event requesting the save
+     */
+    async onClickGPSSave(evt) {
+        const lat = document.querySelector('.swac_worldmap2d_mappinmodal_lat').value;
+        const lng = document.querySelector('.swac_worldmap2d_mappinmodal_lon').value;
+
+        // Update marker position
+        let newLatLng = new L.LatLng(lat, lng);
+        this.lastClickedMarker.setLatLng(newLatLng);
+
+        // Update in database
+        const dataCapsule = {
+            fromName: this.options.table_names.locations_table.table_name,
+            idAttr: this.options.table_names.locations_table.idAttr,
+            data: [{
+                    [this.options.table_names.locations_table.idAttr]: this.lastClickedMarker.feature.set.id,
+                    [this.options.table_names.locations_table.geojsonattr]: `POINT(${lng} ${lat})`
+                }]
+        }
+
+        try {
+            let Model = window.swac.Model;
+            Model.save(dataCapsule, true)
+        } catch (e) {
+            Msg.error("Error updating position", e)
+        }
+    }
+
+    deleteMetadataComponent() {
+        // get mappinmodal element
+        let pinmodal = document.querySelector('#swac_worldmap2d_mappinmondal_modal');
+        let metaElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_metatable');
+        if (metaElem != null && metaElem.swac_comp && metaElem.swac_comp.removeAllData) {
+            console.log('TEST existing comp: ', metaElem.swac_comp);
+            metaElem.swac_comp.removeAllData();
+        }
+    }
+
+    createMetadataComponent(set) {
+        let metaId = 'meta_' + set.id;
+        // get mappinmodal element
+        let pinmodal = document.querySelector('#swac_worldmap2d_mappinmondal_modal');
+        let metaElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_metatable');
+        metaElem.setAttribute('id', metaId);
+        let metaSwa = 'Edit FROM ' + set.meta_collection + ' WHERE filter=oo_id,eq,' + set.id;
+        metaElem.setAttribute('swa', metaSwa);
+        // render edit component
+        let viewHandler = new ViewHandler();
+        viewHandler.load(metaElem);
+    }
+
+    deleteDataComponent() {
+        // get mappinmodal element
+        let pinmodal = document.querySelector('#swac_worldmap2d_mappinmondal_modal');
+        let metaElem = pinmodal.querySelector('.datalist');
+        if (metaElem != null && metaElem.swac_comp)
+            metaElem.swac_comp.delete();
+    }
+
+    createDataComponent(set) {
+        let dataId = 'data_' + set.id;
+        // get mappinmodal element
+        let pinmodal = document.querySelector('#swac_worldmap2d_mappinmondal_modal');
+        let dataElem = pinmodal.querySelector('.datalist');
+        dataElem.setAttribute('id', dataId);
+        let dataSwa = 'Present FROM {data_collection} WHERE geotransform=latlon TEMPLATE table_for_all_datasets';
+        dataSwa = dataSwa.replace('{data_collection}', set.data_collection).replace('{id}', set.id);
+        dataElem.setAttribute('swa', dataSwa);
+        dataElem.innerHTML = '<table id="datatable" class="uk-table uk-table-divider uk-table-striped"><tr><th class="func_labels" swac_lang="data_list_labels"></th><th class="swac_repeatForAttribute">{attrName}</th></tr><tr class="swac_repeatForSet"><td class="func_labels"><div id="labels_{id}" swa="Labeling FROM label_datasets WHERE filter=set_id,eq,{id} AND filter=data_collection,eq,{{data_collection}} OPTIONS labels_options"></div></td><td class="swac_repeatForValue"><span uk-tooltip="title: {attrName}">{*}</span></td></tr></table>';
+        // render edit component
+        let viewHandler = new ViewHandler()
+        viewHandler.load(dataElem);
     }
 
     /**
@@ -223,7 +426,7 @@ export default class MapPinModalSPL extends Plugin {
      * @returns {undefined}
      */
     async onMarkerClick(event) {
-
+        console.log('TEST onMarkerClick');
         const e = event.detail;
         // disable map interactions
         this.map.disableMapInteractions();
@@ -243,18 +446,18 @@ export default class MapPinModalSPL extends Plugin {
             this.mappinmodal.querySelector(".mappinmodal-select_status_false").setAttribute('selected', true);
             this.mappinmodal.querySelector(".mappinmodal-select_status_true").removeAttribute('selected');
         }
-        
+
         //set the name of the observedobject as title
-        if(this.marker.feature.set.name !== ""){
+        if (this.marker.feature.set.name !== "") {
             this.changeTitlesToOOName();
-       }
-       
+        }
+
         this.createEditComponent();
-        if (this.map.plugins.get('Labels')) this.createLabelComponent();
+        if (this.map.plugins.get('Labels'))
+            this.createLabelComponent();
         this.createUploadFileComponent();
         this.checkForLocationUpdate();
     }
-    
 
     /**
      * Update the completed state of the observed object
@@ -312,8 +515,8 @@ export default class MapPinModalSPL extends Plugin {
         this.uploadfile.style.display = "none";
         this.label.style.display = "none";
     }
-    
-        /**
+
+    /**
      * Displays map pin data
      * @returns {undefined}
      */
@@ -342,32 +545,6 @@ export default class MapPinModalSPL extends Plugin {
     }
 
     /**
-     * Updates the location of the observed object
-     * @returns {undefined}
-     */
-    updateLocation() {
-        let Model = window.swac.Model;
-
-        const lat = this.map.lastReceivedPosition.latitude;
-        const lng = this.map.lastReceivedPosition.longitude;
-
-        const dataCapsule = {
-            fromName: this.options.table_names.locations_table.table_name,
-            idAttr: this.options.table_names.locations_table.idAttr,
-            data: [{
-                    [this.options.table_names.locations_table.idAttr]: this.marker.feature.set.tbl_location[0].id,
-                    [this.options.table_names.locations_table.geojsonattr]: `POINT(${lng} ${lat})`
-                }]
-        }
-
-        try {
-            Model.save(dataCapsule, true)
-        } catch (e) {
-            Msg.error("Error updating position", e)
-        }
-    }
-
-    /**
      * Dynamically create edit component 
      */
     async createEditComponent() {
@@ -375,7 +552,7 @@ export default class MapPinModalSPL extends Plugin {
         const edit = document.createElement('div');
         edit.id = 'mappinmodal_swac_edit_marker_data';
         edit.classList.add('mappinmodal_swac_edit_marker_data');
-        edit.setAttribute('swa', 'Edit FROM ' + this.marker.feature.set.collection + ' WHERE size='+ this.options.data_size +' TEMPLATE accordion_worldmap2d');
+        edit.setAttribute('swa', 'Edit FROM ' + this.marker.feature.set.collection + ' WHERE size=' + this.options.data_size + ' TEMPLATE accordion_worldmap2d');
         window.mappinmodal_swac_edit_marker_data_options = {
             mainSource: this.marker.feature.set.collection,
             notShownAttrs: {[this.marker.feature.set.collection]: ['id', 'name']},
@@ -409,37 +586,6 @@ export default class MapPinModalSPL extends Plugin {
         // detect requestor and load component
         let viewHandler = new ViewHandler()
         viewHandler.load(edit);
-    }
-
-    /**
-     * Dynamically create label component
-     */
-    createLabelComponent() {
-        // Add label
-        this.tabShowLabels.style.display = 'block';
-        let labelContElem = this.mappinmodal.querySelector('.mappinmodal-labels-box'); 
-        labelContElem.setAttribute('swac_setid', this.marker.feature.set.id);
-        let labelElem = document.createElement('div')
-        labelElem.id = 'labeling'
-        labelElem.classList.add('mappinmodal_labeling')
-        labelElem.setAttribute('swa', `Labeling FROM label_observedobject WHERE filter=oo_id,eq,${this.marker.feature.set.id} OPTIONS labels_options`)
-        labelContElem.appendChild(labelElem);
-        // check if labels_options is set
-        if (!window.labels_options) {
-            window.labels_options = {
-                showWhenNoData: true,
-                labeledidAttr: 'oo_id',
-                labelSource: {
-                    fromName: 'label_labels',
-                    fromWheres: {
-                        filter: 'isavailforobjects,eq,true'
-                    }
-                },
-            };
-        }
-        // render labeling component
-        let viewHandler = new ViewHandler()
-        viewHandler.load(labelElem);
     }
 
     /**
@@ -526,7 +672,7 @@ export default class MapPinModalSPL extends Plugin {
         let dataCapsuleFileOO = {
             fromName: this.options.table_names.file_table.table_name, // Name of the datatable
             fromWheres: {
-                filter: this.options.table_names.file_table.idAttr +',eq,' + file_id
+                filter: this.options.table_names.file_table.idAttr + ',eq,' + file_id
             },
             idAttr: this.options.table_names.file_table.idAttr, // Name of sets attribute that contains the id
             attributeDefaults: new Map(), // Map of attributname / value for default values when the attribute is missing
@@ -543,36 +689,36 @@ export default class MapPinModalSPL extends Plugin {
     }
 
     /**
-    * adds previously uploaded images to the database and slideshow 
-    */    
+     * adds previously uploaded images to the database and slideshow 
+     */
     addImageToSlideshow(allFiles) {
         // gets uploaded files from event in the swac upload component
         for (let file of allFiles.detail) {
-                if (file.id != undefined) {
-                    this.saveFile_OO(this.marker.feature.set.id, file.id)
-                            .then(() => {
-                                // adds uploaded photo to the slideshow
-                                this.createImageElement(file.path);
-                                const list = document.getElementsByClassName('mappinmodal-slide');
-                                if (list.length == 1) {
+            if (file.id != undefined) {
+                this.saveFile_OO(this.marker.feature.set.id, file.id)
+                        .then(() => {
+                            // adds uploaded photo to the slideshow
+                            this.createImageElement(file.path);
+                            const list = document.getElementsByClassName('mappinmodal-slide');
+                            if (list.length == 1) {
                                 // set uploaded image to active
                                 list[0].setAttribute('class', 'mappinmodal-slide active');
-                                }
-                                // show prev and next buttons if more than one image
-                                if (list.length < 2) {
-                                    this.mappinmodal.querySelector('.mappinmodal-button-box').style.display = 'none';
-                                } else {
-                                    this.mappinmodal.querySelector('.mappinmodal-button-box').style.display = 'flex';
-                                }
-                                // clears index db
-                                this.clearIndexDBData();
-                            }).catch(error => {
-                        Msg.error('MapPinModalSPL', 'Could not add image to the slideshow >: ' + error);
-                    });
-                }
+                            }
+                            // show prev and next buttons if more than one image
+                            if (list.length < 2) {
+                                this.mappinmodal.querySelector('.mappinmodal-button-box').style.display = 'none';
+                            } else {
+                                this.mappinmodal.querySelector('.mappinmodal-button-box').style.display = 'flex';
+                            }
+                            // clears index db
+                            this.clearIndexDBData();
+                        }).catch(error => {
+                    Msg.error('MapPinModalSPL', 'Could not add image to the slideshow >: ' + error);
+                });
             }
         }
-        
+    }
+
     /**
      * Gets file reference from joined table
      * @param {*} oo_id 
@@ -585,7 +731,7 @@ export default class MapPinModalSPL extends Plugin {
         let dataCapsuleFileOO = {
             fromName: this.options.table_names.file_join_oo_table.table_name, // Name of the datatable
             fromWheres: {
-                filter: this.options.table_names.file_join_oo_table.oo_id+ ',eq,' + oo_id
+                filter: this.options.table_names.file_join_oo_table.oo_id + ',eq,' + oo_id
             },
             idAttr: this.options.table_names.file_join_oo_table.idAttr, // Name of sets attribute that contains the id
             attributeDefaults: new Map(), // Map of attributname / value for default values when the attribute is missing
@@ -634,19 +780,19 @@ export default class MapPinModalSPL extends Plugin {
 
             // request to clear all the data out of the object store
             const objectStoreRequest = objectStore.clear();
-            };
         };
-        
-    /**
-     * Close map pin modal.
-     * @returns {undefined}
-     */
-    closeMapPinData() {
+    }
+    ;
+            /**
+             * Close map pin modal.
+             * @returns {undefined}
+             */
+            closeMapPinData() {
         // reset active tab
         this.tabShowMeasurements.classList.add("uk-active");
         this.tabShowGallery.classList.remove("uk-active");
         this.tabShowUpload.classList.remove("uk-active");
-        
+
         this.map.enableMapInteractions();
         this.mappinmodal.style.display = 'none';
         this.uploadfile.style.display = 'none';
@@ -663,10 +809,7 @@ export default class MapPinModalSPL extends Plugin {
         const slideshowImages = this.mappinmodal.querySelector('.mappinmodal-slideshow-list');
         slideshowImages.innerHTML = '';
 
-        // delete label component
-        const label = this.mappinmodal.querySelector('.mappinmodal_labeling');
-        if (label != null)
-            label.swac_comp.delete();
+
 
         // const parent = mappinmodal.parentNode;
         // this.mappinmodal.remove();
@@ -674,5 +817,3 @@ export default class MapPinModalSPL extends Plugin {
 
     }
 }
-
-
