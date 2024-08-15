@@ -1276,11 +1276,11 @@ DEFINTION of SET:\n\
      */
     getDataDefinitionsForDatasource(fromName) {
         return new Promise((resolve, reject) => {
-            if(!this.data[fromName]) {
+            if (!this.data[fromName]) {
                 reject();
                 return;
             }
-                
+
             let thisRef = this;
             // Load DatatypeReflection
             this.getDatatypeReflection().then(function (dtr) {
@@ -1381,9 +1381,22 @@ DEFINTION of SET:\n\
             }
             // Build datacapsle
             let dataCapsle = {
-                data: this.data[curFromName].getSets(),
                 fromName: curFromName
             };
+            // Add saveAlongData to every dataset if defined
+            if (this.options.saveAlongData) {
+                dataCapsle.data = [];
+                for (let curSet of this.data[curFromName].getSets()) {
+                    let saveset = curSet.copy();
+                    for (let curAttr in this.options.saveAlongData) {
+                        saveset[curAttr] = this.options.saveAlongData[curAttr];
+                    }
+                    dataCapsle.data.push(saveset);
+                }
+            } else {
+                dataCapsle.data = this.data[curFromName].getSets();
+            }
+
             // Save data
             Model.save(dataCapsle).then(function (data) {
                 thisRef.afterSave(dataCapsle);
