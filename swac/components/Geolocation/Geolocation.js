@@ -120,6 +120,11 @@ export default class Geolocation extends View {
             desc: 'An event fired when a new geolocation information was recived.',
             data: 'Delivers the JS event object of the click event.'
         }
+        this.desc.events[1] = {
+            name: 'swac_REQUESTOR_ID_geolocation_faillocation',
+            desc: 'An event fired when requested geolocation could not recived.',
+            data: 'Delivers the error message in the detail.msg field.'
+        }
 
         if (!options.plugins) {
             this.options.plugins = new Map();
@@ -235,6 +240,9 @@ export default class Geolocation extends View {
             thisRef.oncelocate();
             document.addEventListener('swac_' + thisRef.requestor.id + '_geolocation_newlocation', function (evt) {
                 resolve(evt.detail);
+            });
+            document.addEventListener('swac_' + thisRef.requestor.id + '_geolocation_failedlocation', function (evt) {
+                reject(evt.detail);
             });
         });
     }
@@ -396,25 +404,32 @@ export default class Geolocation extends View {
      */
     onError(error) {
         let infoElem = this.requestor.querySelector('.swac_geolocation_info');
-
+        let msg;
+        
         switch (error.code) {
             case error.PERMISSION_DENIED:
                 Msg.warn('geolocation', 'User denied the request for Geolocation.');
-                infoElem.innerHTML = SWAC.lang.dict.Geolocation.apiusedenied;
+                infoElem.innerHTML = msg = SWAC.lang.dict.Geolocation.apiusedenied;
                 break;
             case error.POSITION_UNAVAILABLE:
                 Msg.warn('geolocation', "Location information is unavailable.");
-                infoElem.innerHTML = SWAC.lang.dict.Geolocation.unavailable;
+                infoElem.innerHTML = msg = SWAC.lang.dict.Geolocation.unavailable;
                 break;
             case error.TIMEOUT:
                 Msg.warn('geolocation', "The request to get user location timed out.");
-                infoElem.innerHTML = SWAC.lang.dict.Geolocation.timeout;
+                infoElem.innerHTML = msg = SWAC.lang.dict.Geolocation.timeout;
                 break;
             case error.UNKNOWN_ERROR:
                 Msg.warn('geolocation', 'An unknown error occurred.');
-                infoElem.innerHTML = SWAC.lang.dict.Geolocation.unkownerror;
+                infoElem.innerHTML = msg = SWAC.lang.dict.Geolocation.unkownerror;
                 break;
         }
+
+        let thisRef = this;
+        // Fire event for failed location
+        document.dispatchEvent(new CustomEvent('swac_' + thisRef.requestor.id + '_geolocation_failedlocation', {detail: {
+                msg: msg
+            }}))
     }
 
     /**
