@@ -162,15 +162,15 @@ export default class CreateObjectModalSPL extends Plugin {
                     div.classList.add('leaflet-control');
                     let a = document.createElement('a');
                     a.classList.add('swac_worldmap2d_com_toolbtn');
-                    a.setAttribute('uk-icon','plus');
-                    a.setAttribute('uk-tooltip',SWAC.lang.dict.Worldmap2d_CreateObjectModal.object_add);
-                    a.addEventListener('click',function(evt) {
+                    a.setAttribute('uk-icon', 'plus');
+                    a.setAttribute('uk-tooltip', SWAC.lang.dict.Worldmap2d_CreateObjectModal.object_add);
+                    a.addEventListener('click', function (evt) {
                         evt.preventDefault();
                         evt.stopPropagation();
                         // Toggle object creation mode
-                        if(thisRef.createMode) {
+                        if (thisRef.createMode) {
                             thisRef.createMode = false;
-                            a.setAttribute('style','color: black;');
+                            a.setAttribute('style', 'color: black;');
                         } else {
                             thisRef.createMode = true;
                             a.style.color = 'red';
@@ -190,7 +190,7 @@ export default class CreateObjectModalSPL extends Plugin {
             L.control.createobjectmodal({position: 'topleft'}).addTo(this.map.viewer);
 
             document.addEventListener('swac_' + this.requestor.parent.id + '_map_click', (e) => {
-                if(thisRef.createMode)
+                if (thisRef.createMode)
                     this.onMapClick(e);
             })
 
@@ -201,40 +201,6 @@ export default class CreateObjectModalSPL extends Plugin {
             this.input_data_collection = this.com.querySelector('.com-datacollection');
             this.input_meta_collection = this.com.querySelector('.com-metacollection');
             this.select_status = this.com.querySelector('.com-status');
-
-            // dynmically import type selection with select comp for measurement point based on datasource
-            const type_placeholder = this.com.querySelector('.com-type-placeholder');
-            if (this.options.typesRequestor) {
-                this.select_type = document.createElement('div');
-                this.select_type.setAttribute('id', 'com_type');
-                this.select_type.setAttribute('class', 'com-type uk-margin-small-bottom');
-                this.select_type.setAttribute('swa', 'Select FROM ' + this.options.typesRequestor.fromName + ' TEMPLATE datalist');
-                this.select_type.setAttribute('required', true);
-                type_placeholder.appendChild(this.select_type);
-                let viewHandler = new ViewHandler();
-                let thisRef = this;
-                viewHandler.load(this.select_type).then(function () {
-                    thisRef.select_type.querySelector('input').addEventListener('input', thisRef.onChangeType.bind(thisRef));
-                });
-            } else {
-                let type_label = this.com.querySelector('.com-type-label');
-                type_label.classList.add('swac_dontdisplay');
-            }
-
-            const parent_placeholder = this.com.querySelector('.com-parent-placeholder');
-            if (this.options.parentRequestor) {
-                this.select_parent = document.createElement('div');
-                this.select_parent.setAttribute('id', 'com_parent');
-                this.select_parent.setAttribute('class', 'com-parent uk-margin-small-bottom');
-                this.select_parent.setAttribute('swa', 'Select FROM ' + this.options.parentRequestor.fromName + ' TEMPLATE datalist');
-                this.select_parent.setAttribute('required', true);
-                parent_placeholder.appendChild(this.select_parent);
-                let viewHandler = new ViewHandler()
-                viewHandler.load(this.select_parent);
-            } else {
-                let parent_label = this.com.querySelector('.com-parent-label');
-                parent_label.classList.add('swac_dontdisplay');
-            }
 
             // get close measurementmodal menu button
             this.buttonCloseMeasurementmodal = this.com.querySelector('.com-button-close');
@@ -267,7 +233,7 @@ export default class CreateObjectModalSPL extends Plugin {
             };
 
             const saveBtn = this.com.querySelector('.com-save-button');
-            saveBtn.addEventListener('click', function(evt) {
+            saveBtn.addEventListener('click', function (evt) {
                 evt.preventDefault();
                 thisRef.map.enableMapInteractions();
                 thisRef.save();
@@ -297,6 +263,45 @@ export default class CreateObjectModalSPL extends Plugin {
 
             // Show up modal
             this.com.style.display = 'flex';
+
+            // dynmically import type selection with select comp for measurement point based on datasource
+            const type_placeholder = this.com.querySelector('.com-type-placeholder');
+            if (!type_placeholder.querySelector('#com_type')) {
+                if (this.options.typesRequestor) {
+                    this.select_type = document.createElement('div');
+                    this.select_type.setAttribute('id', 'com_type');
+                    this.select_type.setAttribute('class', 'com-type uk-margin-small-bottom');
+                    this.select_type.setAttribute('swa', 'Select FROM ' + this.options.typesRequestor.fromName + ' TEMPLATE datalist');
+                    this.select_type.setAttribute('required', true);
+                    type_placeholder.appendChild(this.select_type);
+                    let viewHandler = new ViewHandler();
+                    let thisRef = this;
+                    viewHandler.load(this.select_type).then(function () {
+                        thisRef.select_type.querySelector('input').addEventListener('input', thisRef.onChangeType.bind(thisRef));
+                    });
+                } else {
+                    let type_label = this.com.querySelector('.com-type-label');
+                    type_label.classList.add('swac_dontdisplay');
+                }
+            }
+
+            // Load possible parents
+            const parent_placeholder = this.com.querySelector('.com-parent-placeholder');
+            if (!parent_placeholder.querySelector('#com_parent')) {
+                if (this.options.parentRequestor) {
+                    this.select_parent = document.createElement('div');
+                    this.select_parent.setAttribute('id', 'com_parent');
+                    this.select_parent.setAttribute('class', 'com-parent uk-margin-small-bottom');
+                    this.select_parent.setAttribute('swa', 'Select FROM ' + this.options.parentRequestor.fromName + ' TEMPLATE datalist');
+                    this.select_parent.setAttribute('required', true);
+                    parent_placeholder.appendChild(this.select_parent);
+                    let viewHandler = new ViewHandler()
+                    viewHandler.load(this.select_parent);
+                } else {
+                    let parent_label = this.com.querySelector('.com-parent-label');
+                    parent_label.classList.add('swac_dontdisplay');
+                }
+            }
         } else {
             Msg.info('CreateObjectModalSPL', 'Required requestor for creating an object is not in ' + this.requestor.id + ' options defined. Define >objectRequestor<');
         }
@@ -376,7 +381,7 @@ export default class CreateObjectModalSPL extends Plugin {
 
     // save new object to database
     async save() {
-        Msg.flow('CreateObjectModalSPL','save() called',this.requestor.parent);
+        Msg.flow('CreateObjectModalSPL', 'save() called', this.requestor.parent);
         let Model = window.swac.Model;
         let typeId = null;
         if (this.select_type && this.select_type.swac_comp.getInputs()[0]) {
