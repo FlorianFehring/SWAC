@@ -5,6 +5,20 @@
         <input class="uk-input swac_fileselect" type="file">
         <span class="uk-link" swac_lang="Upload.draganddropfile">Drop file here</span>
     </div>
+    <span class="swac_upload_camcapture_link" swac_lang="Upload.device_select">Or select cam for captureing</span>
+</div>
+<div class="swac_upload_preview uk-text-center">
+    <span uk-icon="icon: camera"></span>
+    <label class="uk-form-label" swac_lang="Upload.device_active">Active capture device</label>
+    <select class="swac_upload_devicelist uk-select"></select>
+    <div class="swac_upload_preview uk-flex uk-flex-center uk-padding">
+        <video autoplay width="640" height="480">Video stream not available</video>
+        <canvas class="swac_upload_recording_canvas" width="640" height="480"></canvas>
+    </div>
+    <div class="uk-flex uk-flex-center" uk-margin>
+        <button class="swack_upload_takephoto uk-button uk-button-primary uk-margin-right" swac_lang="Upload.take_photo">Take photo</button>
+        <button class="swac_upload_capvideo uk-button uk-button-primary uk-margin-left" swac_lang="Upload.capture_video">Capture video</button>
+    </div>
 </div>
 <table class="uk-table uk-table-divider">
     <thead>

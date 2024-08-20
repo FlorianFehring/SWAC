@@ -179,6 +179,13 @@ export default class Upload extends View {
         if (!typeof options.uploadresultcollection)
             this.options.uploadresultcollection = null;
 
+        this.desc.opts[12] = {
+            name: 'camcapture',
+            desc: 'If true users have the possibility to capture photo or video over a dialog.'
+        };
+        if (typeof options.camcapture === 'undefined')
+            this.options.camcapture = false;
+
         // Definition of available plugins
         if (!options.plugins) {
             this.options.plugins = new Map();
@@ -195,6 +202,8 @@ export default class Upload extends View {
         this.filesdb = null; //Storage for all uploadfiles
         this.fileuploader = null;   // Object used for file uploading
         this.newFiles = [];  // Storage for new files
+        this.currentDeviceStream = null; // Stream from connected device
+        this.deviceRecorder = null; // Object for recording purposes
     }
 
     init() {
@@ -219,6 +228,21 @@ export default class Upload extends View {
             if (this.options.multiple) {
                 let inputElem = this.requestor.querySelector('.swac_fileselect');
                 inputElem.setAttribute('multiple', '');
+            }
+
+            // Add event listener for click on capture mode
+            let camcapturelinkElem = this.requestor.querySelector('.swac_upload_camcapture_link');
+            if (this.options.camcapture) {
+                camcapturelinkElem.addEventListener('click', this.onCamcaptureStart.bind(this));
+                this.updateAvailableDevices();
+                let deviceListElem = this.requestor.querySelector('.swac_upload_devicelist');
+                deviceListElem.addEventListener('change', this.onDeviceSelect.bind(this));
+                let takePhotoElem = this.requestor.querySelector('.swack_upload_takephoto');
+                takePhotoElem.addEventListener('click',this.onTakePhoto.bind(this));
+                let capVideoElem = this.requestor.querySelector('.swac_upload_capvideo');
+                capVideoElem.addEventListener('click',this.onCaptureVideo.bind(this));
+            } else {
+                camcapturelinkElem.remove();
             }
 
             // Note new files
@@ -622,7 +646,6 @@ export default class Upload extends View {
         resTplElem.parentElement.appendChild(resElem);
         resElem.classList.remove('swac_dontdisplay');
         resElem.setAttribute('swac_fromName', file.swac_fromName);
-        console.log('TEST uploadView: ', file, resElem);
         let fileSet = new WatchableSet(file);
         let transformer = new InputElemTransformer(this, this.options.definitions);
         transformer.modifyInputArea(resElem, fileSet);
@@ -1234,5 +1257,151 @@ export default class Upload extends View {
             return audioElem;
         }
         return null;
+    }
+
+    onCamcaptureStart() {
+        Msg.flow('Upload', 'Started camcapture dialog.', this.requestor);
+    }
+
+    /**
+     * Gets the available cams from browser and calls the updateDeviceList()
+     */
+    updateAvailableDevices() {
+        let thisRef = this;
+        navigator.mediaDevices.enumerateDevices().then(thisRef.updateDeviceList.bind(thisRef));
+    }
+
+    /**
+     * Updates the list of known capture devices
+     * 
+     * @param {DOMMediaDevices} devices List of media devices
+     */
+    updateDeviceList(devices) {
+        let deviceListElem = this.requestor.querySelector('.swac_upload_devicelist');
+        // Notice until yet selected device
+        let selDevice = deviceListElem.value;
+        deviceListElem.innerHTML = '';
+        // Create "select none" entry
+        deviceListElem.appendChild(document.createElement('option'));
+        let count = 1;
+        // Add option for each available device
+        devices.forEach(device => {
+            if (device.kind === 'videoinput') {
+                const option_elem = document.createElement('option');
+                option_elem.value = device.deviceId;
+                option_elem.textContent = device.label || `Camera ${count++}`;
+                deviceListElem.appendChild(option_elem);
+            }
+        })
+        // Reactivate prev selected device
+        if (selDevice !== '') {
+            deviceListElem.value = selDevice;
+        }
+    }
+
+    /**
+     * Executed when the user selects a capture device
+     */
+    onDeviceSelect() {
+        let deviceListElem = this.requestor.querySelector('.swac_upload_devicelist');
+
+        // Stop current device stream if there is one
+        if (this.currentDeviceStream) {
+            this.currentDeviceStream.getTracks().forEach(track => {
+                track.stop();
+            });
+        }
+
+        // Build media constraints
+        let mediaConstr = {
+            video: {},
+            audio: false
+        };
+        if (deviceListElem.value == '') {
+            // No device selection
+            mediaConstr.video.facingMode = 'environment';
+        } else {
+            // Find device with id
+            mediaConstr.video.deviceId = {exact: deviceListElem.value};
+        }
+
+        let prevElem = this.requestor.querySelector('.swac_upload_preview');
+        // Show connecting symbol
+        const spinner = document.createElement('div');
+        spinner.setAttribute('uk-spinner', 'ratio: 4.5');
+        prevElem.appendChild(spinner);
+        // Connect to device
+        navigator.mediaDevices.getUserMedia(mediaConstr)
+                .then(stream => {
+                    spinner.remove();
+                    this.currentStream = stream;
+                    prevElem.querySelector('video').srcObject = stream;
+                    this.deviceRecorder = new MediaRecorder(stream);
+                    return navigator.mediaDevices.enumerateDevices();
+                })
+                .then(this.updateDeviceList.bind(this))
+                .catch(err => {
+                    Msg.error('Upload', 'Error accessing the media device: ' + err, this.requester)
+                    UIkit.notification({
+                        message: SWAC.lang.dict.Upload.device_conerror,
+                        status: 'error',
+                        pos: 'top-center',
+                        timeout: 5000
+                    });
+                })
+                .finally(() => {
+                    spinner.remove();
+                })
+    }
+    
+    /**
+     * Performed when user clicks on the take photo button
+     */
+    onTakePhoto() {
+        Msg.flow('Upload','onTakePhoto()',this.requestor);
+        let prevElem = this.requestor.querySelector('.swac_upload_preview');
+        let canvasElem = prevElem.querySelector('canvas');
+        
+        const context = canvasElem.getContext('2d');
+        context.drawImage(prevElem.querySelector('video'), 0, 0, canvasElem.width, canvasElem.height);
+        const name = Date.now().toString() + '-picture.jpeg';
+        const type = 'image/jpeg';
+        canvasElem.toBlob((blob) => {
+            const file = new File([blob], name, { type: type});
+            this.addFile(file);
+        },'image/jpeg');
+    }
+    
+    /**
+     * Perforemed when user clicks on capture video button
+     */
+    onCaptureVideo() {
+        Msg.flow('Upload','onCaptureVideo()',this.requestor);
+        let capVideoElem = this.requestor.querySelector('.swac_upload_capvideo');
+        this.deviceRecorder.ondataavailable = (e) => {
+            const name = Date.now().toString() + '-video.mp4';
+            const type = 'video/mp4';
+            const file = new File([e.data], name, { type: type})
+            this.addFile(file);
+        }
+        if (this.deviceRecorder.state === 'recording') {
+            this.deviceRecorder.stop();
+            capVideoElem.textContent = SWAC.lang.dict.Upload.capture_video;
+            UIkit.notification({
+                message: SWAC.lang.dict.Upload.device_recsaved,
+                status: 'sucess',
+                pos: 'top-center',
+                timeout: 2500
+            });
+        } else {
+            this.deviceRecorder.start();
+            capVideoElem.textContent = SWAC.lang.dict.Upload.capture_stop;
+            UIkit.notification({
+                message: SWAC.lang.dict.Upload.device_recstarted,
+                status: 'sucess',
+                pos: 'top-center',
+                timeout: 2500
+            });
+        }
     }
 }

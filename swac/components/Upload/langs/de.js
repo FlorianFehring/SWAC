@@ -23,5 +23,13 @@ var Upload_de = {
     column_type: 'Typ',
     column_status: 'Status',
     column_remove: 'Löschen',
+    device_select: 'Oder ein Gerät benutzen.',
+    device_active: 'Ausgewähltes Gerät',
+    device_conerror: 'Fehler beim Verbinden zum Gerät',
+    take_photo: 'Foto machen',
+    capture_video: 'Video aufzeichnen',
+    capture_stop: 'Aufzeichnung stoppen',
+    device_recstarted: 'Aufzeichnung gestartet',
+    device_recsaved: 'Aufzeichnung gespeichert'
 };
 export default Upload_de;
