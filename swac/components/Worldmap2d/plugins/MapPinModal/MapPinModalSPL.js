@@ -61,15 +61,22 @@ export default class MapPinModalSPL extends Plugin {
             name: 'data_iframelink',
             desc: 'Link to the page embedding the data.'
         };
-        if (typeof options.data_size === 'undefined')
-            this.options.data_size = 10;
+        if (!options.data_iframelink)
+            this.options.data_iframelink = null;
 
         this.desc.opts[3] = {
             name: 'meta_iframelink',
             desc: 'Link to the page embedding the meta data.'
         };
-        if (typeof options.meta_iframelink === 'undefined')
+        if (!options.meta_iframelink)
             this.options.meta_iframelink = null;
+
+        this.desc.opts[4] = {
+            name: 'media_iframelink',
+            desc: 'Link to the page embedding the media page.'
+        };
+        if (!options.media_iframelink)
+            this.options.media_iframelink = null;
 
         // Internal useage attributes
         this.lastClickedMarker = null;
@@ -120,6 +127,12 @@ export default class MapPinModalSPL extends Plugin {
 
             // add event listener for mapMarkerClick
             document.addEventListener('swac_' + this.requestor.parent.id + '_marker_click', this.onClickPin.bind(this));
+
+            // Add event listener for location input
+            let lonElem = document.querySelector('.swac_worldmap2d_mappinmodal_lon');
+            lonElem.addEventListener('change', this.onChangeGPS.bind(this));
+            let latElem = document.querySelector('.swac_worldmap2d_mappinmodal_lat');
+            latElem.addEventListener('change', this.onChangeGPS.bind(this));
 
             // add event listener for update location click
             document.querySelector('.swac_worldmap2d_mappinmodal_upd').addEventListener('click', this.onClickGPSUpdate.bind(this));
@@ -276,12 +289,19 @@ export default class MapPinModalSPL extends Plugin {
             labelElem.swac_comp.addDataFromReference('ref://label_observedobject?filter=oo_id,eq,' + set[ootableName][0].id);
         }
 
+        let switcher = document.querySelector('.swac_worldmap2d_mappinmodal_datatabs');
+        // Fist visible tab activated
+        let tab_actived = false;
+
         // Hide metadata tab if there is no metadata table
         let metaTabElem = pinmodal.querySelector('.set_metadata');
         if (!set[ootableName][0].meta_collection || !this.options.meta_iframelink) {
+            Msg.warn('MapPinModal', 'Metadata tab will be hidden. There is no meta_collection defined or no meta_iframelink in the options.');
             metaTabElem.classList.add('swac_dontdisplay');
         } else {
+            console.log('TEST mata to display');
             metaTabElem.classList.remove('swac_dontdisplay');
+            tab_actived = true;
             let iframeElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_meta_iframe');
             iframeElem.src = this.options.meta_iframelink.replace('{id}', set.id).replace('{meta_collection}', set[ootableName][0].meta_collection);
         }
@@ -292,20 +312,35 @@ export default class MapPinModalSPL extends Plugin {
             dataTabElem.classList.add('swac_dontdisplay');
         } else {
             dataTabElem.classList.remove('swac_dontdisplay');
+            if (!tab_actived) {
+                console.log('switch 1');
+                UIkit.switcher(switcher).show(1);
+                tab_actived = true;
+            }
+            console.log('TEST data iframelink: ', this.options.data_iframelink);
             let iframeElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_data_iframe');
             iframeElem.src = this.options.data_iframelink.replace('{id}', set.id).replace('{data_collection}', set[ootableName][0].data_collection);
         }
 
         // Hide media tab if there is no media table
         let mediaTabElem = pinmodal.querySelector('.set_media');
-        if (!set.media_collection) {
+        console.log('TEST before media_iframelink', this.options.media_iframelink);
+        if (!this.options.media_iframelink) {
             mediaTabElem.classList.add('swac_dontdisplay');
         } else {
+            console.log('TEST media_iframelink from opts: ' + this.options.media_iframelink);
             mediaTabElem.classList.remove('swac_dontdisplay');
+            if (!tab_actived) {
+                UIkit.switcher(switcher).show(3);
+                tab_actived = true;
+            }
+            let iframeElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_media_iframe');
+            iframeElem.src = this.options.media_iframelink.replace('{id}', set.id).replace('{media_collection}', set[ootableName][0].media_collection);
+            console.log('TEST update iframe link for media: ' + iframeElem.src);
         }
 
         // Redo translation
-        window.swac.lang.translateAll(pinmodal);
+//        window.swac.lang.translateAll(pinmodal);
     }
 
     /**
@@ -815,5 +850,28 @@ export default class MapPinModalSPL extends Plugin {
         // this.mappinmodal.remove();
         // parent.appendChild(this.mappinmodal);
 
+    }
+
+    /**
+     * Called when a GPS input has changed
+     * 
+     * @param {DOMEvent} evt Change event
+     */
+    onChangeGPS(evt) {
+        let input = evt.target.value;
+        // Check if input is DMS format
+        if (input.includes('°') && input.includes('\'')) {
+            const [degrees, minutes, seconds] = input.split(/[^\d]+/).map(Number);
+            // degrees, minutes, seconds
+            let dd = degrees + minutes / 60 + seconds / (60 * 60);
+            if (input.includes('W') || input.includes('S'))
+                dd *= -1
+            evt.target.value = dd;
+        }
+        // Chek input
+        let inputFloat = parseFloat(evt.target.value);
+        if(isNaN(inputFloat)) {
+            UIkit.modal.alert(window.swac.lang.dict.Worldmap2d_MapPinModal.gps_inputerr);
+        }
     }
 }
