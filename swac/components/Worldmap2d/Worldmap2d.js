@@ -97,6 +97,16 @@ export default class Worldmap2d extends View {
             path: SWAC.config.swac_root + 'libs/leaflet/PolylineMeasure/Leaflet.PolylineMeasure.css',
             desc: 'leaflet.PolylineMeasure style extension'
         }
+        this.desc.depends[15] = {
+            name: 'contextmenue',
+            path: SWAC.config.swac_root + 'libs/leaflet/contextmenue/leaflet.contextmenu.min.js',
+            desc: 'leaflet.contextmenue extension'
+        }
+        this.desc.depends[16] = {
+            name: 'contextmenue-style',
+            path: SWAC.config.swac_root + 'libs/leaflet/contextmenue/leaflet.contextmenu.min.css',
+            desc: 'leaflet.contextmenue style extension'
+        }
 
         this.desc.templates[0] = {
             name: 'Worldmap2d',
@@ -500,7 +510,24 @@ export default class Worldmap2d extends View {
             center: [this.options.startPointLat, this.options.startPointLon],
             zoom: this.options.zoom,
             attributionControl: this.options.attributionControl,
-            zoomControl: false
+            zoomControl: false,
+            contextmenu: true,
+            contextmenuWidth: 140,
+            contextmenuItems: [{
+                    text: SWAC.lang.dict.Worldmap2d.context_copycoords,
+                    callback: this.showCoordinates.bind(this)
+                }, {
+                    text: SWAC.lang.dict.Worldmap2d.context_centermap,
+                    callback: this.centerMap.bind(this)
+                }, '-', {
+                    text: SWAC.lang.dict.Worldmap2d.context_zoomin,
+//                    icon: 'images/zoom-in.png',
+                    callback: this.zoomIn.bind(this)
+                }, {
+                    text: SWAC.lang.dict.Worldmap2d.context_zoomout,
+//                    icon: 'images/zoom-out.png',
+                    callback: this.zoomOut.bind(this)
+                }]
         });
 
         // Add base layers
@@ -770,7 +797,7 @@ export default class Worldmap2d extends View {
                     'Feature does not contain a geometry can not create Area.',
                     this.requestor
                     )
-            return
+            return;
         }
         let lines_arr = []
         geoJSON.geometry.coordinates.forEach((coordinate) => {
@@ -785,7 +812,7 @@ export default class Worldmap2d extends View {
                         ']<: Geocoordinates are missing or invalid.',
                         this.requestor
                         )
-                return
+                return;
             }
             lines_arr.push([latlng.lng, latlng.lat])
         })
@@ -1240,5 +1267,29 @@ export default class Worldmap2d extends View {
                 }
             }
         }
+    }
+
+    /**
+     * ContextMenue items
+     */
+    showCoordinates(e) {
+        let coords = e.latlng.lng + ' ' + e.latlng.lat;
+        navigator.clipboard.writeText(coords).then(() => {
+
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    centerMap(e) {
+        this.viewer.panTo(e.latlng);
+    }
+
+    zoomIn(e) {
+        this.viewer.zoomIn();
+    }
+
+    zoomOut(e) {
+        this.viewer.zoomOut();
     }
 }

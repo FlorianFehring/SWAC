@@ -22,6 +22,10 @@ var Worldmap2d_de = {
     model_subsseperate: 'Submodelle als separate Layer anzeigen',
     geojson_featuresmissing: 'Bei den empfangenen Daten handelt es sich nicht um gültiges geoJSON. Objekt >features< fehlt.',
     wms_tileerror: 'Mindestens ein Tile konnte nicht geladen werden. Klicken Sie <a href="%url%" target="_blank">hier</a> um die Fehlermeldung des WMS Servers zu sehen.',
-    wms_baseurlentered: 'Sie haben eine WMS BasisURL eingegeben. Die vorhandenen Layer konnten nicht automatisch ermittelt werden. Bitte geben Sie die Layer, die angezeigt werden sollen an. (Komma separierte Liste)'
+    wms_baseurlentered: 'Sie haben eine WMS BasisURL eingegeben. Die vorhandenen Layer konnten nicht automatisch ermittelt werden. Bitte geben Sie die Layer, die angezeigt werden sollen an. (Komma separierte Liste)',
+    context_copycoords: 'Koordinaten kopieren',
+    context_centermap: 'Karte hier zentrieren',
+    context_zoomin: 'Hineinzoomen',
+    context_zoomout: 'Herauszoomen'
 };
 export default Worldmap2d_de;
