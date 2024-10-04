@@ -303,12 +303,13 @@ export default class MapPinModalSPL extends Plugin {
             metaTabElem.classList.remove('swac_dontdisplay');
             tab_actived = true;
             let iframeElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_meta_iframe');
-            iframeElem.src = this.options.meta_iframelink.replace('{id}', set.id).replace('{meta_collection}', set[ootableName][0].meta_collection);
+            iframeElem.src = this.options.meta_iframelink.replace('{oo_id}',set[ootableName][0].id).replace('{id}', set.id).replace('{meta_collection}', set[ootableName][0].meta_collection);
         }
 
         // Hide data tab if there is no data table
         let dataTabElem = pinmodal.querySelector('.set_data');
         if (!set[ootableName][0].data_collection || !this.options.data_iframelink) {
+            Msg.info('MapPinModalSPL','There is no data_collection attribute for set >' + set.swac_fromname + '[' + set.id + ']< or data_iframelink is not set. Data tab deactivated.',this.requestor);
             dataTabElem.classList.add('swac_dontdisplay');
         } else {
             dataTabElem.classList.remove('swac_dontdisplay');
@@ -319,7 +320,7 @@ export default class MapPinModalSPL extends Plugin {
             }
             console.log('TEST data iframelink: ', this.options.data_iframelink);
             let iframeElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_data_iframe');
-            iframeElem.src = this.options.data_iframelink.replace('{id}', set.id).replace('{data_collection}', set[ootableName][0].data_collection);
+            iframeElem.src = this.options.data_iframelink.replace('{oo_id}',set[ootableName][0].id).replace('{id}', set.id).replace('{data_collection}', set[ootableName][0].data_collection);
         }
 
         // Hide media tab if there is no media table
@@ -335,7 +336,7 @@ export default class MapPinModalSPL extends Plugin {
                 tab_actived = true;
             }
             let iframeElem = pinmodal.querySelector('.swac_worldmap2d_mappinmodal_media_iframe');
-            iframeElem.src = this.options.media_iframelink.replace('{id}', set.id).replace('{media_collection}', set[ootableName][0].media_collection);
+            iframeElem.src = this.options.media_iframelink.replace('{oo_id}',set[ootableName][0].id).replace('{id}', set.id).replace('{media_collection}', set[ootableName][0].media_collection);
             console.log('TEST update iframe link for media: ' + iframeElem.src);
         }
 

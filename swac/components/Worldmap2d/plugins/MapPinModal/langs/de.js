@@ -9,6 +9,7 @@ var Worldmap2d_MapPinModal_de = {
     gps_lon: 'Longitude',
     gps_update: 'Mit aktueller Position aktuallisieren',
     gps_save: 'Position speichern',
+    gps_inputerr: 'Die eingegebene Koordinate hat ein nicht unterstütztes Format.',
     
   title: 'Messwerte',
   tab_measurements: 'Messwerte',
