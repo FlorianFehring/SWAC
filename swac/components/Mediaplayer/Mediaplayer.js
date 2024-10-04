@@ -1172,6 +1172,8 @@ export default class Mediaplayer extends View {
                     document.dispatchEvent(completeEvent);
                     thisRef.titleEnded = thisRef.actTitle;
                 });
+            } else {
+                Msg.info('Mediaplayer', 'There is no actual playable media element.', this.requestor);
             }
 
             // Update playnow information
@@ -1188,11 +1190,59 @@ export default class Mediaplayer extends View {
 
         if (this.actMediaElem && this.actMediaElem.paused) {
             Msg.info('Mediaplayer', 'Resume playing >' + this.actMediaElem.title + '<', this.requestor);
+            this.actMediaElem.load();
             this.actMediaElem.play();
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
             }
         }
+        // Register error event handlers
+        if (this.actMediaElem) {
+            let thisRef = this;
+            this.actMediaElem.addEventListener('suspend', function () {
+                clearInterval(thisRef.interval);
+                thisRef.actMediaElem.pause();
+                // If original element is there try replace with new audio element
+                if (thisRef.actMediaElem.lastElementChild) {
+                    let lastSrc = thisRef.actMediaElem.lastElementChild.src;
+                    let newMediaElem = new Audio(lastSrc + '?debugload=' + Date.now());
+                    newMediaElem.preload = 'auto';
+                    newMediaElem.setAttribute('preload', 'auto');
+                    thisRef.actMediaElem.replaceWith(newMediaElem);
+                    thisRef.actMediaElem = newMediaElem;
+//                    newMediaElem.load();
+                    let playProm = newMediaElem.play();
+                    playProm.then(function (res) {
+                        console.log('playProm result: ', res);
+                    }).catch(function (err) {
+                        console.log('playProm err: ', err);
+                    });
+                    newMediaElem.addEventListener('suspend', function () {
+                        if (newMediaElem.readyState === 0) {
+                            let urlParams = new URLSearchParams(window.location.search);
+                            if (!urlParams.get('clearstates'))
+                                window.location.href = window.location + '&clearstates=true';
+                            else
+                                window.location.reload(true);
+                        }
+                    });
+                }
+            });
+        }
+
+        if (this.progressElem.value === this.lastProgressElemValue) {
+            this.hangingTimes++
+            if (this.hangingTimes > 5) {
+                // Reload clearing cache
+//                window.location.reload(true);
+                this.actMediaElem.load();
+                this.actMediaElem.play();
+            }
+        } else {
+            this.hangingTimes = 0;
+        }
+        this.lastProgressElemValue = this.progressElem.value;
+
         // Update media playtime if timeline was clicked before
         if (this.timelineclicked) {
             this.actMediaElem.currentTime = this.progressElem.value - this.actTitle.startsec;
