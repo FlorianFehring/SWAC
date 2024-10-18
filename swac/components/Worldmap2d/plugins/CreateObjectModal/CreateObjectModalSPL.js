@@ -148,11 +148,11 @@ export default class CreateObjectModalSPL extends Plugin {
 
             // check preconditions
             if (!this.options.saveMapping) {
-                Msg.error('CreateObjectModalSPL','Needed option >saveMapping< is not defined, so this component does not know where to save new objects.', this.requestor.parent);
+                Msg.error('CreateObjectModalSPL', 'Needed option >saveMapping< is not defined, so this component does not know where to save new objects.', this.requestor.parent);
                 return;
             }
             if (!this.options.objectRequestor) {
-                Msg.error('CreateObjectModalSPL','Needed option >objectRequestor< is not defined, so this component does not know where to save new objects.', this.requestor.parent);
+                Msg.error('CreateObjectModalSPL', 'Needed option >objectRequestor< is not defined, so this component does not know where to save new objects.', this.requestor.parent);
                 return;
             }
 
@@ -403,23 +403,28 @@ export default class CreateObjectModalSPL extends Plugin {
             thisRef.createTableForObject(meta_col_name, this.metaTableDef);
         }
 
+        // Create object dataset
+        let set = {
+            [this.options.saveMapping.ooNameAttr]: this.input_name.value,
+            [this.options.saveMapping.ooDescriptionAttr]: this.input_description.value,
+            [this.options.saveMapping.ooTypeAttr]: typeId,
+            [this.options.saveMapping.ooCompletedAttr]: this.select_status.value,
+            [this.options.saveMapping.ooDataCollectionAttr]: data_col_name,
+            [this.options.saveMapping.ooMetaCollectionAttr]: meta_col_name,
+            [this.options.saveMapping.locLatAttr]: this.input_lat.value,
+            [this.options.saveMapping.locLonAttr]: this.input_lng.value,
+            [this.options.saveMapping.locLatLonAttr]: 'POINT( ' + this.input_lng.value + ' ' + this.input_lat.value + ')',
+            [this.options.saveMapping.locNameAttr]: this.input_name.value,
+            [this.options.saveMapping.locDescriptionAttr]: this.input_description.value
+        };
+        if (this.select_parent) {
+            set[this.options.saveMapping.ooParentAttr] = this.select_parent.value;
+        }
+
         // Save object
         let lastres = await Model.save({
             fromName: this.options.objectRequestor.fromName,
-            data: [{
-                    [this.options.saveMapping.ooNameAttr]: this.input_name.value,
-                    [this.options.saveMapping.ooDescriptionAttr]: this.input_description.value,
-                    [this.options.saveMapping.ooTypeAttr]: typeId,
-                    [this.options.saveMapping.ooParentAttr]: this.select_parent.value,
-                    [this.options.saveMapping.ooCompletedAttr]: this.select_status.value,
-                    [this.options.saveMapping.ooDataCollectionAttr]: data_col_name,
-                    [this.options.saveMapping.ooMetaCollectionAttr]: meta_col_name,
-                    [this.options.saveMapping.locLatAttr]: this.input_lat.value,
-                    [this.options.saveMapping.locLonAttr]: this.input_lng.value,
-                    [this.options.saveMapping.locLatLonAttr]: 'POINT( ' + this.input_lng.value + ' ' + this.input_lat.value + ')',
-                    [this.options.saveMapping.locNameAttr]: this.input_name.value,
-                    [this.options.saveMapping.locDescriptionAttr]: this.input_description.value
-                }],
+            data: [set],
         }, true)
         // Search for oid in response
         let oid = this.searchAttrInStruct('id', lastres);
