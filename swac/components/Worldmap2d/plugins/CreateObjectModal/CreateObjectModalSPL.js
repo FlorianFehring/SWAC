@@ -147,8 +147,12 @@ export default class CreateObjectModalSPL extends Plugin {
             L.DomEvent.on(this.com, 'click', L.DomEvent.stopPropagation);
 
             // check preconditions
-            if (!this.options.saveMapping || !this.options.objectRequestor) {
+            if (!this.options.saveMapping) {
                 Msg.error('CreateObjectModalSPL','Needed option >saveMapping< is not defined, so this component does not know where to save new objects.', this.requestor.parent);
+                return;
+            }
+            if (!this.options.objectRequestor) {
+                Msg.error('CreateObjectModalSPL','Needed option >objectRequestor< is not defined, so this component does not know where to save new objects.', this.requestor.parent);
                 return;
             }
 
