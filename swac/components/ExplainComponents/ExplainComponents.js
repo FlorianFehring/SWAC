@@ -361,6 +361,8 @@ export default class ExplainComponents extends View {
         }
         // Look at plugins for requirements for template
         for (let curPlugin of this.compPlugins) {
+            if(!curPlugin.desc.reqPerTpl)
+                continue;
             try {
                 // Create tablerow for each required attribute
                 for (let curReq of curPlugin.desc.reqPerTpl) {
@@ -390,6 +392,8 @@ export default class ExplainComponents extends View {
         }
         // Look at plugins for requirements for template
         for (let curPlugin of this.compPlugins) {
+            if(!curPlugin.desc.optPerTpl)
+                continue;
             // Create tablerow for each optional attribute
             for (let curOpt of curPlugin.desc.optPerTpl) {
                 let repForElem = repForTplElem.cloneNode(true);
@@ -635,6 +639,8 @@ export default class ExplainComponents extends View {
                             }
                             // Search descriptions in plugins
                             for (let curPlugin of thisRef.compPlugins) {
+                                if(!curPlugin.desc.reqPerTpl)
+                                    continue;
                                 for (let curOptPerTpl of curPlugin.desc.reqPerTpl) {
                                     if (curOptPerTpl.selc === '.' + curCls) {
                                         var re = new RegExp(curCls, 'g');
@@ -656,6 +662,8 @@ export default class ExplainComponents extends View {
                             }
                             // Search descriptions in plugins
                             for (let curPlugin of thisRef.compPlugins) {
+                                if(!curPlugin.desc.optPerTpl)
+                                    continue;
                                 for (let curOptPerTpl of curPlugin.desc.optPerTpl) {
                                     if (curOptPerTpl.selc === '.' + curCls) {
                                         var re = new RegExp(curCls, 'g');
