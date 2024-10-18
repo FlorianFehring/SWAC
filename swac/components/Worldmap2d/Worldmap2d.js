@@ -131,6 +131,16 @@ export default class Worldmap2d extends View {
             desc: 'GeoJSON formatted JSON to display on the map',
             type: 'application/geojson'
         };
+        this.desc.optPerSet[1] = {
+            name: 'lat',
+            desc: 'latitude for point. Attribute name is configurable over latAttr option.',
+            type: 'String'
+        };
+        this.desc.optPerSet[2] = {
+            name: 'lon',
+            desc: 'longitude for point. Attribute name is configurable over lonAttr option.',
+            type: 'String'
+        };
 
         this.options.showWhenNoData = true;
 
@@ -369,7 +379,7 @@ export default class Worldmap2d extends View {
 
         this.desc.opts[27] = {
             name: 'customMarkerTooltip',
-            desc: 'HTML code to show in tooltips of Markers. Can use placeholders like {name} for replacement with sets data. Is a map with default entry and entries for datasources (fromName). Each entry is an object with >content> and >options< attribute. Content is HTML code, options is an object containing options that are availabel for leaflet popups. (See leaflet docu)'
+            desc: 'HTML code to show in tooltips of Markers. Can use placeholders like {name} for replacement with sets data. Is a map with default entry and entries for datasources (fromName). Each entry is an object with >content< and >options< attribute. Content is HTML code, options is an object containing options that are availabel for leaflet popups. (See leaflet docu)'
         }
         if (!options.customMarkerTooltip)
             this.options.customMarkerTooltip = new Map();
