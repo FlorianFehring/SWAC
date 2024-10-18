@@ -400,12 +400,12 @@ export default class Worldmap2d extends View {
             this.options.plugins.set('AreaMarker', {id: 'AreaMarker', active: false});
             this.options.plugins.set('CreateObjectModal', {id: 'CreateObjectModal', active: false});
             this.options.plugins.set('DataAPIShowModal', {id: 'DataAPIShowModal', active: false});
+            this.options.plugins.set('DataAndMediaShowModal', {id: 'DataAndMediaShowModal', active: false});
             this.options.plugins.set('DataShowModal', {id: 'DataShowModal', active: false});
             this.options.plugins.set('FilterMeasurementPoints', {id: 'FilterMeasurementPoints', active: false});
             this.options.plugins.set('Help', {id: 'Help', active: false});
             this.options.plugins.set('Interpolator', {id: 'Interpolator', active: false});
             this.options.plugins.set('Labels', {id: 'Labels', active: false});
-            this.options.plugins.set('MapPinModal', {id: 'MapPinModal', active: false});
             this.options.plugins.set('Navigation', {id: 'Navigation', active: false});
             this.options.plugins.set('SearchPlaces', {id: 'SearchPlaces', active: false});
             this.options.plugins.set('Timeline', {id: 'Timeline', active: false});

@@ -7,22 +7,22 @@
     margin-top: 6px;
 }
 
-#mappinmodal-box .uk-tab {
+#dataandmediashowmodal-box .uk-tab {
     margin-top: 0;
 }
 
-#mappinmodal-box .uk-tab li a {
+#dataandmediashowmodal-box .uk-tab li a {
     font-size: 1rem;
 }
 
 /*hover brightens text colour*/
-#mappinmodal-box .uk-tab li:not(.uk-active) a:hover {
+#dataandmediashowmodal-box .uk-tab li:not(.uk-active) a:hover {
     color: var(--geocoal);
     filter: brightness(160%);
 }
 
 /*file upload*/
-#mappinmodal-box li.uk-active > img {
+#dataandmediashowmodal-box li.uk-active > img {
     display: block;
     margin-left: auto;
     margin-right: auto;
@@ -30,30 +30,30 @@
     margin-bottom: auto;
 }
 
-#mappinmodal-uploadfiledata {
+#dataandmediashowmodal-uploadfiledata {
     margin-bottom: 16px;
 }
 
-#mappinmodal-uploadfile-component {
+#dataandmediashowmodal-uploadfile-component {
     flex-direction: column;
     align-items: center;
 }
 
-#mappinmodal-uploadfile-box {
+#dataandmediashowmodal-uploadfile-box {
     flex-direction: column;
     align-items: center;
 }
 
-/*#mappinmodal-slideshow-box ul {
+/*#dataandmediashowmodal-slideshow-box ul {
     min-width: 450px;
     min-height: 50px;
 }*/
 
-.mappinmodal-slide {
+.dataandmediashowmodal-slide {
     display: none;
 }
   
-.mappinmodal-slide.active {
+.dataandmediashowmodal-slide.active {
     display: inline-block;
     animation: op 0.3s ease-in forwards;
     animation-delay: 0s;
@@ -70,30 +70,30 @@
 
 /* Appearance Styles */
   
-.mappinmodal-gallery-box {
+.dataandmediashowmodal-gallery-box {
     width: 100%;
 }
 
-.mappinmodal-slideshow {
+.dataandmediashowmodal-slideshow {
     box-sizing: border-box;
     width: 100%;
     color: white;
 }
 
-.mappinmodal-slideshow-list {
+.dataandmediashowmodal-slideshow-list {
     padding: 0!important;
     margin: 0!important;
     text-align: center;
 }
 
-.mappinmodal-button-box {
+.dataandmediashowmodal-button-box {
     display: none;
     justify-content: center;
     gap: 10px;
     margin-bottom: 10px;
 }
 
-.mappinmodal-prev, .mappinmodal-next {
+.dataandmediashowmodal-prev, .dataandmediashowmodal-next {
     height: 2rem;
     width: 50px;
     border: 0;
@@ -101,16 +101,16 @@
     cursor: pointer;
 }
 
-.mappinmodal-prev > img, .mappinmodal-next > img {
+.dataandmediashowmodal-prev > img, .dataandmediashowmodal-next > img {
     filter: invert(35%) sepia(5%) saturate(6%) hue-rotate(337deg) brightness(94%) contrast(85%);
 }
 
 
-.mappinmodal-prev:hover, .mappinmodal-next:hover {
+.dataandmediashowmodal-prev:hover, .dataandmediashowmodal-next:hover {
     color: white;
     background: var(--geocoallight);
 }
 
-.mappinmodal-prev:hover > img, .mappinmodal-next:hover > img {
+.dataandmediashowmodal-prev:hover > img, .dataandmediashowmodal-next:hover > img {
     filter: invert(98%) sepia(4%) saturate(1039%) hue-rotate(206deg) brightness(117%) contrast(93%);
 }

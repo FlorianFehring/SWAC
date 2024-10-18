@@ -1,4 +1,4 @@
-var Worldmap2d_MapPinModal_de = {
+var Worldmap2d_DataAndMediaShowModal_de = {
     tab_info: 'Objekt-Informationen',
     tab_data: 'Daten',
     tab_media: 'Medien',
@@ -20,4 +20,4 @@ var Worldmap2d_MapPinModal_de = {
   update_position: 'Position aktualisieren'
 };
 
-export default Worldmap2d_MapPinModal_de;
+export default Worldmap2d_DataAndMediaShowModal_de;
