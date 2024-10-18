@@ -148,7 +148,7 @@ export default class CreateObjectModalSPL extends Plugin {
 
             // check preconditions
             if (!this.options.saveMapping || !this.options.objectRequestor) {
-                Msg.error(`CreateObjectModalSPL','Needed option >saveMapping< is not defined, so this component does not know where to save new objects.`, this.requestor.parent);
+                Msg.error('CreateObjectModalSPL','Needed option >saveMapping< is not defined, so this component does not know where to save new objects.', this.requestor.parent);
                 return;
             }
 
