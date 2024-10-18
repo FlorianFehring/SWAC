@@ -158,7 +158,7 @@ export default class NavigationSPL extends Plugin {
             L.DomEvent.disableClickPropagation(pluginArea, 'dblclick', L.DomEvent.stopPropagation);
 
             //plugin menu closes when pressing X button
-            this.navigationMenu.querySelector('.createmeasurementmodal-button-close').onclick = this.toggleMenu.bind(this);
+            this.navigationMenu.querySelector('.navigation-button-close').onclick = this.toggleMenu.bind(this);
 
             //setup button for opening and closing the menu
             sidebarButton.onclick = this.toggleMenu.bind(this);
