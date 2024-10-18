@@ -4,7 +4,7 @@ import Plugin from '../../../../Plugin.js'
 
 export default class LabelsSPL extends Plugin {
 
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
         this.name = 'Worldmap2d/plugins/Labels';
         this.desc.templates[0] = {
