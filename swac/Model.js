@@ -319,6 +319,13 @@ export default class Model {
                     }
                 }
             }
+            
+            // Count subsets
+            let joinName = dataRequest.fromWheres.join;            
+            if(curSet[joinName])
+                curSet['swac_joinsetscount'] = curSet[joinName].length;
+            else
+                curSet['swac_joinsetscount'] = 0;
 
             // Set attribute renameing
             for (let [curAttr, curRename] of dataRequest.attributeRenames) {
