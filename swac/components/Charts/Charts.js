@@ -301,7 +301,7 @@ export default class Charts extends View {
      */
     getScaleTypeForAttr(attr) {
         if (!this.attributes.get(attr)) {
-            Msg.error('Charts', 'There is no attributes def for ' + attr, this.requestor);
+            Msg.warn('Charts', 'There is no attributes def for ' + attr, this.requestor);
             return 'category';
         }
         switch (this.attributes.get(attr).type) {
