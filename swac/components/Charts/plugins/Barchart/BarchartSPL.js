@@ -77,7 +77,7 @@ export default class BarchartSPL extends Plugin {
         // Add y values to the datasets
         for (let curYAttr of comp.options.yAxisAttrNames) {
             // Check if yattr is available in dataset
-            if (!set[curYAttr]) {
+            if (typeof set[curYAttr] === 'undefined') {
                 Msg.error('LinechartSPL', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< does not contain the y attribute >' + curYAttr + '<. This will be missing at x >' + set[comp.options.xAxisAttrName] + '<', comp.requestor);
                 continue;
             }
