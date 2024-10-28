@@ -31,7 +31,16 @@ export default class Model {
                 dataRequest.fromWheres['size'] = comp.options.lazyLoading;
                 let lazyAttr = comp.options.lazyOrder.split(',')[0];
                 let lazyOrder = comp.options.lazyOrder.split(',')[1] === 'DESC' ? 'gt' : 'lt';
-                let lastLazy = lazyAttr + ',' + lazyOrder + ',' + (comp.lastloaded - comp.options.lazyLoading)
+                let lastLazy;
+                // Find lazyAttr,gt filter
+                if (dataRequest.fromWheres['filter']) {
+                    let lazyFilterStartPos = dataRequest.fromWheres['filter'].indexOf(lazyAttr + ',' + lazyOrder + ',');
+                    let lazyFilterStr = dataRequest.fromWheres['filter'].substring(lazyFilterStartPos);
+                    let lazyFilterEndPos = lazyFilterStr.indexOf('&');
+                    if (lazyFilterEndPos > 0)
+                        lazyFilterStr = lazyFilterStr.substring(0, lazyFilterEndPos);
+                    lastLazy = lazyFilterStr;
+                }
                 if (dataRequest.fromWheres['filter'] && dataRequest.fromWheres['filter'].includes(lastLazy)) {
                     // Update existing lazy loading filter
                     dataRequest.fromWheres['filter'] = dataRequest.fromWheres['filter'].replace(lastLazy, lazyAttr + ',' + lazyOrder + ',' + comp.lastloaded);
@@ -64,11 +73,14 @@ export default class Model {
             if (urlFilter) {
                 // Check if filter is applicable for component
                 let parts = urlFilter.split(',');
-                if (parts.length < 4 || parts[3] === comp.requestor.id) {
-                    if (dataRequest.fromWheres['filter']) {
-                        dataRequest.fromWheres['filter'] += '&' + urlFilter;
+                if (!parts[parts.length - 1].startsWith('comps:') || (comp && parts[parts.length - 1].includes(comp.requestor.id))) {
+                    // Remove comps entry from filter
+                    parts.pop();
+                    let filteradd = '&filter=' + parts.join(',');
+                    if (dataRequest.fromWheres['filter'] && !dataRequest.fromWheres['filter'].includes(filteradd)) {
+                        dataRequest.fromWheres['filter'] += filteradd;
                     } else {
-                        dataRequest.fromWheres['filter'] = urlFilter;
+                        dataRequest.fromWheres['filter'] = parts.join(',');
                     }
                 }
             }
@@ -123,8 +135,8 @@ export default class Model {
             // Check if data is locally available
             let sourceParts = dataRequest.fromName.split('.');
             let gvar = window;
-            for(let curPart of sourceParts) {
-                if(!gvar[curPart])
+            for (let curPart of sourceParts) {
+                if (!gvar[curPart])
                     break;
                 gvar = gvar[curPart];
             }
@@ -319,12 +331,20 @@ export default class Model {
                     }
                 }
             }
-            
+
             // Count subsets
-            let joinName = dataRequest.fromWheres.join;            
-            if(curSet[joinName])
+            let joinName = dataRequest.fromWheres.join;
+            if (curSet[joinName]) {
                 curSet['joinsetsCount'] = curSet[joinName].length;
-            else
+                let joinSetIds = [];
+                for (let joinSet of curSet[joinName]) {
+                    joinSetIds.push(joinSet.id);
+                }
+                joinSetIds.sort(function (a, b) {
+                    return a - b
+                });
+                curSet['joinsetsIds'] = joinSetIds.join(',');
+            } else
                 curSet['joinsetsCount'] = 0;
 
             // Set attribute renameing
@@ -642,7 +662,7 @@ export default class Model {
             withoutId = withoutId.replace(curNumber, '');
         }
         if (withoutId.length > 0) {
-            Msg.info('model','Reference >' + reference + '< contains a number at the end.');
+            Msg.info('model', 'Reference >' + reference + '< contains a number at the end.');
             return null;
         }
         return numbers[0];

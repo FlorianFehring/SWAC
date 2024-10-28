@@ -59,6 +59,9 @@
             "context": "img"
         },
         "uk-sticky": {},
+        "uk-overflow-auto": {
+            "context": "div"
+        },
         "uk-toggle": {
             "context": "button"
         },
