@@ -35,11 +35,13 @@ export default class Model {
                 // Find lazyAttr,gt filter
                 if (dataRequest.fromWheres['filter']) {
                     let lazyFilterStartPos = dataRequest.fromWheres['filter'].indexOf(lazyAttr + ',' + lazyOrder + ',');
-                    let lazyFilterStr = dataRequest.fromWheres['filter'].substring(lazyFilterStartPos);
-                    let lazyFilterEndPos = lazyFilterStr.indexOf('&');
-                    if (lazyFilterEndPos > 0)
-                        lazyFilterStr = lazyFilterStr.substring(0, lazyFilterEndPos);
-                    lastLazy = lazyFilterStr;
+                    if (lazyFilterStartPos >= 0) {
+                        let lazyFilterStr = dataRequest.fromWheres['filter'].substring(lazyFilterStartPos);
+                        let lazyFilterEndPos = lazyFilterStr.indexOf('&');
+                        if (lazyFilterEndPos > 0)
+                            lazyFilterStr = lazyFilterStr.substring(0, lazyFilterEndPos);
+                        lastLazy = lazyFilterStr;
+                    }
                 }
                 if (dataRequest.fromWheres['filter'] && dataRequest.fromWheres['filter'].includes(lastLazy)) {
                     // Update existing lazy loading filter
