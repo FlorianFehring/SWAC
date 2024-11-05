@@ -18,6 +18,7 @@ export default class WatchableSource {
         this.swac_updateTime = Date.now();
         this.swac_observers = new Map();
         this.sname = comp.requestor.id + ' WatchableSource';
+        this.count = 0;
 
         if (comp) {
             this.requestor = comp.requestor;
@@ -40,8 +41,13 @@ export default class WatchableSource {
         }
     }
 
+    /**
+     * Returns the number of sets available in this WatchableSource
+     * 
+     * @return {int} Number of WatchableSets
+     */
     count() {
-        return this.sets.length;
+        return this.count;
     }
 
     hasSet(id) {
@@ -60,6 +66,7 @@ export default class WatchableSource {
         // Auto add id if no one is given
         if(!set.id)
             set.id = this.sets.length;
+        this.count++;
         Msg.flow('WatchableSource', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< added.', this.requestor);
         this.sets[set.id] = set;
         for (let curObserver of this.swac_observers.keys()) {
@@ -70,6 +77,7 @@ export default class WatchableSource {
     delSet(set) {
         Msg.flow('WatchableSource', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< deleted.', this.requestor);
         delete this.sets[set.id];
+        this.count--;
         for (let curObserver of this.swac_observers.keys()) {
             curObserver.notifyDelSet(set);
         }

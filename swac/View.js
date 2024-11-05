@@ -156,7 +156,7 @@ export default class View extends Component {
         }
         
         // Check if size exeeded
-        if (!this.options.lazyLoading && this.data[set.swac_fromName].getSets().length >= this.requestor.fromWheres.size) {
+        if (!this.options.lazyLoading && this.data[set.swac_fromName].count >= this.requestor.fromWheres.size) {
             Msg.flow('View', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< not accepted by size.', this.requestor);
             return false;
         }
