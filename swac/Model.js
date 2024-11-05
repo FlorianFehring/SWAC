@@ -276,11 +276,17 @@ export default class Model {
                 }
                 newLoaded++;
             }
-            // If set is included in store, use old set instead, so that obserers remain on the set
+            // If set is included in store, use old set instead, so that observers remain on the set
             if (this.store[dataRequest.fromName]?.hasSet(curSet[idAttr])) {
+                let newSet = curSet;
                 curSet = this.store[dataRequest.fromName].getSet(curSet[idAttr]);
+                // Transfer added information to cached object
+                for(let curAttr in newSet) {
+                    if(!curSet[curAttr]) {
+                        curSet[curAttr] = newSet[curAttr];
+                    }
+                }
             }
-
             // Filter data that should not be shown by time
             if (curSet['swac_from']) {
                 let fromDate = new Date(curSet['swac_from']);
