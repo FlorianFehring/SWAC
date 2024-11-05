@@ -638,6 +638,9 @@ DEFINTION of SET:\n\
         if (!this.data[fromName]) {
             this.data[fromName] = new WatchableSource(fromName, this);
         }
+        if(!this.options.mainSource) {
+            this.options.mainSource = fromName;
+        }
         // If data is WatchableSource use only sets array
         if (data.getSets) {
             data = data.getSets();
@@ -845,6 +848,11 @@ DEFINTION of SET:\n\
             Msg.error('Component', 'Try to add set without fromName', this.requestor);
             return;
         }
+        // Auto set mainSource
+        if(!this.options.mainSource) {
+            this.options.mainSource = fromName;
+        }
+        
         if (!set) {
             Msg.error('Component', 'Try to add undefined as set', this.requestor);
             return;

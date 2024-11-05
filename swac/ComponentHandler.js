@@ -272,6 +272,9 @@ export default class ComponentHandler {
                 resolve(null);
                 return;
             }
+            // Set default mainSource
+            //TODO unify this with other ways adding data
+            requestor.swac_comp.options.mainSource = requestor.fromName;
             // Load the data
             Model.load(requestor, requestor.swac_comp).then(function (dataCapsule) {
                 resolve(dataCapsule);
