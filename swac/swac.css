@@ -22,16 +22,13 @@
 [swac_display]:not([swac_display="true"]) {
     display: none;
 }
-[swac_hideOnEmpty=""], [swac_hideOnEmpty^="{"] {
-    display: none;
-}
 [swac_hide="true"] {
     display: none;
 }
-[swac_oncontent=""] {
+[swac_hideOnEmpty=""], [swac_hideOnEmpty^="{"] {
     display: none;
 }
-[swac_oncontent^="{"] {
+[swac_showOnEmpty]:not([swac_showOnEmpty=""]) {
     display: none;
 }
 @media screen {
