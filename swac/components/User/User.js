@@ -290,8 +290,15 @@ export default class User extends View {
                         mobPlace.appendChild(userAreaMob);
                         let mobLoginBtn = userAreaMob.querySelector('.swac_user_loginButtons');
                         mobLoginBtn.onclick = thisRef.performLogin.bind(thisRef);
+                        // Make user area visible
+                        userArea.classList.remove('swac_dontdisplay');
                     }
                 }, navElem.id, this.requestor.id);
+            } else {
+                // Make user area visible
+                let userArea = document.querySelector('.swac_user_userarea');
+                if (userArea)
+                    userArea.classList.remove('swac_dontdisplay');
             }
 
             let regElems = document.querySelectorAll('.swac_user_register');
@@ -323,7 +330,7 @@ export default class User extends View {
                         'You must set the loginURL option to allow login.',
                         this.requestor);
                 let loginForms = document.querySelectorAll('.swac_user_loginForms');
-                for(let curLoginForm of loginForms) {
+                for (let curLoginForm of loginForms) {
                     curLoginForm.classList.add('swac_dontdisplay');
                 }
                 resolve();
