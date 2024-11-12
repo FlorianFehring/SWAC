@@ -124,7 +124,7 @@ export default class User extends View {
 
         this.desc.opts[6] = {
             name: "afterLoginLoc",
-            desc: "URL to which the user should be redirected after login.",
+            desc: "URL to which the user should be redirected after login. Appended to the docroot.",
             example: '../mywelcomepage.html'
         };
         if (!options.afterLoginLoc)
@@ -139,7 +139,7 @@ export default class User extends View {
             this.options.logoutURL = null;
         this.desc.opts[8] = {
             name: "afterLogoutLoc",
-            desc: "URL to which the user should be redirected after logout.",
+            desc: "URL to which the user should be redirected after logout. Apended to the docroot.",
             example: "../mybyebyepage.html"
         };
         if (!options.afterLogoutLoc)
@@ -298,7 +298,7 @@ export default class User extends View {
             for (let regElem of regElems) {
                 // Check if registration is open
                 if (this.options.registrationLink) {
-                    regElem.setAttribute('href', this.options.registrationLink);
+                    regElem.setAttribute('href', SWAC_config.app_root + this.options.registrationLink);
                 } else {
                     regElem.classList.add('swac_dontdisplay');
                 }
@@ -567,7 +567,7 @@ export default class User extends View {
             this.options.loggedinFunc(userdata.data);
         // Redirect after login
         if (this.options.afterLoginLoc) {
-            window.location = this.options.afterLoginLoc;
+            window.location = SWAC_config.app_root + this.options.afterLoginLoc;
         } else {
             this.showUser();
         }
@@ -755,7 +755,7 @@ export default class User extends View {
         // When useing SmartUser
         document.cookie = "authtoken=loggedout; path=/SmartUser/smartuser/user; SameSite=None; Secure; max-age=0";
         if (this.options.afterLogoutLoc)
-            window.location.href = this.options.afterLogoutLoc;
+            window.location.href = SWAC_config.app_root + this.options.afterLogoutLoc;
         else {
             this.hideUser();
             this.showLogin();
