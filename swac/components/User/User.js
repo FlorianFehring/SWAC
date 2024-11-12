@@ -268,22 +268,28 @@ export default class User extends View {
                     if (redirectTarget) {
                         window.location = redirectTarget;
                     } else {
-                        Msg.info('User','No redirect target found for page >' + filename + '<. Configure them with option >loggedinRedirects<',this.requestor);
+                        Msg.info('User', 'No redirect target found for page >' + filename + '<. Configure them with option >loggedinRedirects<', this.requestor);
                     }
                 } else {
-                    Msg.info('User','There are no redirects for login. Configure them with option >loggedinRedirects<',this.requestor);
+                    Msg.info('User', 'There are no redirects for login. Configure them with option >loggedinRedirects<', this.requestor);
                 }
                 this.showUser();
             }
 
             let navElem = document.querySelector('[swa^="Navigation"]');
             if (navElem) {
+                let thisRef = this;
                 window.swac.reactions.addReaction(function () {
-                    let adonPlace = document.querySelector('.swac_nav_addons')
-                    if (adonPlace) {
-                        let userArea = document.querySelector('.swac_user_userarea');
-                        if (userArea)
+                    let userArea = document.querySelector('.swac_user_userarea');
+                    if (userArea) {
+                        let adonPlace = document.querySelector('.swac_nav_addons');
+                        if (adonPlace)
                             adonPlace.appendChild(userArea);
+                        let mobPlace = navElem.querySelector('.swac_nav_addons_mob');
+                        let userAreaMob = userArea.querySelector('#swac_user_logindialog').cloneNode(true);
+                        mobPlace.appendChild(userAreaMob);
+                        let mobLoginBtn = userAreaMob.querySelector('.swac_user_loginButtons');
+                        mobLoginBtn.onclick = thisRef.performLogin.bind(thisRef);
                     }
                 }, navElem.id, this.requestor.id);
             }
@@ -316,6 +322,10 @@ export default class User extends View {
                 Msg.warn('User',
                         'You must set the loginURL option to allow login.',
                         this.requestor);
+                let loginForms = document.querySelectorAll('.swac_user_loginForms');
+                for(let curLoginForm of loginForms) {
+                    curLoginForm.classList.add('swac_dontdisplay');
+                }
                 resolve();
                 return;
             }
@@ -547,7 +557,7 @@ export default class User extends View {
      * Setting userdata, cookie etc. after login
      */
     afterPerformLogin(userdata) {
-        Msg.flow('User','afterPerformLogin',this.requestor);
+        Msg.flow('User', 'afterPerformLogin', this.requestor);
         // Run user defined afterlogin function
         if (this.options.afterLoginFunc) {
             this.options.afterLoginFunc(userdata.data);
