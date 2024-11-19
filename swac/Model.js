@@ -25,14 +25,48 @@ export default class Model {
                 return;
             }
 
+            // Support filter from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const filter = urlParams.getAll('filter');
+            
+            for(let curFilter of filter) {
+                // Check if filter is applicable for component
+                let parts = curFilter.split(',');
+                if (!parts[parts.length - 1].startsWith('comps:') || (comp && parts[parts.length - 1].includes(comp.requestor.id))) {
+                    // Remove comps entry from filter
+                    parts.pop();
+                    let filteradd = parts.join(',');
+                    if (dataRequest.fromWheres['filter'] && !dataRequest.fromWheres['filter'].includes(filteradd)) {
+                        dataRequest.fromWheres['filter'] += '&filter=' + filteradd;
+                    } else if(!dataRequest.fromWheres['filter']){
+                        dataRequest.fromWheres['filter'] = filteradd;
+                    }
+                }
+            }
+
             // Calculate fromWheres for lazy loading
             if (comp?.options?.lazyLoading > 0) {
                 dataRequest.lazyLoadSets = comp.options.lazyLoading;
                 dataRequest.fromWheres['size'] = comp.options.lazyLoading;
                 let lazyAttr = comp.options.lazyOrder.split(',')[0];
                 let lazyOrder = comp.options.lazyOrder.split(',')[1] === 'DESC' ? 'gt' : 'lt';
+                // Get highest or lowest id
+                let lastId = 0;
+                if(lazyOrder === 'gt' && comp.data[dataRequest.fromName]) {
+                    // Get highest availabel id
+                    lastId = comp.data[dataRequest.fromName].getSets().length -1;
+                } else if(comp.data[dataRequest.fromName]) {
+                    // Search first existing dataset
+                    for(let curSet in comp.data[dataRequest.fromName].getSets()) {
+                        if(curSet) {
+                            lastId = curSet.id;
+                            break;
+                        }
+                    }
+                }
+                
                 let lastLazy;
-                // Find lazyAttr,gt filter
+                // Find lazyAttr filter
                 if (dataRequest.fromWheres['filter']) {
                     let lazyFilterStartPos = dataRequest.fromWheres['filter'].indexOf(lazyAttr + ',' + lazyOrder + ',');
                     if (lazyFilterStartPos >= 0) {
@@ -45,16 +79,17 @@ export default class Model {
                 }
                 if (dataRequest.fromWheres['filter'] && dataRequest.fromWheres['filter'].includes(lastLazy)) {
                     // Update existing lazy loading filter
-                    dataRequest.fromWheres['filter'] = dataRequest.fromWheres['filter'].replace(lastLazy, lazyAttr + ',' + lazyOrder + ',' + comp.lastloaded);
+                    dataRequest.fromWheres['filter'] = dataRequest.fromWheres['filter'].replace(lastLazy, lazyAttr + ',' + lazyOrder + ',' + lastId);
                 } else if (dataRequest.fromWheres['filter']) {
                     // Append lazy loading filter after other filters
-                    dataRequest.fromWheres['filter'] += '&' + lazyAttr + ',' + lazyOrder + ',' + comp.lastloaded;
+                    dataRequest.fromWheres['filter'] += '&filter=' + lazyAttr + ',' + lazyOrder + ',' + lastId;
                 } else {
                     // Set lazy loading filter without existence of other filters
-                    dataRequest.fromWheres['filter'] = lazyAttr + ',' + lazyOrder + ',' + comp.lastloaded;
+                    dataRequest.fromWheres['filter'] = lazyAttr + ',' + lazyOrder + ',' + lastId;
                 }
                 comp.lastrequest = dataRequest;
             }
+
             // Calculate fromWheres for ecoMode
             if (comp?.options?.ecoMode?.ecoColumn) {
                 let col = comp.options.ecoMode.ecoColumn;
@@ -70,22 +105,7 @@ export default class Model {
                     dataRequest.fromWheres['filter'] = ecoFilter;
             }
 
-            // Support filter from URL
-            let urlFilter = SWAC.getParameterFromURL('filter');
-            if (urlFilter) {
-                // Check if filter is applicable for component
-                let parts = urlFilter.split(',');
-                if (!parts[parts.length - 1].startsWith('comps:') || (comp && parts[parts.length - 1].includes(comp.requestor.id))) {
-                    // Remove comps entry from filter
-                    parts.pop();
-                    let filteradd = '&filter=' + parts.join(',');
-                    if (dataRequest.fromWheres['filter'] && !dataRequest.fromWheres['filter'].includes(filteradd)) {
-                        dataRequest.fromWheres['filter'] += filteradd;
-                    } else {
-                        dataRequest.fromWheres['filter'] = parts.join(',');
-                    }
-                }
-            }
+            
 
             // Calculate request id
             let requestId = dataRequest.fromName;
