@@ -753,22 +753,30 @@ export default class Mediaplayer extends View {
                     if (mediaElem) {
                         mediaElem.setAttribute('uk-height-viewport', '');
                         let thisRef = this;
-                        mediaElem.addEventListener('loadedmetadata', function () {
-                            set.duration = Math.round(mediaElem.duration + 0.5);
-                            Msg.info('Mediaplayer', 'Added media >' + mediaElem.title + ' '
-                                    + set.id + '< to playlist with duration from metadata of >'
-                                    + set.duration + '< seconds.', this.requestor);
+                        // Calculate timeline without metadata if possible
+                        if(set.duration) {
                             thisRef.playlist.set(slideNo, set);
-                            // Remove error notification
-                            for (let curRepeated of repeateds) {
-                                let errElem = curRepeated.querySelector('.swac_mediaplayer_error');
-                                if (errElem)
-                                    errElem.classList.add('swac_dontdisplay');
-                            }
                             // Load comments
                             thisRef.loadComments();
                             thisRef.calculateTimeline();
-                        });
+                        }
+                        
+//                        mediaElem.addEventListener('loadedmetadata', function () {
+//                            set.duration = Math.round(mediaElem.duration + 0.5);
+//                            Msg.info('Mediaplayer', 'Added media >' + mediaElem.title + ' '
+//                                    + set.id + '< to playlist with duration from metadata of >'
+//                                    + set.duration + '< seconds.', this.requestor);
+//                            thisRef.playlist.set(slideNo, set);
+//                            // Remove error notification
+//                            for (let curRepeated of repeateds) {
+//                                let errElem = curRepeated.querySelector('.swac_mediaplayer_error');
+//                                if (errElem)
+//                                    errElem.classList.add('swac_dontdisplay');
+//                            }
+//                            // Load comments
+//                            thisRef.loadComments();
+//                            thisRef.calculateTimeline();
+//                        });
                         // If an error occures while loading try again
                         mediaElem.addEventListener('error', function (err) {
                             // Show error notification
@@ -1022,8 +1030,10 @@ export default class Mediaplayer extends View {
     startPlay() {
         Msg.flow('Mediaplayer', 'Start playing', this.requestor);
         // Start interval
-        if (!this.interval)
+        if (!this.interval) {
+//            console.log('TEST startPlay() new interval');
             this.interval = setInterval(this.playNextSecond.bind(this), 1000);
+        }
 
         // Change icon and description of play buttons
         let playBtns = this.requestor.querySelectorAll('.swac_mediaplayer_playBtn');
@@ -1102,6 +1112,7 @@ export default class Mediaplayer extends View {
      * @returns {undefined}
      */
     async playNextSecond() {
+//        console.log('TEST called playNextSecond()');
         // Stop if actual second is beyond max
         if (parseInt(this.progressElem.value) >= parseInt(this.progressElem.max)) {
             if (this.options.loop) {
@@ -1127,7 +1138,7 @@ export default class Mediaplayer extends View {
                 }
             }
         }
-
+//console.log('TEST progess value: ' + this.progressElem.value);
         // Get title at second
         let secTitle = this.getTitleAtSecond(this.progressElem.value);
         if (!secTitle) {
@@ -1221,35 +1232,35 @@ export default class Mediaplayer extends View {
         // Register error event handlers
         if (this.actMediaElem) {
             let thisRef = this;
-            this.actMediaElem.addEventListener('suspend', function () {
-                clearInterval(thisRef.interval);
-                thisRef.actMediaElem.pause();
-                // If original element is there try replace with new audio element
-                if (thisRef.actMediaElem.lastElementChild) {
-                    let lastSrc = thisRef.actMediaElem.lastElementChild.src;
-                    let newMediaElem = new Audio(lastSrc + '?debugload=' + Date.now());
-                    newMediaElem.preload = 'auto';
-                    newMediaElem.setAttribute('preload', 'auto');
-                    thisRef.actMediaElem.replaceWith(newMediaElem);
-                    thisRef.actMediaElem = newMediaElem;
-//                    newMediaElem.load();
-                    let playProm = newMediaElem.play();
-                    playProm.then(function (res) {
-                        console.log('playProm result: ', res);
-                    }).catch(function (err) {
-                        console.log('playProm err: ', err);
-                    });
-                    newMediaElem.addEventListener('suspend', function () {
-                        if (newMediaElem.readyState === 0) {
-                            let urlParams = new URLSearchParams(window.location.search);
-                            if (!urlParams.get('clearstates'))
-                                window.location.href = window.location + '&clearstates=true';
-                            else
-                                window.location.reload(true);
-                        }
-                    });
-                }
-            });
+//            this.actMediaElem.addEventListener('suspend', function () {
+//                clearInterval(thisRef.interval);
+//                thisRef.actMediaElem.pause();
+//                // If original element is there try replace with new audio element
+//                if (thisRef.actMediaElem.lastElementChild) {
+//                    let lastSrc = thisRef.actMediaElem.lastElementChild.src;
+//                    let newMediaElem = new Audio(lastSrc + '?debugload=' + Date.now());
+//                    newMediaElem.preload = 'auto';
+//                    newMediaElem.setAttribute('preload', 'auto');
+//                    thisRef.actMediaElem.replaceWith(newMediaElem);
+//                    thisRef.actMediaElem = newMediaElem;
+////                    newMediaElem.load();
+//                    let playProm = newMediaElem.play();
+//                    playProm.then(function (res) {
+//                        console.log('playProm result: ', res);
+//                    }).catch(function (err) {
+//                        console.log('playProm err: ', err);
+//                    });
+//                    newMediaElem.addEventListener('suspend', function () {
+//                        if (newMediaElem.readyState === 0) {
+//                            let urlParams = new URLSearchParams(window.location.search);
+//                            if (!urlParams.get('clearstates'))
+//                                window.location.href = window.location + '&clearstates=true';
+//                            else
+//                                window.location.reload(true);
+//                        }
+//                    });
+//                }
+//            });
         }
 
         if (this.progressElem.value === this.lastProgressElemValue) {
@@ -1522,6 +1533,7 @@ export default class Mediaplayer extends View {
         this.clickedTitle = setElem.swac_dataset;
         // Autostart at title if its not playing
         if (!this.interval) {
+//            console.log('TEST onClickPlaylistEntry startPlay()');
             this.startPlay();
         }
     }

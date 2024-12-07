@@ -134,7 +134,7 @@ export default class Mediacode {
         audioElem.classList.add(this.set.mimetype);
         audioElem.title = title;
 //        audioElem.setAttribute('controls', 'controls');
-        audioElem.setAttribute('preload', 'metadata');
+        audioElem.setAttribute('preload', 'none');
         audioElem.innerHTML = SWAC.lang.dict.Mediacode.noaudiosupport;
         this.createMediaSource(audioElem);
         divElem.appendChild(audioElem);
