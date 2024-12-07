@@ -387,6 +387,13 @@ export default class Mediaplayer extends View {
         };
         if (typeof this.options.canmakeOffline === 'undefined')
             this.options.canmakeOffline = false;
+        this.desc.opts[20] = {
+            name: 'artistsAttr',
+            desc: 'Attribute that contains artists information'
+        };
+        if (!this.options.artistsAttr)
+            this.options.artistsAttr = 'artists';
+
 
         this.desc.events[0] = {
             name: 'swac_REQUESTOR_ID_playstart',
@@ -636,6 +643,21 @@ export default class Mediaplayer extends View {
             if (set.id === set.alternative) {
                 Msg.error('Mediaplayer', 'Media >' + set.id + '< references himself as alternatie.', this.requestor);
                 return;
+            }
+        }
+
+        // Set artists data
+        if (set[this.options.artistsAttr]) {
+            let artists = '';
+            for (let curArtist of set[this.options.artistsAttr]) {
+                if (artists != '')
+                    artists += ', ';
+                artists += curArtist.name;
+            }
+            for (let curRepeated of repeateds) {
+                let artistsElem = curRepeated.querySelector('.swac_mediaplayer_artist');
+                if(artistsElem)
+                    artistsElem.innerHTML = artists;
             }
         }
 
