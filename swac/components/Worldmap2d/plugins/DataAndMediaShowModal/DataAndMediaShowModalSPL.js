@@ -268,14 +268,14 @@ export default class DataAndMediaShowModalSPL extends Plugin {
         if (set[ootableName][0].name && set[ootableName][0].name !== set.name)
             titleElem.innerHTML += ' (' + set[ootableName][0].name + ')';
         // Add description
-        if (set.description) {
-            let descElem = pinmodal.querySelector('.swac_worldmap2d_dataandmediashowmodal_locdesc');
-            descElem.innerHTML += set.description;
-        }
-        if (set[ootableName][0].description && set[ootableName][0].name !== set.description) {
-            let descElem = pinmodal.querySelector('.swac_worldmap2d_dataandmediashowmodal_oodesc');
-            descElem.innerHTML = set[ootableName][0].description;
-        }
+        let ldescElem = pinmodal.querySelector('.swac_worldmap2d_dataandmediashowmodal_locdesc');
+        ldescElem.setAttribute('uk-tooltip','Location-Id ' + set.id);
+        if (set.description)
+            ldescElem.innerHTML += set.description;
+        let odescElem = pinmodal.querySelector('.swac_worldmap2d_dataandmediashowmodal_oodesc');
+        odescElem.setAttribute('uk-tooltip','Object-Id ' + set[ootableName][0].id);
+        if (set[ootableName][0].description && set[ootableName][0].name !== set.description)
+            odescElem.innerHTML = set[ootableName][0].description;
         // Show latitude and longitude
         let lonElem = document.querySelector('.swac_worldmap2d_dataandmediashowmodal_lon');
         lonElem.value = set.coordinates.coordinates[0];
