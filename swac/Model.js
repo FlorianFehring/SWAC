@@ -89,7 +89,6 @@ export default class Model {
                 }
                 comp.lastrequest = dataRequest;
             }
-
             // Calculate fromWheres for ecoMode
             if (comp?.options?.ecoMode?.ecoColumn) {
                 let col = comp.options.ecoMode.ecoColumn;
@@ -104,9 +103,6 @@ export default class Model {
                 } else
                     dataRequest.fromWheres['filter'] = ecoFilter;
             }
-
-            
-
             // Calculate request id
             let requestId = dataRequest.fromName;
             if (dataRequest.fromWheres) {
