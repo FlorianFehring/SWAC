@@ -37,11 +37,6 @@ export default class Edit extends View {
             desc: 'Shows one single dataset.'
         };
         this.desc.templates[4] = {
-            name: 'accordion_worldmap2d',
-            style: 'accordion_worldmap2d',
-            desc: 'Same functionality as accordion template but layout adjusted to display nicely in Worldmap2d component.'
-        };
-        this.desc.templates[5] = {
             name: 'autocollect',
             desc: 'Optimized layout for autocollection of data.'
         };
