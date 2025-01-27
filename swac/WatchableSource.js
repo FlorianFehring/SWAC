@@ -17,7 +17,7 @@ export default class WatchableSource {
         this.swac_createTime = Date.now();
         this.swac_updateTime = Date.now();
         this.swac_observers = new Map();
-        this.sname = comp.requestor.id + ' WatchableSource';
+        this.sname = comp.requestor.id + '_' + fromName + '_WatchableSource';
         this.count = 0;
 
         if (comp) {
@@ -81,6 +81,8 @@ export default class WatchableSource {
         for (let curObserver of this.swac_observers.keys()) {
             curObserver.notifyDelSet(set);
         }
+        if(this.count==0)
+            this.sets = [];
     }
 
     /**
