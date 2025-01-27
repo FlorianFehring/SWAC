@@ -936,7 +936,7 @@ DEFINTION of SET:\n\
         // If there is no mainSource or given set is of mainSource, check match filter
         if (this.requestor.fromWheres && Object.keys(this.requestor.fromWheres).length > 0
                 && (!this.options.mainSource || this.options.mainSource === set.swac_fromName)) {
-            if (Model.matchFilter(set, this.requestor.fromWheres)) {
+            if (this.matchFilter(set, this.requestor.fromWheres)) {
                 Msg.flow('Component', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< accepted by filter.', this.requestor);
                 return true;
             } else {
@@ -946,19 +946,105 @@ DEFINTION of SET:\n\
         } else if (this.options.mainSource === set.swac_fromName) {
             if (this.requestor.getAttribute) {
                 let pfilter = this.requestor.getAttribute('parentFilter');
-                if (pfilter && !Model.matchFilter(set, {filter: pfilter})) {
+                if (pfilter && !this.matchFilter(set, {filter: pfilter})) {
                     return false;
                 }
             }
         } else {
             if (this.requestor.getAttribute) {
                 let cfilter = this.requestor.getAttribute('childFilter');
-                if (cfilter && !Model.matchFilter(set, {filter: cfilter})) {
+                if (cfilter && !this.matchFilter(set, {filter: cfilter})) {
                     return false;
                 }
             }
         }
         Msg.flow('Component', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< accepted.', this.requestor);
+        return true;
+    }
+
+    /**
+     * Check if the given set matches the fromWheres.
+     * Note: Currently only supports eq-filter
+     * 
+     * @param {WatchableSet} set    Dataset
+     * @param {Object} fromWheres   Object with fromWheres as attributes
+     * @returns {Boolean}   True if the set matches the fromWheres
+     */
+    matchFilter(set, fromWheres) {
+        if (!set)
+            return false;
+        if (!fromWheres || set.id === 0 || Object.keys(fromWheres).length === 0)
+            return true;
+        for (let curWhere in fromWheres) {
+            // Only need todo filter if filter is string
+            if (!fromWheres[curWhere].split)
+                continue;
+            for (let curPart of fromWheres[curWhere].split('&')) {
+                curPart = curPart.replace(curWhere + '=', '');
+                if (curWhere.startsWith('filter')) {
+                    let parts = curPart.split(',');
+                    // Check if requested parameter is renamed in component
+                    let paramName = parts[0];
+                    if (this.options.attributeRenames.has(paramName)) {
+                        paramName = this.options.attributeRenames.get(paramName);
+                    }
+                    // eq-filter
+                    if (curPart.includes(',eq,')) {
+                        // Saw equal needed here because numbers are strings in fromWheres
+                        if (set[paramName] != parts[2] && set[paramName] + '' != parts[2] + '') {
+                            Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of eq-filter. set.' + paramName + ' is not ' + parts[2] + ' but is ' + set[paramName], this.requestor);
+                            return false;
+                        }
+                    } else if (curPart.includes(',gt,')) {
+                        // gt-filter
+                        let setdate = new Date(set[parts[0]]);
+                        // Date compare
+                        if (isNaN(set[parts[0]]) && !isNaN(setdate.valueOf())) {
+                            let compDate = new Date(parts[2]);
+                            if (setdate <= compDate) {
+                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of gt-filter date compare. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
+                                return false;
+                            }
+                            continue;
+                        }
+
+                        // Number compare
+                        let setnum = new Number(set[parts[0]]);
+                        if (!isNaN(setnum)) {
+                            let compNum = new Number(parts[2]);
+                            if (setnum <= compNum) {
+                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of gt-filter number compare. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
+                                return false;
+                            }
+                            continue;
+                        }
+                    } else if (curPart.includes(',lt,')) {
+                        // lt-filter
+                        let setdate = new Date(set[parts[0]]);
+                        // Date compare
+                        if (isNaN(set[parts[0]]) && !isNaN(setdate.valueOf())) {
+                            let compDate = new Date(parts[2]);
+                            if (setdate >= compDate) {
+                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of lt-filter date compare. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
+                                return false;
+                            }
+                            continue;
+                        }
+
+                        // Number compare
+                        let setnum = new Number(set[parts[0]]);
+                        if (!isNaN(setnum)) {
+                            let compNum = new Number(parts[2]);
+                            if (setnum >= compNum) {
+                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of lt-filter number compare. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
+                                return false;
+                            }
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
         return true;
     }
 

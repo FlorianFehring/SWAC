@@ -28,8 +28,8 @@ export default class Model {
             // Support filter from URL
             const urlParams = new URLSearchParams(window.location.search);
             const filter = urlParams.getAll('filter');
-            
-            for(let curFilter of filter) {
+
+            for (let curFilter of filter) {
                 // Check if filter is applicable for component
                 let parts = curFilter.split(',');
                 if (!parts[parts.length - 1].startsWith('comps:') || (comp && parts[parts.length - 1].includes(comp.requestor.id))) {
@@ -38,7 +38,7 @@ export default class Model {
                     let filteradd = parts.join(',');
                     if (dataRequest.fromWheres['filter'] && !dataRequest.fromWheres['filter'].includes(filteradd)) {
                         dataRequest.fromWheres['filter'] += '&filter=' + filteradd;
-                    } else if(!dataRequest.fromWheres['filter']){
+                    } else if (!dataRequest.fromWheres['filter']) {
                         dataRequest.fromWheres['filter'] = filteradd;
                     }
                 }
@@ -237,14 +237,14 @@ export default class Model {
                 dataRequest.attributeRenames = new Map();
             }
         }
-        
+
         // Check if filter contains renamed attributes and rename attrs in filter
 //        console.log('TEST comp',comp.options.attributeRenames);
 //        for(let curRename of comp.options.attributeRenames) {
 //            console.log('TEST rename',curRename);
 ////            dataRequest.fromWheres.filter = dataRequest.fromWheres.filter.replace(curRename+',',curRename+',');
 //        }
-        
+
         // Test and transform sets
         let genid = 0;
         let transdata = [];
@@ -265,8 +265,8 @@ export default class Model {
                 let newSet = curSet;
                 curSet = this.store[dataRequest.fromName].getSet(curSet[idAttr]);
                 // Transfer added information to cached object
-                for(let curAttr in newSet) {
-                    if(!curSet[curAttr]) {
+                for (let curAttr in newSet) {
+                    if (!curSet[curAttr]) {
                         curSet[curAttr] = newSet[curAttr];
                     }
                 }
@@ -745,87 +745,6 @@ export default class Model {
         }
 
         return newRequestor;
-    }
-
-    /**
-     * Check if the given set matches the fromWheres.
-     * Note: Currently only supports eq-filter
-     * 
-     * @param {WatchableSet} set    Dataset
-     * @param {Object} fromWheres   Object with fromWheres as attributes
-     * @returns {Boolean}   True if the set matches the fromWheres
-     */
-    static matchFilter(set, fromWheres) {
-        if (!set)
-            return false;
-        if (!fromWheres || set.id === 0 || Object.keys(fromWheres).length === 0)
-            return true;
-        for (let curWhere in fromWheres) {
-            // Only need todo filter if filter is string
-            if (!fromWheres[curWhere].split)
-                continue;
-            for (let curPart of fromWheres[curWhere].split('&')) {
-                curPart = curPart.replace(curWhere + '=', '');
-                if (curWhere.startsWith('filter')) {
-                    let parts = curPart.split(',');
-                    // eq-filter
-                    if (curPart.includes(',eq,')) {
-                        // Saw equal needed here because numbers are strings in fromWheres
-                        if (set[parts[0]] != parts[2] && set[parts[0]] + '' != parts[2] + '') {
-                            Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of eq-filter. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[paramName], this.requestor);
-                        return false;
-                        }
-                    } else if (curPart.includes(',gt,')) {
-                        // gt-filter
-                        let setdate = new Date(set[parts[0]]);
-                        // Date compare
-                        if (isNaN(set[parts[0]]) && !isNaN(setdate.valueOf())) {
-                            let compDate = new Date(parts[2]);
-                            if (setdate <= compDate) {
-                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of gt-filter date compare. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
-                                return false;
-                            }
-                            continue;
-                        }
-
-                        // Number compare
-                        let setnum = new Number(set[parts[0]]);
-                        if (!isNaN(setnum)) {
-                            let compNum = new Number(parts[2]);
-                            if (setnum <= compNum) {
-                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of gt-filter number compare. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
-                                return false;
-                            }
-                            continue;
-                        }
-                    } else if (curPart.includes(',lt,')) {
-                        // lt-filter
-                        let setdate = new Date(set[parts[0]]);
-                        // Date compare
-                        if (isNaN(set[parts[0]]) && !isNaN(setdate.valueOf())) {
-                            let compDate = new Date(parts[2]);
-                            if (setdate >= compDate) {
-                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of lt-filter date compare. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
-                                return false;
-                            }
-                            continue;
-                        }
-
-                        // Number compare
-                        let setnum = new Number(set[parts[0]]);
-                        if (!isNaN(setnum)) {
-                            let compNum = new Number(parts[2]);
-                            if (setnum >= compNum) {
-                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of lt-filter number compare. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
-                                return false;
-                            }
-                            continue;
-                        }
-                    }
-                }
-            }
-        }
-        return true;
     }
 
     /**
