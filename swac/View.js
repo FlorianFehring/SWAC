@@ -68,6 +68,13 @@ export default class View extends Component {
         };
         if (!options.showAddDataInput)
             this.options.showAddDataInput = false;
+        this.desc.opts[1106] = {
+            name: "respectLoadingOrder",
+            desc: "If this is set to true datasets loaded after other are placed after the previous loaded ones. Otherwise datasets are orderes after their parent relationsship regardless of loading time.",
+            example: true
+        };
+        if (!options.respectLoadingOrder)
+            this.options.respectLoadingOrder = false;
 
         this.desc.funcs[2001] = {
             name: 'copy',
@@ -148,13 +155,13 @@ export default class View extends Component {
         if (this.options.checkSets === false) {
             return true;
         }
-        
+
         // Exculde duplicates
-        if(this.data[set.swac_fromName].sets[set.id]) {
+        if (this.data[set.swac_fromName].sets[set.id]) {
             Msg.flow('View', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< not accepted because it would be duplicate.', this.requestor);
             return false;
         }
-        
+
         // Check if size exeeded
         if (!this.options.lazyLoading && this.data[set.swac_fromName].count >= this.requestor.fromWheres.size) {
             Msg.flow('View', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< not accepted by size.', this.requestor);
@@ -236,6 +243,15 @@ export default class View extends Component {
                     let childRep = repeated.querySelector('.swac_child');
                     // find parent
                     let parentElem = repeated.parentElement.querySelector('[swac_fromname="' + set.swac_fromName + '"][swac_setid="' + set.parent + '"]');
+                    if (this.options.respectLoadingOrder) {
+                        let setElems = this.requestor.querySelectorAll('.swac_repeatedForSet');
+                        let prevElem = setElems[setElems.length -2];
+                        if(repeated.getAttribute('swac_parent') == prevElem.getAttribute('swac_setid')
+                                || repeated.getAttribute('swac_parent') == prevElem.getAttribute('swac_parent')) {
+                        } else {
+                            parentElem = null;
+                        }
+                    }
                     if (parentElem) {
                         // Find place for child
                         let childsElem = parentElem.querySelector('.swac_forChilds');
