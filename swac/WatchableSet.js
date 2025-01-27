@@ -128,7 +128,6 @@ export default class WatchableSet {
     addObserverForAttr(observer) {
         if (typeof observer.notifyAddedValue !== 'function') {
             Msg.error('WatchableSet', 'The object added has no notifyAddedValue() function.');
-            console.log(observer);
             return;
         }
         // Prevent use observer more than one time
@@ -223,7 +222,7 @@ export default class WatchableSet {
             return;
         // Value change observers
         let set = this.swac_proxy;
-        Msg.flow('WatchableSet','Notify observers about changed value: ' + value + ' was ' + oldval + ' on attribute: ' + name, this.requestor);
+//        Msg.flow('WatchableSet','Notify observers about changed value: ' + value + ' was ' + oldval + ' on attribute: ' + name, this.requestor);
         // Attribute modify observers
         if (value !== null && typeof oldval === 'undefined') {
             let attrobservers = this.swac_allobservers;

@@ -574,6 +574,7 @@ DEFINTION of SET:\n\
         // Notice of last fetched set for lazy loading
         this.lastrequest = null;
         this.lastloaded = 0;
+        this.lazyLoadPage = 1;
         // Component data states
         // List of component data snapshots
         this.states = [];
@@ -678,6 +679,7 @@ DEFINTION of SET:\n\
     addDataLazy() {
         return new Promise((resolve, reject) => {
             if (this.lastrequest) {
+                this.lazyLoadPage++;
                 Model.load(this.lastrequest, this).then(function (data) {
                     // Do not add data here, adding of sets is done in Model.load() because this is given as parameter
                     resolve(data);
@@ -795,6 +797,10 @@ DEFINTION of SET:\n\
                 continue;
             this.data[fromName].delSet(curSet);
         }
+        // Reset lazyloading values
+        this.lastrequest = null;
+        this.lastloaded = 0;
+        this.requestor.fromWheres = {};
     }
 
     //public function
@@ -921,9 +927,8 @@ DEFINTION of SET:\n\
      */
     checkAcceptSet(set) {
         // Set checking is disabled
-        if (this.options.checkSets === false) {
+        if (this.options.checkSets === false)
             return true;
-        }
         // update filter for ecoMode
         if (this.ecoMode.active)
             this.requestor.fromWheres.filter = this.requestor.fromWheres.filter.replace('ecomode,eq,false', 'ecomode,eq,true');

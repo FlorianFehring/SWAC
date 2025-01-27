@@ -43,50 +43,10 @@ export default class Model {
                     }
                 }
             }
-
             // Calculate fromWheres for lazy loading
             if (comp?.options?.lazyLoading > 0) {
-                dataRequest.lazyLoadSets = comp.options.lazyLoading;
                 dataRequest.fromWheres['size'] = comp.options.lazyLoading;
-                let lazyAttr = comp.options.lazyOrder.split(',')[0];
-                let lazyOrder = comp.options.lazyOrder.split(',')[1] === 'DESC' ? 'gt' : 'lt';
-                // Get highest or lowest id
-                let lastId = 0;
-                if(lazyOrder === 'gt' && comp.data[dataRequest.fromName]) {
-                    // Get highest availabel id
-                    lastId = comp.data[dataRequest.fromName].getSets().length -1;
-                } else if(comp.data[dataRequest.fromName]) {
-                    // Search first existing dataset
-                    for(let curSet in comp.data[dataRequest.fromName].getSets()) {
-                        if(curSet) {
-                            lastId = curSet.id;
-                            break;
-                        }
-                    }
-                }
-                
-                let lastLazy;
-                // Find lazyAttr filter
-                if (dataRequest.fromWheres['filter']) {
-                    let lazyFilterStartPos = dataRequest.fromWheres['filter'].indexOf(lazyAttr + ',' + lazyOrder + ',');
-                    if (lazyFilterStartPos >= 0) {
-                        let lazyFilterStr = dataRequest.fromWheres['filter'].substring(lazyFilterStartPos);
-                        let lazyFilterEndPos = lazyFilterStr.indexOf('&');
-                        if (lazyFilterEndPos > 0)
-                            lazyFilterStr = lazyFilterStr.substring(0, lazyFilterEndPos);
-                        lastLazy = lazyFilterStr;
-                    }
-                }
-                if (dataRequest.fromWheres['filter'] && dataRequest.fromWheres['filter'].includes(lastLazy)) {
-                    // Update existing lazy loading filter
-                    dataRequest.fromWheres['filter'] = dataRequest.fromWheres['filter'].replace(lastLazy, lazyAttr + ',' + lazyOrder + ',' + lastId);
-                } else if (dataRequest.fromWheres['filter']) {
-                    // Append lazy loading filter after other filters
-                    dataRequest.fromWheres['filter'] += '&filter=' + lazyAttr + ',' + lazyOrder + ',' + lastId;
-                } else {
-                    // Set lazy loading filter without existence of other filters
-                    dataRequest.fromWheres['filter'] = lazyAttr + ',' + lazyOrder + ',' + lastId;
-                }
+                dataRequest.fromWheres['page'] = comp.lazyLoadPage;
                 comp.lastrequest = dataRequest;
             }
             // Calculate fromWheres for ecoMode
@@ -277,7 +237,15 @@ export default class Model {
                 dataRequest.attributeRenames = new Map();
             }
         }
-        // Transform objectsets to WatchableSets and filter by date
+        
+        // Check if filter contains renamed attributes and rename attrs in filter
+//        console.log('TEST comp',comp.options.attributeRenames);
+//        for(let curRename of comp.options.attributeRenames) {
+//            console.log('TEST rename',curRename);
+////            dataRequest.fromWheres.filter = dataRequest.fromWheres.filter.replace(curRename+',',curRename+',');
+//        }
+        
+        // Test and transform sets
         let genid = 0;
         let transdata = [];
         let newLoaded = 0;
@@ -318,9 +286,9 @@ export default class Model {
                 }
             }
             // Filter for fromWheres (no effect on data from sources that support filtering allready)
-            if (!this.matchFilter(curSet, dataRequest.fromWheres)) {
-                continue;
-            }
+//            if (!this.matchFilter(curSet, dataRequest.fromWheres)) {
+//                continue;
+//            }
             // Set default values
             let defaults = dataRequest.attributeDefaults.get(dataRequest.fromName);
             let gdefaults = dataRequest.attributeDefaults.get('*');
@@ -804,8 +772,8 @@ export default class Model {
                     if (curPart.includes(',eq,')) {
                         // Saw equal needed here because numbers are strings in fromWheres
                         if (set[parts[0]] != parts[2] && set[parts[0]] + '' != parts[2] + '') {
-                            Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of eq-filter. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
-                            return false;
+                            Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of eq-filter. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[paramName], this.requestor);
+                        return false;
                         }
                     } else if (curPart.includes(',gt,')) {
                         // gt-filter
