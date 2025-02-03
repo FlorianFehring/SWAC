@@ -73,7 +73,12 @@ export default class Shapefile extends MapModel {
                 // important to use the correct importURL for the shp.js library
                 importUrl: '/SWAC/swac/libs/leaflet/shapefile/shp.js'
             });
-            thisRef._requestor.swac_comp.layerControl.addOverlay(shapefileLayer, this.options.shapefileName ? this.options.shapefileName : 'Shapefile');
+            // Split the path using the directory separator (assuming '/' is the separator)
+            const parts = this._filepath.split('/');
+            // The filename will be the last element in the parts array
+            let filename = parts[parts.length - 1];
+            
+            thisRef._requestor.swac_comp.layerControl.addOverlay(shapefileLayer, this.options.name ? this.options.name : filename);
             shapefileLayer.addTo(viewer);
 
             shapefileLayer.once("data:loaded", () => {
