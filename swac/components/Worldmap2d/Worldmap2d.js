@@ -381,11 +381,12 @@ export default class Worldmap2d extends View {
             name: 'customMarkerTooltip',
             desc: 'HTML code to show in tooltips of Markers. Can use placeholders like {name} for replacement with sets data. Is a map with default entry and entries for datasources (fromName). Each entry is an object with >content< and >options< attribute. Content is HTML code, options is an object containing options that are availabel for leaflet popups. (See leaflet docu)'
         }
-        if (!options.customMarkerTooltip)
+        if (!options.customMarkerTooltip) {
             this.options.customMarkerTooltip = new Map();
-        this.options.customMarkerTooltip.set("default", {
-            content: '<b>{name}</b><br><img swac_hideOnEmpty="{icon}" src="{icon}" widht="200" height="100">',
-            options: {direction: 'top', sticky: false, opacity: 0.8, offset: [0, -22]}});
+            this.options.customMarkerTooltip.set("default", {
+                content: '<b>{name}</b><br><img swac_hideOnEmpty="{icon}" src="{icon}" widht="200" height="100">',
+                options: {direction: 'top', sticky: false, opacity: 0.8, offset: [0, -22]}});
+        }
 
         this.desc.opts[28] = {
             name: 'showMeasureingTool',
@@ -762,11 +763,9 @@ export default class Worldmap2d extends View {
             if (!popopts) {
                 popopts = this.options.customMarkerTooltip.get('default');
             }
-            let content = popopts.content;
-            // Replace placeholder in code
-            for (let curVar in geoJSON.set) {
-                content = content.replaceAll('{' + curVar + '}', geoJSON.set[curVar]);
-            }
+
+            let regex = /\{(.*?)\}/g
+            let content = popopts.content.replace(regex, (match, p1) => this.getDataValue(geoJSON.set, p1) !== null ? this.getDataValue(geoJSON.set, p1) : '');
             marker.bindTooltip(content, popopts.options);
         }
         // Add eventhandler and feature to marker and marker to map
