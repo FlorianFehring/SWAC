@@ -511,7 +511,7 @@ export default class View extends Component {
                 document.head.appendChild(cssLinkElem);
             }
             // If existend use template code from within requestor
-            if (this.requestor.innerHTML.includes('{')) {
+            if (this.requestor.innerHTML.includes('{') || this.requestor.innerHTML.length > 10) {
                 Msg.flow('View', 'Useing onpage template for >' + this.requestor.id + '<', this.requestor);
                 // Remove loading information
                 this.remCoverMsg();
