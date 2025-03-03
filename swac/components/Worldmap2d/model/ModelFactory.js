@@ -129,6 +129,9 @@ modelFactory.loadModel = function (url, requestor, visoptions) {
                         UIkit.modal.alert(SWAC.lang.dict.Worldmap2d.fileurl_error);
                         reject(e);
                     });
+                } else {
+                    Msg.error('ModelFactory', 'Could not download file: ' + e, requestor);
+                    UIkit.modal.alert(SWAC.lang.dict.Worldmap2d.fileurl_error);
                 }
             } else {
                 Msg.error('ModelFactory', 'Could not download file: ' + e, requestor);
