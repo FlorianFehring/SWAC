@@ -1,50 +1,70 @@
 <?php
-set_error_handler(function() {
+header('Content-Type: application/json');
+/*set_error_handler(function() {
     echo "{\"error\":\"Could not send mail.\"}";
     http_response_code(500);
-});
+});*/
+
+// Reciver of mails
+$toEmail = "florian.fehring@weltenquell.de";
+// Default message to answer script call with
+$json_message = "";
+
+$errors = [];
 
 $contents = file_get_contents('php://input');
 if (!empty($contents)) {
     $data = json_decode($contents, true);
-    $toEmail = "fekom@gmx.de";
-
+    
     if ($data["name"] != null) {
-        $name = $data["name"];
+        $sender_name = $data["name"];
     } else {
-        $name = "SWAC api_sendmail";
+        $sender_name = $_SERVER['HTTP_HOST'];
     }
     if ($data["email"] != null) {
-        $email = $data["email"];
+        $sender_email = $data["email"];
     } else {
-        $email = "noreply@swac.de";
+        $sender_email = "noreply@" . $_SERVER['HTTP_HOST'];
     }
     if ($data["subject"] != null) {
         $subject = $data["subject"];
     } else {
-        $subject = "Message over SWAC api_sendmail";
+		$refer = $_SERVER['HTTP_REFERER'];
+		if(!$refer)
+			$refer = "unknown page";
+        $subject = "Message over " . $refer;
     }
 
     // CRLF Injection attack protection
-    $name = strip_crlf($name);
-    $email = strip_crlf($email);
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo "The email address >". $email ."< is invalid.";
+    $name = strip_crlf($sender_name);
+    $email = strip_crlf($sender_email);
+    if (!filter_var($sender_email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = "The email address >". $sender_email ."< is invalid.";
     } else {
         // appending \r\n at the end of mailheaders for end
-        $mailHeaders = "From: " . $name . "<" . $email . ">\r\n";
-        if (mail($toEmail, $subject, $contents, $mailHeaders)) {
+        $mailHeaders = "From: " . $sender_name . "<" . $sender_email . ">\r\n";
+		$mailresponse = mail($toEmail, $subject, $contents, $mailHeaders);
+        if ($mailresponse) {
             $message = "Your contact information is received successfully.";
-            $type = "success";
-        }
+        } else {
+			$errors[] = "Could not send mail. Mailresponse delivered: >" . $mailresponse . "<";
+		}
     }
 } else {
-    echo "{}";
+    $errors[] = "No data recived for sending.";
 }
+
+// Create response
+$response = "{";
+$response .= "\"message\":\"" . $message . "\",";
+$response .= "\"errors\":" . json_encode($errors);
+$response .= "}";
+
+echo $response;
 
 function strip_crlf($string) {
     return str_replace("\r\n", "", $string);
 }
 
-restore_error_handler();
+/*restore_error_handler();*/
 ?>
