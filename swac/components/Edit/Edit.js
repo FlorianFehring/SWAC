@@ -1127,7 +1127,7 @@ The function gets the droped dataset and the dropzone element.'
             let refRow = repeatForRefElem.cloneNode(true);
             refRow.classList.remove('swac_edit_repeatForRef');
             refRow.classList.remove('swac_edit_repeatedForRef');
-            refRow.setAttribute('swac_fromname', Model.getSetnameFromReference(ref));
+            refRow.setAttribute('swac_fromname', Model.getFromnameFromReference(ref));
             refRow.setAttribute('swac_setid', setid);
             repeatForRefElem.parentNode.appendChild(refRow);
             // The dataset should be contained within the recived data
