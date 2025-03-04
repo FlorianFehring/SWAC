@@ -600,7 +600,7 @@ export default class Model {
                 return;
             }
             let dataRequest = {
-                fromName: thisRef.getSetnameFromReference(reference),
+                fromName: thisRef.getFromnameFromReference(reference),
                 fromWheres: {},
                 idAttr: idAttr,
                 attributeDefaults: attributeDefaults,
@@ -661,12 +661,12 @@ export default class Model {
     }
 
     /**
-     * Gets the setname form the reference string
+     * Gets the fromname form the reference string
      * 
      * @param {String} reference Refernece string (ref://)
-     * @returns {String} Name of the set the reference points to
+     * @returns {String} Name of the source the reference points to
      */
-    static getSetnameFromReference(reference) {
+    static getFromnameFromReference(reference) {
         let setname = reference.replace('ref://', '');
         if (setname.includes('?')) {
             let lastaskpos = setname.lastIndexOf('?');
