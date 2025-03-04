@@ -10,6 +10,7 @@ var Question_de = {
     valuerangeoverflow: 'Bitte geben Sie maximal einen Wert von %maxvalue% an.',
     valueramgeunderflow: 'Bitte geben Sie mindensten einen Wert von %minvalue% an.',
     valuepatternmismatch: 'Ihre Eingabe entspricht nicht den Anforderungen.',
+    wrongparentset: 'Fehler in der Konfiguration. Der Datensatz >%parentset%< ist nicht vorhanden.',
     aftersavetxt: 'Vielen Dank für Ihre Anfrage.',
     redirection: 'Sie werden gleich weitergeleitet.',
     days: 'Tagen',

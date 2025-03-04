@@ -1,4 +1,5 @@
 import SWAC from '../../swac.js';
+import Model from '../../Model.js';
 import View from '../../View.js';
 import Msg from '../../Msg.js';
 
@@ -594,19 +595,21 @@ export default class Question extends View {
 
             // Get target for data
             let target = set.target;
+            let parentSet;
             if (!set.target) {
-                // Get parent the target should be there
-                let parentSetname = Model.getSetnameFromRefernece(set.parent);
-                let parentId = Model.getIdFromReference(set.parent);
-                // Search parent dataset
-                let parentSet;
-                for (let curSet of this.data[parentSetname].getSets()) {
+                for (let curSet of this.data[this.getMainSourceName()].getSets()) {
                     if (!curSet)
                         continue;
-                    if (curSet.id === parentId) {
+                    if (curSet.id === set.parent) {
                         parentSet = curSet;
                         break;
                     }
+                }
+                if(!parentSet) {
+                    let msg = SWAC.lang.dict.Question.wrongparentset;
+                    msg = window.swac.lang.replacePlaceholders(msg, 'parentset', set.parent);
+                    UIkit.modal.alert(msg);
+                    return;
                 }
                 target = parentSet.target;
             }
@@ -620,7 +623,7 @@ export default class Question extends View {
                 // Create data capsle for storing data
                 let dataCapsle = {
                     data: [{}],
-                    fromName: Model.getSetnameFromRefernece(target)
+                    fromName: Model.getFromnameFromReference(target)
                 };
                 dataCapsles.set(target, dataCapsle);
             }
