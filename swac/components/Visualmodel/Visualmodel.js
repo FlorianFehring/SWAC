@@ -823,7 +823,7 @@ move: The siblings are moved along."
         let startFromName = set.swac_fromName;
         let startSetId;
         if (isNaN(set.part1)) {
-            startFromName = Model.getSetnameFromReference(set.part1);
+            startFromName = Model.getFromnameFromReference(set.part1);
             startSetId = Model.getIdFromReference(set.part1);
             startFromName = 'resources/server/list';
         } else {
@@ -839,7 +839,7 @@ move: The siblings are moved along."
         let endSetFromName = set.swac_fromName;
         let endSetId = set.part2;
         if (isNaN(set.part2)) {
-            endSetFromName = Model.getSetnameFromReference(set.part2);
+            endSetFromName = Model.getFromnameFromReference(set.part2);
             endSetId = Model.getIdFromReference(set.part2);
             endSetFromName = 'resources/server/list';
         }
@@ -1585,7 +1585,7 @@ move: The siblings are moved along."
         }
         let parent_id;
         if (isNaN(set[this.options.parentIdAttr])) {
-            parent_fromname = Model.getSetnameFromReference(set[this.options.parentIdAttr]);
+            parent_fromname = Model.getFromnameFromReference(set[this.options.parentIdAttr]);
             parent_id = Model.getIdFromReference(set[this.options.parentIdAttr]);
         } else {
             parent_id = set[this.options.parentIdAttr];
