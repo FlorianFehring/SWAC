@@ -50,7 +50,7 @@ export default class Coder extends View {
                             outElem.classList.add('language-javascript');
                         }
                         outElem.classList.remove('language-undefined');
-                        hljs.highlightAll();
+                        hljs.highlightElement(thisRef.requestor.querySelector('code'));
                         outElem.classList.remove('language-undefined');
                     });
                 });
