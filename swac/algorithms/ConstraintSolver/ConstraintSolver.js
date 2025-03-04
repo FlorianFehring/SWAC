@@ -463,7 +463,7 @@ export default class ConstraintSolver extends Algorithm {
                 let pcs = this.partCollections.get(this.options.mainSource);
                 parentPc = pcs[parentRef];
             } else if (parentRef) {
-                let parentFromName = Model.getSetnameFromReference(parentRef);
+                let parentFromName = Model.getFromnameFromReference(parentRef);
                 let parentId = Model.getIdFromReference(parentRef);
                 let pcs = this.partCollections.get(parentFromName);
                 if (!pcs) {
