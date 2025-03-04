@@ -40,6 +40,7 @@ var ExplainComponents_de = {
     optionsExample: "Beispiel",
     optionsNoExample: "Kein Beispiel vorhanden",
     plugins: "Plugins",
+    pluginsNone: "Diese Komponente hat keine Plugins",
     params: "Parameter und Rückgabe",
     events: 'Events',
     eventsdesc: 'Nachfolgend sind die Events aufgeführt, welche von dieser Komponente gefeuert werden können. Jedes Event ist ein JS CustomEvent und die angegebene Daten werden im Attribut "detail" geliefert. REQUESTOR_Id ist durch die ID des swa-Elements zu ersetzen.'

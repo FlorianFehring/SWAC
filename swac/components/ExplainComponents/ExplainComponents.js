@@ -1034,6 +1034,10 @@ export default class ExplainComponents extends View {
     explainPlugins(component) {
         Msg.flow('ExplainComponents','explainPlugins()',this.requestor);
         let pldocElem = this.requestor.querySelector('.swac_explaincomponents_plugins');
+        if(!component.options.plugins) {
+            pldocElem.innerHTML = SWAC.lang.dict.ExplainComponents.pluginsNone;
+            return;
+        }
 
         for (let [pluginname, curPlugin] of component.options.plugins) {
             let pldocNElem = pldocElem.cloneNode(true);
