@@ -193,52 +193,79 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                             ctype = 'unknown';
                         if (ctype.startsWith("application/json")) {
                             let jsontxt;
-                                response.text().then(function (txt) {
-                                    // Remove content before json
-                                    let j1Pos = txt.indexOf('{');
-                                    let j1PosEnd = txt.lastIndexOf('}') + 1;
-                                    let j2Pos = txt.indexOf('[');
-                                    let j2PosEnd = txt.lastIndexOf(']') + 1;
-                                    
-                                    if (j1Pos >= 0 && j2Pos >= 0 && j1Pos < j2Pos) {
-                                        jsontxt = txt.substring(j1Pos,j1PosEnd);
-                                    } else if (j1Pos >= 0 && j2Pos >= 0 && j2Pos < j1Pos) {
-                                        jsontxt = txt.substring(j2Pos,j2PosEnd);
-                                    } else if (j1Pos >= 0) {
-                                        jsontxt = txt.substring(j1Pos,j1PosEnd);
-                                    } else if (j2Pos >= 0) {
-                                        jsontxt = txt.substring(j2Pos,j2PosEnd);
-                                    }
-                                    if (jsontxt) {
-                                        jsontxt = jsontxt.trim();
-                                        let json = JSON.parse(jsontxt);
-                                        resolve({
-                                            data: json,
-                                            fromName: fromName,
-                                            fromWheres: fromWheres
-                                        });
-                                    } else {
-                                        resolve({
-                                            origresponse: txt
-                                        });
-                                    }
-                                }).catch(function (err) {
-                                    reject(err);
-                                });
+                            response.text().then(function (txt) {
+                                // Remove content before json
+                                let j1Pos = txt.indexOf('{');
+                                let j1PosEnd = txt.lastIndexOf('}') + 1;
+                                let j2Pos = txt.indexOf('[');
+                                let j2PosEnd = txt.lastIndexOf(']') + 1;
+
+                                if (j1Pos >= 0 && j2Pos >= 0 && j1Pos < j2Pos) {
+                                    jsontxt = txt.substring(j1Pos, j1PosEnd);
+                                } else if (j1Pos >= 0 && j2Pos >= 0 && j2Pos < j1Pos) {
+                                    jsontxt = txt.substring(j2Pos, j2PosEnd);
+                                } else if (j1Pos >= 0) {
+                                    jsontxt = txt.substring(j1Pos, j1PosEnd);
+                                } else if (j2Pos >= 0) {
+                                    jsontxt = txt.substring(j2Pos, j2PosEnd);
+                                }
+                                if (jsontxt) {
+                                    jsontxt = jsontxt.trim();
+                                    let json = JSON.parse(jsontxt);
+                                    resolve({
+                                        data: json,
+                                        fromName: fromName,
+                                        fromWheres: fromWheres
+                                    });
+                                } else {
+                                    resolve({
+                                        origresponse: txt
+                                    });
+                                }
+                            }).catch(function (err) {
+                                reject(err);
+                            });
                         } else if (ctype.startsWith('application/csv')) {
-                            UIkit.modal.alert("CSV support is not available yet. Sponsor the project to get out of the box CSV support. ;)");
-                        } else {
-                            // Try as json
-                            response.json().then(function (data) {
+                            response.text().then(function (txt) {
+                                const lines = txt.trim().split('\n');
+                                const headers = lines[0].split(',');
+
+                                const result = lines.slice(1).map(line => {
+                                    const values = line.split(',');
+                                    return headers.reduce((object, header, index) => {
+                                        object[header.trim()] = values[index].trim();
+                                        return object;
+                                    }, {});
+                                });
                                 resolve({
-                                    data: data,
+                                    data: result,
                                     fromName: fromName,
                                     fromWheres: fromWheres
                                 });
-                            }).catch(function (err) {
-                                let msg = SWAC.lang.dict.core.contenttype_unsupported.replace('%content-type%', ctype);
-                                UIkit.modal.alert(msg + ' URL: ' + url);
-                                reject(err);
+                            });
+                        } else {
+                            response.text().then(function (txt) {
+                                // Try as json
+                                try {
+                                    let obj = JSON.parse(txt);
+                                    resolve({
+                                        data: obj,
+                                        fromName: fromName,
+                                        fromWheres: fromWheres
+                                    });
+                                } catch (err) {
+                                    // Secure against CrosSiteScripting attacs
+                                    txt = txt.replace(/&/g, '&amp;')
+                                            .replace(/</g, '&lt;')
+                                            .replace(/>/g, '&gt;')
+                                            .replace(/"/g, '&quot;')
+                                            .replace(/'/g, '&#39;');
+                                    resolve({
+                                        data: data,
+                                        fromName: fromName,
+                                        fromWheres: fromWheres
+                                    });
+                                }
                             });
                         }
                     }
