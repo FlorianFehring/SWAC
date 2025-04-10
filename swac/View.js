@@ -32,11 +32,11 @@ export default class View extends Component {
             this.options.showWhenNoData = false;
 
         this.desc.opts[1101] = {
-            name: "showNoDataInfo",
+            name: "showWhenNoDataMsg",
             desc: "Show information about no data."
         };
-        if (typeof options.showNoDataInfo === 'undefined')
-            this.options.showNoDataInfo = true;
+        if (!options.showWhenNoDataMsg)
+            this.options.showWhenNoDataMsg = false;
 
         this.desc.opts[1102] = {
             name: "showNoRightsInfo",
@@ -245,8 +245,8 @@ export default class View extends Component {
                     let parentElem = repeated.parentElement.querySelector('[swac_fromname="' + set.swac_fromName + '"][swac_setid="' + set.parent + '"]');
                     if (this.options.respectLoadingOrder) {
                         let setElems = this.requestor.querySelectorAll('.swac_repeatedForSet');
-                        let prevElem = setElems[setElems.length -2];
-                        if(repeated.getAttribute('swac_parent') == prevElem.getAttribute('swac_setid')
+                        let prevElem = setElems[setElems.length - 2];
+                        if (repeated.getAttribute('swac_parent') == prevElem.getAttribute('swac_setid')
                                 || repeated.getAttribute('swac_parent') == prevElem.getAttribute('swac_parent')) {
                         } else {
                             parentElem = null;
@@ -621,7 +621,7 @@ export default class View extends Component {
         if (height === 0)
             return;
 
-        this.requestor.classList.add('swac_dontdisplay');
+//        this.requestor.classList.add('swac_dontdisplay'); // This line made problems on hiding empty requestors
         let loadElem = document.createElement('div');
         loadElem.classList.add('coverMsg_' + this.requestor.id);
         loadElem.classList.add('swac_coverMsg');
@@ -644,7 +644,7 @@ export default class View extends Component {
         for (let curElem of loadingElems) {
             curElem.remove();
         }
-        this.requestor.classList.remove('swac_dontdisplay');
+//        this.requestor.classList.remove('swac_dontdisplay');
     }
 
     /**
@@ -653,9 +653,14 @@ export default class View extends Component {
      * @param {String} noDataText Text to display, when not set language entry model.nodata is used
      * @returns {undefined}
      */
-    insertNoDataInformation(noDataText = SWAC.lang.dict.core.model_nodata) {
-        if (!this.options.showNoDataInfo)
-            return;
+    insertNoDataInformation() {
+        Msg.flow('View', 'insertNoDataInformation()', this.requestor);
+        let noDataText;
+        if (this.requestor.swac_comp.options.showWhenNoDataMsg) {
+            noDataText = this.requestor.swac_comp.options.showWhenNoDataMsg;
+        } else {
+            noDataText = SWAC.lang.dict.core.model_nodata;
+        }
         // Get repeatable for sets
         let repeatables = this.findElemsRepeatableForSet(this.requestor);
         let added = false;
@@ -678,6 +683,7 @@ export default class View extends Component {
                     noDataTd.setAttribute('colspan', noOfTds);
                     noDataTd.setAttribute('swac_lang', this.requestor.id + '_nodata');
                     noDataTd.classList.add('swac_nodatainfo');
+                    noDataTd.setAttribute('swac_lang', noDataText);
                     noDataTd.innerHTML = noDataText;
                     noTemplatesTr.appendChild(noDataTd);
                     repeatableElem.parentNode.appendChild(noTemplatesTr);
@@ -686,6 +692,7 @@ export default class View extends Component {
                     let noDataDiv = document.createElement('div');
                     noDataDiv.setAttribute('swac_lang', this.requestor.id + '_nodata');
                     noDataDiv.classList.add('swac_nodatainfo');
+                    noDataDiv.setAttribute('swac_lang', noDataText);
                     noDataDiv.innerHTML = noDataText;
                     if (repeatableElem.parentNode !== null) {
                         repeatableElem.parentNode.appendChild(noDataDiv);
@@ -698,11 +705,12 @@ export default class View extends Component {
         }
         if (!added) {
             // Show no data message
-            let noTemplatesDiv = document.createElement('div');
-            noTemplatesDiv.classList.add('swac_nodatainfo');
-            noTemplatesDiv.innerHTML = noDataText;
-            this.requestor.appendChild(noTemplatesDiv);
-    }
+            let noDataDiv = document.createElement('div');
+            noDataDiv.classList.add('swac_nodatainfo');
+            noDataDiv.setAttribute('swac_lang', noDataText);
+            noDataDiv.innerHTML = noDataText;
+            this.requestor.appendChild(noDataDiv);
+        }
     }
 
     /**

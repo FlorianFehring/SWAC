@@ -202,11 +202,10 @@ export default class ViewHandler extends ComponentHandler {
             super.loadData(requestor).then(function (dataCapsule) {
                 // Check if should not be shown when empty
                 if (requestor.swac_comp.countSets() < 1
-                        && requestor.getAttribute('swa').includes('FROM')) {
+                        && requestor.getAttribute('swa').includes('FROM')) {                    
                     if (!requestor.swac_comp.options.showWhenNoData) {
                         // Hide component if there is no data
                         requestor.classList.add('swac_dontdisplay');
-
                         // Do not remove node, because component can be reactivated
                         // if there is data a a later time
                         Msg.hint('ViewHandler', 'There is no data requested so this '
