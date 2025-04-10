@@ -114,6 +114,17 @@ SWAC.init = function () {
         alert("configuration.js could not be found. It is expected in " + app_root + '/configuration.js');
     });
     document.head.appendChild(scriptElem);
+    
+    let displayUntilElems = document.querySelectorAll('[swac_display_until]');
+    for(let curElem of displayUntilElems) {
+        console.log('TEST elem found');
+        let untilTxt = curElem.getAttribute('swac_display_until');
+        let until = new Date(untilTxt);
+        if (new Date() < until) {
+            console.log('TEST should be visible',new Date(), until);
+            curElem.removeAttribute('swac_display_until');
+        }
+    }
 };
 
 /**
@@ -525,6 +536,7 @@ SWAC.replaceGlobalPlaceholders = function () {
  * @returns {undefined}
  */
 SWAC.searchAndReplace = function (search, replace, elem) {
+//    console.log('TEST searchAndReplace ', search, replace, elem);
     // Exclude pre elements
     if (elem.nodeName === 'PRE' && !elem.hasAttribute('swac_allowReplace')) {
         return;

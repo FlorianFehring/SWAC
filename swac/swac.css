@@ -22,6 +22,9 @@
 [swac_display]:not([swac_display="true"]) {
     display: none;
 }
+[swac_display_until] {
+    display:none;
+}
 [swac_hide="true"] {
     display: none;
 }
