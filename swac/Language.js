@@ -386,6 +386,9 @@ export default class Language {
      * Localise decimal content
      */
     localiseDecimal(elem) {
+        // Do not parse placeholders
+        if(elem.innerHTML.startsWith('{'))
+            return;
         let value = elem.getAttribute('swac_lang_localeorig');
         if (!value) {
             value = elem.innerHTML;
@@ -409,6 +412,9 @@ export default class Language {
      * @param {String} func Name of the date object function to use
      */
     localiseDate(elem, func, params) {
+        // Do not parse placeholders
+        if(elem.innerHTML.startsWith('{'))
+            return;
         let value = elem.getAttribute('swac_lang_localeorig');
         if (!value) {
             value = elem.innerHTML;
