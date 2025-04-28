@@ -84,11 +84,11 @@ export default class Language {
             objectname = objectname.replace('/', '_');
 
 console.log('TEST',langfile_url);
-console.log('TEST',document.referrer);
+console.log('TEST 2',window.location.href);
             if(langfile_url.startsWith('app_')){
-                langfile_url = document.referrer + langfile_url;
+                langfile_url = window.location.href + langfile_url;
             }
-            console.log('TEST 2',langfile_url);
+            console.log('TEST 3',langfile_url);
             
 
             thisRef.loadTranslationFile(langfile_url, objectname, lang).then(function () {
