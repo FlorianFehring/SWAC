@@ -327,7 +327,7 @@ export default class Model {
             // Count subsets
             let joinName = dataRequest.fromWheres.join;
             if (curSet[joinName]) {
-                curSet['joinsetsCount'] = curSet[joinName].length;
+                curSet['swac_joinsetsCount'] = curSet[joinName].length;
                 let joinSetIds = [];
                 for (let joinSet of curSet[joinName]) {
                     joinSetIds.push(joinSet.id);
@@ -337,7 +337,7 @@ export default class Model {
                 });
                 curSet['joinsetsIds'] = joinSetIds.join(',');
             } else
-                curSet['joinsetsCount'] = 0;
+                curSet['swac_joinsetsCount'] = 0;
 
             // Set attribute renameing
             for (let [curAttr, curRename] of dataRequest.attributeRenames) {
