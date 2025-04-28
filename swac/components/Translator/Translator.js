@@ -176,6 +176,7 @@ export default class Translator extends View {
         this.curlng = this.data[this.lngdefs[lngName].source].getSet(this.lngdefs[lngName].setno);
         for (let curLngFile of this.curlng.swac_files) {
             curLngFile = window.location.href + '/' + curLngFile;
+            console.log('TEST Translator', curLngFile);
 //curLngFile = SWAC.config.app_root + '/' + curLngFile;
             // Load translation if not loaded yet
             Msg.flow('Translator', 'Try to load file >' + curLngFile + '<');
