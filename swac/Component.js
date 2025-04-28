@@ -252,6 +252,13 @@ export default class Component {
         if (!options.ecoMode)
             this.options.ecoMode = false;
 
+        this.desc.opts[1024] = {
+            name: 'apiActualUrlAttr',
+            desc: 'Name of the attribute that holds an url to an api that delivers actual data for a set'
+        };
+        if (!options.apiActualUrlAttr)
+            this.options.apiActualUrlAttr = null;
+
         this.desc.funcs = [];
         this.desc.funcs[1000] = {
             name: 'addData',
@@ -639,7 +646,7 @@ DEFINTION of SET:\n\
         if (!this.data[fromName]) {
             this.data[fromName] = new WatchableSource(fromName, this);
         }
-        if(!this.options.mainSource) {
+        if (!this.options.mainSource) {
             this.options.mainSource = fromName;
         }
         // If data is WatchableSource use only sets array
@@ -841,6 +848,20 @@ DEFINTION of SET:\n\
             }
         }
 
+        // Fetch data from api for actual data if url is configured
+//        if (this.options.apiActualUrlAttr) {
+//            let actualurl = this.getDataValue(set, this.options.apiActualUrlAttr);
+//            if (actualurl != null) {
+//                console.log('fetch data ' + set.id);
+//                const response = await fetch(actualurl);
+//                const data = await response.json();
+//                console.log('TEST after fetch' + set.id);
+//                // Merge the data into the given object
+//                set = {...set, ...data};
+//            }
+//        }
+//console.log('TEST added fetched data:',set);
+
         this.customBeforeAddSet = this.options.customBeforeAddSet;
         this.customBeforeAddSet(set);
 
@@ -849,16 +870,16 @@ DEFINTION of SET:\n\
 
     //public function
     //@deprecated fromName should be given within set as set.swac_fromName
-    addSet(fromName, set) {
+    async addSet(fromName, set) {
         if (!fromName) {
             Msg.error('Component', 'Try to add set without fromName', this.requestor);
             return;
         }
         // Auto set mainSource
-        if(!this.options.mainSource) {
+        if (!this.options.mainSource) {
             this.options.mainSource = fromName;
         }
-        
+
         if (!set) {
             Msg.error('Component', 'Try to add undefined as set', this.requestor);
             return;
@@ -887,6 +908,7 @@ DEFINTION of SET:\n\
             set.id = this.data[fromName].count();
             set.swac_isnew = true;
         }
+
         // Create WatchableSet if is not
         if (set.constructor.name !== 'WatchableSet') {
             Msg.warn('Component', 'Given set >' + set.id + '< was no WatchableSet. Created WatchableSet. If this makes problems please create a bug report.', this.requestor);
@@ -995,6 +1017,12 @@ DEFINTION of SET:\n\
                             Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of eq-filter. set.' + paramName + ' is not ' + parts[2] + ' but is ' + set[paramName], this.requestor);
                             return false;
                         }
+                    } else if (curPart.includes(',neq,')) {
+                        // Saw equal needed here because numbers are strings in fromWheres
+                        if (set[paramName] == parts[2] && set[paramName] + '' == parts[2] + '') {
+                            Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of neq-filter. set.' + paramName + ' is ' + parts[2] + ' but should not.', this.requestor);
+                            return false;
+                        }
                     } else if (curPart.includes(',gt,')) {
                         // gt-filter
                         let setdate = new Date(set[parts[0]]);
@@ -1057,8 +1085,9 @@ DEFINTION of SET:\n\
      * @param {Mixed} data Data elements that should be deliverd to the customAfterAddSet() and Plugin.afterAddSet() calls
      * @returns {undefined}
      */
-    afterAddSet(set, data) {
+    async afterAddSet(set, data) {
         Msg.flow('Component', 'afterAddSet()', this.requestor);
+
         // Execute custom afterAddSet
         if (this.options.customAfterAddSet) {
             // Set method to this to use context of component in method
@@ -1432,6 +1461,25 @@ DEFINTION of SET:\n\
                 resolve(requestor.swac_comp);
             });
         });
+    }
+
+    /**
+     * Gets a value out of set with given attribute path
+     * 
+     * @param {Object} set Dataset to find value in
+     * @param {String} attrpath Path to attribute (e.g. attribute.0.name)
+     * @returns {Mixed} Value of the attribute or null if not found
+     */
+    getDataValue(set, attrpath) {
+        let datapath = attrpath.split('.');
+        let value = set;
+        for (let i = 0; i < datapath.length; i++) {
+            if (typeof value[datapath[i]] == 'undefined') {
+                return null;
+            }
+            value = value[datapath[i]];
+        }
+        return value;
     }
 
     // public function
