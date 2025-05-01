@@ -127,10 +127,10 @@ SWAC.init = function () {
     let copyElems = document.querySelectorAll('[swac_copyToClipboard]');
     for(let curElem of copyElems) {
         curElem.addEventListener('click', function(evt) {
-            evt.target.select();
-            evt.target.setSelectionRange(0, 99999); // Für mobile Geräte
-            navigator.clipboard.writeText(event.target.getAttribute('swac_copyToClipboard'));
-            alert("Link wurde in die Zwischenablage kopiert: " + event.target.getAttribute('swac_copyToClipboard'));
+            evt.preventDefault();
+            let value = curElem.getAttribute('swac_copyToClipboard');
+            navigator.clipboard.writeText(value);
+            alert("Link wurde in die Zwischenablage kopiert: " + value);
         });
     }
 };
