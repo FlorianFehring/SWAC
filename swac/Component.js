@@ -254,7 +254,8 @@ export default class Component {
 
         this.desc.opts[1024] = {
             name: 'apiActualUrlAttr',
-            desc: 'Name of the attribute that holds an url to an api that delivers actual data for a set'
+            desc: 'Name of the attribute that holds an url to an api that delivers actual data for a set',
+            example: 'link'
         };
         if (!options.apiActualUrlAttr)
             this.options.apiActualUrlAttr = null;
