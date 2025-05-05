@@ -1,27 +1,29 @@
 <div class="swac_editNotify"></div>
 <form class="swac_editForm">
-    <table class="uk-table">
-        <thead>
-            <tr>
-                <th class="swac_repeatForAttribute"></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="swac_repeatForSet">
-                <td class="swac_repeatForValue">
-                    <input name="{attrName}" type="text" class="uk-input" value="{*}" uk-tooltip="{attrName}">
-                </td>
-            </tr>
-        </tbody>
-        <tfoot>
-            <tr>
-                <td>
-                    <a class="swac_editAddSetButton uk-icon-button" href="#" uk-icon="plus" uk-tooltip="Edit.adddataset"></a>
-                    <button class="uk-button uk-button-default swac_editSaveAllButton">core.saveall</button>
-                </td>
-            </tr>
-        </tfoot>
-    </table>
+    <div class="uk-overflow-auto">
+        <table class="uk-table uk-table-striped uk-table-small">
+            <thead>
+                <tr>
+                    <th class="swac_repeatForAttribute"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="swac_repeatForSet">
+                    <td class="swac_repeatForValue">
+                        <input name="{attrName}" type="text" class="uk-input" value="{*}" uk-tooltip="{attrName}">
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>
+                        <a class="swac_editAddSetButton uk-icon-button" href="#" uk-icon="plus" uk-tooltip="Edit.adddataset"></a>
+                        <button class="uk-button uk-button-default swac_editSaveAllButton">core.saveall</button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
     <button class="uk-button uk-button-default swac_editSaveButton">core.save</button>
 </form>
 <!-- How to play reference information -->
