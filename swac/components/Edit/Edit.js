@@ -122,6 +122,15 @@ export default class Edit extends View {
             selc: '.swac_edit_formToggle',
             desc: 'Toggles the display of the input form for a dataset.'
         };
+        this.desc.optPerTpl[16] = {
+            selc: '.swac_edit_formToggle',
+            desc: 'Toggles the display of the input form for a dataset.'
+        };
+        this.desc.optPerTpl[17] = {
+            selc: '.swac_edit_name',
+            desc: 'Element that contains the dataset name. If used a click on this element fires the swac_REQUESTOR_ID_name_click event.'
+        };
+
 
         this.desc.reqPerSet[0] = {
             name: 'id',
@@ -1134,7 +1143,6 @@ The function gets the droped dataset and the dropzone element.'
             let refset = dataCapsule.data[setid];
             if (!refset) {
                 Msg.error('Edit', 'Referenced dataset >' + ref + '< does not exists.', thisRef);
-                reject();
                 return;
             }
             // Search placeholders (created as bindPoints)
@@ -1737,6 +1745,7 @@ The function gets the droped dataset and the dropzone element.'
         let thisRef = this;
         let setid_old = set.id;
         this.saveSet(set, true).then(function (set) {
+            UIkit.modal.alert(SWAC.lang.dict.Edit.saved);
             // Open dialog again and jump to it if set was saved with new id (so redras was done)
             if (set.id !== setid_old) {
                 let oldSetElem = thisRef.requestor.querySelector('[swac_fromname="' + set.swac_fromName + '"][swac_setid="' + setid_old + '"]');
