@@ -18,6 +18,19 @@ export default class Speech extends View {
             name: 'default',
             desc: 'Default template.'
         };
+        this.desc.optPerTpl[0] = {
+            selc: '.swac_speech_dialog',
+            desc: 'Element where dialog outputs should be placed.'
+        };
+        this.desc.optPerTpl[1] = {
+            selc: '.swac_speech_request',
+            desc: 'Element where to display the request in current dialog.'
+        };
+        this.desc.optPerTpl[2] = {
+            selc: '.swac_speech_reply',
+            desc: 'Element where to display the reply in current dialog.'
+        };
+
         this.desc.reqPerSet[0] = {
             name: 'id',
             desc: 'The attribute id is required for the component to work properly.'
@@ -61,7 +74,7 @@ export default class Speech extends View {
                     url: 'https://api.openai.com/v1/chat/completions',
                     auth: 'myOoepnAI authtoken',
                     method: 'POST',
-                    body: '{"messages": [{"role": "user", "content": "%words%"}],"temperature": 0.6, "model": "gpt-3.5-turbo"}',
+                    body: '{"input": "%words%", "model": "gpt-4.1"}',
                     jpath: 'choices/0/message/content'
                 }]
         };
@@ -186,22 +199,72 @@ export default class Speech extends View {
         console.log('Result received: ' + words + '.');
         console.log('Confidence: ' + event.results[0][0].confidence);
 
-        if (this.options.startword && !words.startsWith(this.options.startword))
+        if (this.options.startword && !words.includes(this.options.startword))
             return;
+        if(!words.startsWith(this.options.startword)) {
+            words = words.split(this.options.startword).at(-1);
+        }
 
-        const cmdwords = words.replace(this.options.startword, '').replace('.', '').toLowerCase().trim();
-        // Search commands
+        let cmdwords = words.replace(this.options.startword, '').replace('.', '').trim();
+        if(cmdwords) {
+            cmdwords = cmdwords.replace('berechnet','berechne');
+            cmdwords = cmdwords.replace(', ','');
+        }
+        // If dialog element is in template output request
+        let dialogElem = this.requestor.querySelector('.swac_speech_dialog');
+        let newDialogElem;
+        if (dialogElem) {
+            // Copy dialog template
+            newDialogElem = dialogElem.cloneNode(true);
+            newDialogElem.classList.remove('swac_speech_dialog');
+            newDialogElem.classList.remove('swac_dontdisplay');
+            dialogElem.parentElement.appendChild(newDialogElem);
+            // Add request text
+            let requestTxtElem = newDialogElem.querySelector('.swac_speech_request_text');
+            requestTxtElem.innerHTML = cmdwords;
+            // Scroll to element
+            const position = newDialogElem.getBoundingClientRect().top + window.scrollY;
+            window.scrollTo({
+                top: position,
+                behavior: 'smooth'
+            });
+        }
+
         let command;
-        if (this.options?.commands[this.options.lang])
-            command = this.options.commands[this.options.lang][cmdwords];
+        let parameter = null;
+        // Search (simple) commands
+        if (this.options?.commands[this.options.lang]) {
+            command = this.options.commands[this.options.lang][cmdwords.toLowerCase()];
+        }
+        // Search parametrised commands
+        if (!command && this.options?.commands) {
+            for (let curCommand in this.options.commands[this.options.lang]) {
+                let cmdwordslc = cmdwords.toLowerCase();
+                if (cmdwordslc.startsWith(curCommand)) {
+                    command = this.options.commands[this.options.lang][curCommand];
+                    // Get command params
+                    const regex = new RegExp("^" + curCommand, "i");
+                    parameter = cmdwords.replace(regex, "");
+                    break;
+                }
+            }
+        }
+        console.log('TEST command: ' + command);
+        
         let done = 0;
         // Search commands at components
         if (!command) {
             let comps = document.querySelectorAll('[swa]');
             for (let curComp of comps) {
-                let res = curComp.swac_comp.speechCommand(cmdwords);
-                if (res) {
-                    this.speak(res);
+                let answer = curComp.swac_comp.speechCommand(cmdwords);
+                if (answer) {
+                    if (newDialogElem) {
+                        // Add reply text
+                        let requestTxtElem = newDialogElem.querySelector('.swac_speech_reply_text');
+                        requestTxtElem.innerHTML = answer;
+                    }
+
+                    this.speak(answer);
                     done++;
                 }
             }
@@ -221,29 +284,57 @@ export default class Speech extends View {
 
                     console.log('urls: ', results);
 
+                    if (newDialogElem) {
+                        // Add reply text
+                        let requestTxtElem = newDialogElem.querySelector('.swac_speech_reply_text');
+                        requestTxtElem.innerHTML = answer;
+                    }
+
                     this.speak(answer);
                 } else {
                     // Say that it is not recognised
-                    let txt = window.swac.lang.dict.Speech.noreco;
-                    txt = window.swac.lang.replacePlaceholders(txt, 'word', cmdwords);
-                    this.speak(txt);
+                    let answer = window.swac.lang.dict.Speech.noreco;
+                    answer = window.swac.lang.replacePlaceholders(answer, 'word', cmdwords);
+                    if (newDialogElem) {
+                        // Add reply text
+                        let requestTxtElem = newDialogElem.querySelector('.swac_speech_reply_text');
+                        requestTxtElem.innerHTML = answer;
+                    }
+                    this.speak(answer);
                 }
                 return;
             }
 
-            if (command.speak) {
-                this.speak(command.speak);
-                done++;
+            let answer;
+            try {
+                if (command.speak) {
+                    answer = command.speak;
+                    this.speak(answer);
+                    done++;
+                }
+                if (command.execute) {
+                    answer = command.execute(cmdwords, parameter);
+                    if (!answer) {
+                        answer = window.swac.lang.dict.Speech.taskexecuted;
+                    }
+                    this.speak(answer);
+                    done++;
+                }
+                if (command.stoplistening) {
+                    this.reco_stoped = true;
+                }
+                if (done === 0) {
+                    this.speak(window.swac.lang.dict.Speech.notask);
+                    answer = window.swac.lang.dict.Speech.notask;
+                }
+            } catch {
+                this.speak(window.swac.lang.dict.Speech.taskerror);
+                answer = window.swac.lang.dict.Speech.taskerror;
             }
-            if (command.execute) {
-                command.execute(cmdwords);
-                done++;
-            }
-            if (command.stoplistening) {
-                this.reco_stoped = true;
-            }
-            if (done === 0) {
-                this.speak(window.swac.lang.dict.Speech.notask);
+            if (answer && newDialogElem) {
+                // Add reply text
+                let requestTxtElem = newDialogElem.querySelector('.swac_speech_reply_text');
+                requestTxtElem.innerHTML = answer;
             }
         }
     }
@@ -251,6 +342,8 @@ export default class Speech extends View {
     async requestSources(words) {
         if (this.options.sources.length < 1) {
             Msg.info('Speech', 'There are no sources for speech detection registered.', this.requestor);
+        } else {
+            Msg.info('Speech', 'Sending input to ' + this.options.soures.length + ' sources.', this.requestor);
         }
 
         // Try send to sources
@@ -303,11 +396,12 @@ export default class Speech extends View {
     recogOnerror(event) {
         console.log('Error occurred in recognition: ' + event.error);
         console.log(event);
+        setTimeout(() => this.recognition.start(), 1000); // Neustart nach 1 Sekunde
     }
 
     /**
      * Speaks the words if available
-     * 
+     *
      * @param {String} words Words to speak
      */
     speak(words) {
@@ -333,13 +427,13 @@ export default class Speech extends View {
     }
 
     speakOnboundary(evt) {
-        console.log('on boundary');
-        console.log(evt);
+//        console.log('on boundary');
+//        console.log(evt);
     }
 
     speakOnend(evt) {
-        console.log('on end');
-        console.log(evt);
+//        console.log('on end');
+//        console.log(evt);
         this.isSpeaking = false;
         this.startRecognition();
     }
