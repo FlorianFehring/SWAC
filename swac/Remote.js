@@ -243,6 +243,30 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                     fromWheres: fromWheres
                                 });
                             });
+                        } else if (ctype.startsWith('application/xml') || ctype.startsWith('application/rss+xml')) {
+                            response.text().then(function (txt) {
+                                const parser = new DOMParser();
+                                const xmlDoc = parser.parseFromString(txt, "application/xml");
+
+                                const items = xmlDoc.querySelectorAll("item");
+                                const rssItems = [];
+
+                                items.forEach((item) => {
+                                    const rssItem = {};
+                                    item.childNodes.forEach((node) => {
+                                        if (node.nodeType === 1) { // Nur Elemente berücksichtigen
+                                            rssItem[node.nodeName] = node.textContent;
+                                        }
+                                    });
+                                    rssItems.push(rssItem);
+                                });
+
+                                resolve({
+                                    data: rssItems,
+                                    fromName: fromName,
+                                    fromWheres: fromWheres
+                                });
+                            });
                         } else {
                             response.text().then(function (txt) {
                                 // Try as json
