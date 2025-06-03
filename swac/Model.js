@@ -120,7 +120,7 @@ export default class Model {
             }
             if (typeof gvar === 'object' && gvar !== window && !gvar.nodeName) {
                 Msg.info('model', 'Useing data from global variable for >' + dataRequest.fromName + '<', comp);
-                dataCapsule = thisRef.convertData(gvar, dataRequest, comp);
+                dataCapsule = thisRef.convertData({data: gvar, fromName: dataRequest.fromName}, dataRequest, comp);
                 comp.lastloaded = dataCapsule.length - 1;
                 resolve(dataCapsule);
             } else {
@@ -251,7 +251,7 @@ export default class Model {
         let newLoaded = 0;
         for (let i = 0; i < data.length; i++) {
             let curSet = data[i];
-            if (!curSet)
+            if (!curSet || typeof curSet != 'object')
                 continue;
             // Break for lazy loading on sources, that does not support lazy requesting
             if (comp?.options?.lazyLoading > 0 && curSet[idAttr] > comp.lastloaded) {
