@@ -114,19 +114,19 @@ SWAC.init = function () {
         alert("configuration.js could not be found. It is expected in " + app_root + '/configuration.js');
     });
     document.head.appendChild(scriptElem);
-    
+
     let displayUntilElems = document.querySelectorAll('[swac_display_until]');
-    for(let curElem of displayUntilElems) {
+    for (let curElem of displayUntilElems) {
         let untilTxt = curElem.getAttribute('swac_display_until');
         let until = new Date(untilTxt);
         if (new Date() < until) {
             curElem.removeAttribute('swac_display_until');
         }
     }
-    
+
     let copyElems = document.querySelectorAll('[swac_copyToClipboard]');
-    for(let curElem of copyElems) {
-        curElem.addEventListener('click', function(evt) {
+    for (let curElem of copyElems) {
+        curElem.addEventListener('click', function (evt) {
             evt.preventDefault();
             let value = curElem.getAttribute('swac_copyToClipboard');
             navigator.clipboard.writeText(value);
@@ -503,16 +503,38 @@ SWAC.replaceGlobalPlaceholders = function () {
     for (let curSps of sps) {
         let val;
         if (curSps[0].startsWith('{{date:')) {
-            val = new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60 * 1000);
-            if (curSps[1].startsWith('m-')) {
-                let diff = parseInt(curSps[1].replace('m-', ''));
-                diff = diff * 60000;
-                val = new Date(val - diff);
+            val = new Date();
+            if (curSps[1].startsWith('min-')) {
+                let diff = parseInt(curSps[1].replace('min-', ''));
+                val.setMinutes(val.getTime() - diff);
             }
-            if (curSps[1].startsWith('m+')) {
-                let diff = parseInt(curSps[1].replace('m+', ''));
-                diff = diff * 60000;
-                val = new Date(val + diff);
+            if (curSps[1].startsWith('min+')) {
+                let diff = parseInt(curSps[1].replace('min+', ''));
+                val.setMinutes(val.getTime() + diff);
+            }
+            if (curSps[1].startsWith('h-')) {
+                let diff = parseInt(curSps[1].replace('h-', ''));
+                val.setHours(val.getTime() - diff);
+            }
+            if (curSps[1].startsWith('h+')) {
+                let diff = parseInt(curSps[1].replace('h+', ''));
+                val.setHours(val.getTime() + diff);
+            }
+            if (curSps[1].startsWith('day-')) {
+                let diff = parseInt(curSps[1].replace('day-', ''));
+                val.setDate(val.getTime() - diff);
+            }
+            if (curSps[1].startsWith('day+')) {
+                let diff = parseInt(curSps[1].replace('day+', ''));
+                val.setDate(val.getTime() + diff);
+            }
+            if (curSps[1].startsWith('mon-')) {
+                let diff = parseInt(curSps[1].replace('mon-', ''));
+                val.setMonth(val.getMonth() - diff);
+            }
+            if (curSps[1].startsWith('mon+')) {
+                let diff = parseInt(curSps[1].replace('mon+', ''));
+                val.setMonth(val.getMonth() + diff);
             }
             //Format datetime to iso
             try {

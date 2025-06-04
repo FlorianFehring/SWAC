@@ -35,7 +35,7 @@ remoteHandler.clearDatasourceStates = function () {
 
 /**
  * Function for checking reachability of an web ressource
- * 
+ *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
@@ -51,7 +51,7 @@ remoteHandler.fetchHead = function (fromName, fromWheres, supressErrorMessage, c
  * Function for getting remote data useing the fetch api
  * This returns an promise that will be fullfilled with the recived data
  * or rejected with the response object
- * 
+ *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
@@ -64,7 +64,7 @@ remoteHandler.fetchGet = function (fromName, fromWheres, supressErrorMessage) {
 
 /**
  * Function for getting definitions of a remote resouce
- * 
+ *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
@@ -79,7 +79,7 @@ remoteHandler.fetchDefs = function (fromName, fromWheres, supressErrorMessage) {
  * Function for sending an delte over fecht api
  * This returns an promise that will be fullfilled with the recived json data
  * or rejected with the response object
- * 
+ *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
@@ -92,7 +92,7 @@ remoteHandler.fetchDelete = function (fromName, fromWheres, supressErrorMessage)
 
 /**
  * Sends an request with data in url (no http body)
- * 
+ *
  * @param {string} fromName resource from that fetch or delete data (maybe an url, or an REST resource path)
  * @param {Object} fromWheres Object with attributes and values that should be send as query
  * @param [string} mode string with mode (get, list, defs, create, update, delete)
@@ -269,7 +269,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                     fromWheres: fromWheres
                                 });
                             });
-                        } else if (url.endsWith(".ics")) {
+                        } else if (url.includes(".ics")) {
                             response.text().then(function (txt) {
                                 const jcalData = ICAL.parse(txt); // iCal-Daten parsen
                                 const comp = new ICAL.Component(jcalData); // iCal-Komponente erstellen
@@ -277,9 +277,29 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
 
                                 const formattedEvents = [];
 
+                                // Get date events should calculated until (default 12 month)
+                                let untilDate = new Date();
+                                untilDate.setMonth(untilDate.getMonth() + 12);
+                                untilDate.setDate(untilDate.getDate() + 1);
+                                // Get order
+                                let orderBy = 'startDate';
+                                let orderDir = 'ASC';
+                                for (let curWhere in fromWheres) {
+                                    // Get calculation endDate for events
+                                    if (fromWheres[curWhere].startsWith('endDate,lt')) {
+                                        let untilDateStr = fromWheres[curWhere].replace('endDate,lt,', '');
+                                        untilDate = new Date(untilDateStr);
+                                    }
+                                    // Get order
+                                    if (curWhere.toLowerCase() === 'order') {
+                                        console.log('TEST found order');
+                                        orderBy = fromWheres[curWhere].split(',')[0];
+                                        orderDir = fromWheres[curWhere].split(',')[1];
+                                    }
+                                }
+
                                 events.forEach(event => {
                                     const vevent = new ICAL.Event(event);
-
                                     if (vevent.component.getFirstPropertyValue('rrule')) {
                                         // Wiederholungsregel verarbeiten
                                         const dtstart = vevent.startDate;
@@ -289,23 +309,18 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                             component: vevent.component,
                                             dtstart: dtstart
                                         });
-
-                                        // Wiederholungstermine berechnen
                                         let next;
-                                        const untilDate = new Date();
-                                        untilDate.setMonth(untilDate.getMonth() + 1);
-                                        untilDate.setDate(untilDate.getDate() + 1);
 
                                         while ((next = expansion.next())) {
                                             const nextDate = next.toJSDate();
-                                            if (nextDate > untilDate)
+                                            if (nextDate.getTime() > untilDate.getTime())
                                                 break;
                                             // Termine in der Vergangenheit ausschließen
                                             const currentDate = new Date();
                                             if (nextDate < currentDate)
                                                 continue;
-                                            let image = 'kein_bild';
-                                            let imagealt = 'Leider kein Bild verfügbar';
+                                            let image = 'no_image';
+                                            let imagealt = 'Sorry, no image available';
                                             if (vevent.summary) {
                                                 let title = vevent.summary.match(/"(.*?)"/)?.[1];
                                                 if (title) {
@@ -337,8 +352,8 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                         if (vevent.endDate && new Date(vevent.endDate) < currentDate)
                                             return;
 
-                                        let image = 'kein_bild';
-                                        let imagealt = 'Leider kein Bild verfügbar';
+                                        let image = 'no_image';
+                                        let imagealt = 'No image available';
                                         if (vevent.summary) {
                                             let title = vevent.summary.match(/"(.*?)"/)?.[1];
                                             if (title) {
@@ -347,7 +362,6 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                                 imagealt = image;
                                             }
                                         }
-
                                         let formattedEvent = {
                                             title: vevent.summary || 'Unbekannter Titel',
                                             image: image,
@@ -363,11 +377,17 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                         if (vevent.startDate.toString().length === 10) {
                                             formattedEvent.wholeDay = true;
                                         }
-                                        // Check if event goes over more than one days
-                                        if (vevent.startDate < vevent.endDate) {
+
+                                        let startDate = vevent.startDate.toJSDate();
+                                        let endDate = vevent.endDate.toJSDate();
+
+                                        if (startDate.getFullYear() === endDate.getFullYear() &&
+                                                startDate.getMonth() === endDate.getMonth() &&
+                                                startDate.getDate() === endDate.getDate()) {
+
+                                        } else {
                                             formattedEvent.endNotSameDay = true;
                                             // Correcture for iCal depending end date is on next date
-                                            let endDate = new Date(vevent.endDate);
                                             endDate.setDate(endDate.getDate() - 1);
                                             let formattedDate = `${endDate.getDate().toString().padStart(2, '0')}.${(endDate.getMonth() + 1).toString().padStart(2, '0')}.${endDate.getFullYear()}`;
                                             formattedEvent.endDate = formattedDate;
@@ -377,8 +397,12 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                         formattedEvents.push(formattedEvent);
                                     }
                                 });
-                                // Default sorting for calender entries
-                                formattedEvents.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                                // Order
+                                if (orderDir === 'ASC') {
+                                    formattedEvents.sort((a, b) => new Date(a[orderBy]) - new Date(b[orderBy]));
+                                } else {
+                                    formattedEvents.sort((a, b) => new Date(b[orderBy]) - new Date(a[orderBy]));
+                                }
                                 resolve({
                                     data: formattedEvents,
                                     fromName: fromName,
@@ -433,7 +457,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
 
 /**
  * When there are more than 50 requests at one time, the next request goes to waitlist to not overhelm servers
- * 
+ *
  * @param {string} fromName resource from that fetch or delete data (maybe an url, or an REST resource path)
  * @param {Object} fromWheres Object with attributes and values that should be send as query
  * @param [string} mode string with mode (get, list, defs, create, update, delete)
@@ -463,7 +487,7 @@ remoteHandler.addToWaitlist = function (fromName, fromWheres, mode, supressError
 
 /**
  * Look if some request is on waitlist and perform if there are slots free
- * 
+ *
  * @returns {undefined}
  */
 remoteHandler.lookAtWaitlist = function () {
@@ -487,7 +511,7 @@ remoteHandler.lookAtWaitlist = function () {
  * Function for posting data useing the fetch api
  * This returns an promise that will be fullfilled with the recived json data
  * or rejected with the response object
- * 
+ *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
@@ -503,7 +527,7 @@ remoteHandler.fetchCreate = function (fromName, fromWheres, supressErrorMessage,
  * Function for sending an update over fecht api
  * This returns an promise that will be fullfilled with the recived json data
  * or rejected with the response object
- * 
+ *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
@@ -518,7 +542,7 @@ remoteHandler.fetchUpdate = function (fromName, fromWheres, supressErrorMessage,
 /**
  * Searches an matching ressource for the given url within the configured
  * datasources.
- * 
+ *
  * @param {String} fromName Name of the data source table or path
  * @param {String} mode Name of the mode that wants to request (get, list, defs, create, update, delete, head)
  * @returns {mode,url} httpmode and url or null, if no one found
@@ -603,7 +627,7 @@ remoteHandler.determineMatchingResource = function (fromName, mode) {
 
 /**
  * Generates and shows an errormessage from response
- * 
+ *
  * @param {Response} response
  * @returns {undefined}
  */
