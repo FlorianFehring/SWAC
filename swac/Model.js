@@ -124,13 +124,14 @@ export default class Model {
                 comp.lastloaded = dataCapsule.length - 1;
                 resolve(dataCapsule);
             } else {
+                let fetchUrl = dataRequest.fromName;
                 // Use Proxy access if configured
                 if(comp.options.useProxy) {
-                    dataRequest.fromName = SWAC.config.proxy.replace('%url%', dataRequest.fromName);
+                    fetchUrl = SWAC.config.proxy.replace('%url%', dataRequest.fromName);
                 }
                 
                 // Get data from remote (fetchGet uses data from first datasource that delivers data)
-                Remote.fetchGet(dataRequest.fromName, dataRequest.fromWheres, true).then(
+                Remote.fetchGet(fetchUrl, dataRequest.fromWheres, true).then(
                         function (dataCapsule) {
                             Msg.info('model', 'Useing data from >' + dataCapsule.fromName + '< for >' + dataRequest.fromName + '<', comp);
                             dataCapsule = thisRef.convertData(dataCapsule, dataRequest, comp);
