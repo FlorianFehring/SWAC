@@ -369,14 +369,6 @@ export default class Worldmap2d extends View {
         if (!options.allowAddModels)
             this.options.allowAddModels = false;
 
-        this.desc.opts[26] = {
-            name: 'corsavoidurl',
-            desc: 'URL to SmartFile that downloads the model file and allows on this way access to cors protected files. Includes %url% placeholder for original file url.',
-            example: '/SmartFile'
-        }
-        if (!options.corsavoidurl)
-            this.options.corsavoidurl = null;
-
         this.desc.opts[27] = {
             name: 'customMarkerTooltip',
             desc: 'HTML code to show in tooltips of Markers. Can use placeholders like {name} for replacement with sets data. Is a map with default entry and entries for datasources (fromName). Each entry is an object with >content< and >options< attribute. Content is HTML code, options is an object containing options that are availabel for leaflet popups. (See leaflet docu)'
