@@ -98,9 +98,9 @@ modelFactory.loadModel = function (url, requestor, visoptions) {
         }).catch(function (e) {
             if (e.toString().indexOf('NetworkError') > 0) {
                 // Try download file
-                if (requestor.swac_comp.options.corsavoidurl) {
-                    Msg.flow('ModelFactory', 'Try to download file >' + url + '< to avoid CORS.', requestor);
-                    let corsurl = requestor.swac_comp.options.corsavoidurl.replace('%url%', url);
+                if (SWAC.config.proxy) {
+                    Msg.flow('ModelFactory', 'Try to download file >' + url + '< over proxy to avoid CORS.', requestor);
+                    let corsurl = SWAC.config.proxy.replace('%url%', url);
                     fetch(corsurl, {method: "post",
                         headers: {
                             'Accept': 'application/json'
