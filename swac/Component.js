@@ -238,16 +238,16 @@ export default class Component {
             this.options.activeOn = null;
 
         this.desc.opts[1022] = {
-            name: 'liveMode',
+            name: 'fetchNewSetsEvery',
             desc: 'In live mode the component fetches new data (with higher ids) periodically. Timespan is given in seconds.',
             example: 10
         };
-        if (!options.liveMode)
-            this.options.liveMode = null;
+        if (!options.fetchNewSetsEvery)
+            this.options.fetchNewSetsEvery = null;
 
         this.desc.opts[1023] = {
             name: 'ecoMode',
-            desc: 'Options for ecoMode. {liveMode= Seconds for liveMode update in ecoMode, reloadinterval= Seconds for reload in ecoMode, ecoColumn= Name of the column identifying sets for ecoMode}'
+            desc: 'Options for ecoMode. {fetchNewSetsEvery= Seconds for fetchNewSetsEvery update in ecoMode, reloadinterval= Seconds for reload in ecoMode, ecoColumn= Name of the column identifying sets for ecoMode}'
         };
         if (!options.ecoMode)
             this.options.ecoMode = false;
@@ -591,12 +591,12 @@ DEFINTION of SET:\n\
         // PluginSystem
         this.pluginsystem = null;
         // Eco mode
-        this.ecoMode = {active: false, defaults: {liveMode: null, fromWheres: null}};
+        this.ecoMode = {active: false, defaults: {fetchNewSetsEvery: null, fromWheres: null}};
 
         // Init automatic reload
         this.startReloadInterval();
         // Init live mode
-        this.startLiveMode();
+        this.startFetchNewSetsEvery();
     }
 
     startReloadInterval() {
@@ -612,13 +612,13 @@ DEFINTION of SET:\n\
         }
     }
 
-    startLiveMode() {
-        if (this.options.liveMode) {
-            this.liveInterval = setInterval(this.liveData.bind(this), this.options.liveMode * 1000);
+    startFetchNewSetsEvery() {
+        if (this.options.fetchNewSetsEvery) {
+            this.liveInterval = setInterval(this.liveData.bind(this), this.options.fetchNewSetsEvery * 1000);
         }
     }
 
-    stopLiveMode() {
+    stopFetchNewSetsEvery() {
         if (this.liveInterval) {
             clearInterval(this.liveInterval);
             delete this.liveInterval;
@@ -641,7 +641,6 @@ DEFINTION of SET:\n\
             return;
         }
         Msg.flow('Component', 'addData(' + fromName + ',' + data.length + ')', this.requestor);
-
 
         // Use watchablesource so that component gets informed about new datasets
         if (!this.data[fromName]) {
@@ -940,6 +939,7 @@ DEFINTION of SET:\n\
             Msg.error('Component', 'Given array as set. Use only single sets on addSet()', this.requestor);
             return;
         }
+        console.log('TEST addSet');
         // Use watchablesource so that component gets informed about new datasets
         if (!this.data[fromName]) {
             this.data[fromName] = new WatchableSource(fromName, this);
@@ -1767,13 +1767,14 @@ DEFINTION of SET:\n\
 
     // public function
     reload() {
+        Msg.flow('Component', 'Component reloaded', this.requestor);
         return new Promise((resolve, reject) => {
             // Get used sources
             let oldSources = [];
             let oldSetCount = 0;
             for (let curSource in this.data) {
                 oldSources.push(curSource);
-                oldSetCount += this.data[curSource].count();
+                oldSetCount += this.data[curSource].count;
             }
             let thisRef = this;
             // If there where no sources try again with source from requestor element
@@ -1949,10 +1950,10 @@ DEFINTION of SET:\n\
         if (this.ecoMode.active) {
             // Deactivate ecoMode
             this.ecoMode.active = false;
-            if (this.options.ecoMode.liveMode) {
-                this.options.liveMode = this.options.ecoMode.liveModeOrig;
-                this.stopLiveMode();
-                this.startLiveMode();
+            if (this.options.ecoMode.fetchNewSetsEvery) {
+                this.options.fetchNewSetsEvery = this.options.ecoMode.fetchNewSetsEveryOrig;
+                this.stopFetchNewSetsEvery();
+                this.startFetchNewSetsEvery();
             }
             if (this.options.ecoMode.reloadInterval) {
                 this.options.reloadInterval = this.options.ecoMode.reloadIntervalOrig;
@@ -1965,11 +1966,11 @@ DEFINTION of SET:\n\
         } else {
             this.ecoMode.active = true;
             // activate ecoMode
-            if (this.options.ecoMode.liveMode) {
-                this.options.ecoMode.liveModeOrig = this.options.liveMode;
-                this.options.liveMode = this.options.ecoMode.liveMode;
-                this.stopLiveMode();
-                this.startLiveMode();
+            if (this.options.ecoMode.fetchNewSetsEvery) {
+                this.options.ecoMode.fetchNewSetsEveryOrig = this.options.fetchNewSetsEvery;
+                this.options.fetchNewSetsEvery = this.options.ecoMode.fetchNewSetsEvery;
+                this.stopFetchNewSetsEvery();
+                this.startFetchNewSetsEvery();
             }
             if (this.options.ecoMode.reloadInterval) {
                 this.options.ecoMode.reloadIntervalOrig = this.options.reloadInterval;
