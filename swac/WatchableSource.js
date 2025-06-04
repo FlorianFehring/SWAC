@@ -63,9 +63,16 @@ export default class WatchableSource {
     }
 
     addSet(set) {
-        // Auto add id if no one is given
-        if(!set.id)
+        if (set.id) {
+            // Check if set allready exists
+            if (this.sets[set.id]) {
+                Msg.flow('WatchableSource', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< allready exists.', this.requestor);
+                return;
+            }
+        } else {
+            // Auto add id if no one is given
             set.id = this.sets.length;
+        }
         this.count++;
         Msg.flow('WatchableSource', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< added.', this.requestor);
         this.sets[set.id] = set;
@@ -81,7 +88,7 @@ export default class WatchableSource {
         for (let curObserver of this.swac_observers.keys()) {
             curObserver.notifyDelSet(set);
         }
-        if(this.count==0)
+        if (this.count == 0)
             this.sets = [];
     }
 
@@ -145,7 +152,7 @@ export default class WatchableSource {
         // Check if set is accepted by requestor
         if (!this?.requestor?.swac_comp.checkAcceptSet(set))
             return;
-        
+
         this.addSet(set);
     }
 
