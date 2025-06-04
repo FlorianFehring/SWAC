@@ -10,6 +10,8 @@ export default class Coder extends View {
         this.desc.text = 'Component for display code';
         this.desc.developers = 'Florian Fehring (FH Bielefeld)';
         this.desc.license = 'GNU Lesser General Public License';
+        this.options.showWhenNoData = true;
+        this.options.showWhenNoDataMsg = false;
 
         this.desc.templates[0] = {
             name: 'default',
