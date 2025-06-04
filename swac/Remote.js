@@ -1,10 +1,10 @@
 import SWAC from './swac.js';
 import Msg from './Msg.js';
+import ICAL from './libs/ical/ical.min.js';
 
 /*
  * This object contains all neccessery logic for communication between frontend
  * and backend.
- * It is currently implemented to support only json as exchange format.
  */
 var remoteHandler = new Object();
 remoteHandler.datasourceStates = {};
@@ -39,11 +39,12 @@ remoteHandler.clearDatasourceStates = function () {
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
+ * @param {boolean} corsfetch if true the request will be send over local cors provider (avoiding cors problems)
  * @returns {Promise} Promise that resolves with datacapsle when data was recived
  */
-remoteHandler.fetchHead = function (fromName, fromWheres, supressErrorMessage) {
+remoteHandler.fetchHead = function (fromName, fromWheres, supressErrorMessage, corsfetch = false) {
     remoteHandler.datasourceTries = {};
-    return remoteHandler.fetch(fromName, fromWheres, 'head', supressErrorMessage);
+    return remoteHandler.fetch(fromName, fromWheres, 'head', supressErrorMessage, undefined, corsfetch);
 };
 
 /**
@@ -144,12 +145,13 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
             referrer: 'no-referrer' // *client
         };
 
-        if (typeof data !== 'undefined') {
+        if (typeof txt !== 'undefined') {
+            console.log('TEST body: ' + txt);
             try {
-                fetchConf.body = JSON.stringify(data); // must match 'Content-Type' header
+                fetchConf.body = JSON.stringify(txt); // must match 'Content-Type' header
             } catch (e) {
                 Msg.error('Model', 'Could not save data because it was not transformable to JSON: ' + e);
-                console.log(data);
+                console.log(txt);
                 return;
             }
         }
@@ -267,6 +269,122 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                     fromWheres: fromWheres
                                 });
                             });
+                        } else if (url.endsWith(".ics")) {
+                            response.text().then(function (txt) {
+                                const jcalData = ICAL.parse(txt); // iCal-Daten parsen
+                                const comp = new ICAL.Component(jcalData); // iCal-Komponente erstellen
+                                const events = comp.getAllSubcomponents('vevent'); // VEVENT-Komponenten abrufen
+
+                                const formattedEvents = [];
+
+                                events.forEach(event => {
+                                    const vevent = new ICAL.Event(event);
+
+                                    if (vevent.component.getFirstPropertyValue('rrule')) {
+                                        // Wiederholungsregel verarbeiten
+                                        const dtstart = vevent.startDate;
+                                        const rrule = vevent.component.getFirstProperty('rrule');
+
+                                        const expansion = new ICAL.RecurExpansion({
+                                            component: vevent.component,
+                                            dtstart: dtstart
+                                        });
+
+                                        // Wiederholungstermine berechnen
+                                        let next;
+                                        const untilDate = new Date();
+                                        untilDate.setMonth(untilDate.getMonth() + 1);
+                                        untilDate.setDate(untilDate.getDate() + 1);
+
+                                        while ((next = expansion.next())) {
+                                            const nextDate = next.toJSDate();
+                                            if (nextDate > untilDate)
+                                                break;
+                                            // Termine in der Vergangenheit ausschließen
+                                            const currentDate = new Date();
+                                            if (nextDate < currentDate)
+                                                continue;
+                                            let image = 'kein_bild';
+                                            let imagealt = 'Leider kein Bild verfügbar';
+                                            if (vevent.summary) {
+                                                let title = vevent.summary.match(/"(.*?)"/)?.[1];
+                                                if (title) {
+                                                    image = title.replaceAll(' ', '_');
+                                                    image = new Date(vevent.startDate.toLocaleString()).getFullYear() + '_' + image;
+                                                    imagealt = image;
+                                                }
+                                            }
+                                            let formattedEvent = {
+                                                title: vevent.summary || 'Unbekannter Titel',
+                                                image: image,
+                                                imagealt: imagealt,
+                                                startDate: next.toString(),
+                                                endDate: vevent.endDate ? vevent.endDate.toString() : null,
+                                                description: vevent.description || '',
+                                                locationName: vevent.location ? vevent.location.split('\n')[0] : '',
+                                                locationAddress: vevent.location ? vevent.location.split('\n').slice(1).join(', ') : ''
+                                            };
+                                            // Check if date is wohle day date
+                                            if (vevent.startDate.toString().length === 10) {
+                                                formattedEvent.wholeDay = true;
+                                            }
+
+                                            formattedEvents.push(formattedEvent);
+                                        }
+                                    } else {
+                                        // Termine in der Vergangenheit ausschließen
+                                        const currentDate = new Date(); // Holen Sie sich das aktuelle Datum und Zeit
+                                        if (vevent.endDate && new Date(vevent.endDate) < currentDate)
+                                            return;
+
+                                        let image = 'kein_bild';
+                                        let imagealt = 'Leider kein Bild verfügbar';
+                                        if (vevent.summary) {
+                                            let title = vevent.summary.match(/"(.*?)"/)?.[1];
+                                            if (title) {
+                                                image = title.replaceAll(' ', '_');
+                                                image = new Date(vevent.startDate.toLocaleString()).getFullYear() + '_' + image;
+                                                imagealt = image;
+                                            }
+                                        }
+
+                                        let formattedEvent = {
+                                            title: vevent.summary || 'Unbekannter Titel',
+                                            image: image,
+                                            imagealt: imagealt,
+                                            startDate: vevent.startDate.toString().replace('Z', ''),
+                                            endDate: vevent.endDate ? vevent.endDate.toString().replace('Z', '') : null,
+                                            description: vevent.description || '',
+                                            locationName: vevent.location ? vevent.location.split('\n')[0] : '',
+                                            locationAddress: vevent.location ? vevent.location.split('\n').slice(1).join(', ') : '',
+                                            endNotSameDay: false
+                                        };
+                                        // Check if date is wohle day date
+                                        if (vevent.startDate.toString().length === 10) {
+                                            formattedEvent.wholeDay = true;
+                                        }
+                                        // Check if event goes over more than one days
+                                        if (vevent.startDate < vevent.endDate) {
+                                            formattedEvent.endNotSameDay = true;
+                                            // Correcture for iCal depending end date is on next date
+                                            let endDate = new Date(vevent.endDate);
+                                            endDate.setDate(endDate.getDate() - 1);
+                                            let formattedDate = `${endDate.getDate().toString().padStart(2, '0')}.${(endDate.getMonth() + 1).toString().padStart(2, '0')}.${endDate.getFullYear()}`;
+                                            formattedEvent.endDate = formattedDate;
+                                        }
+
+                                        // Normale Events verarbeiten
+                                        formattedEvents.push(formattedEvent);
+                                    }
+                                });
+                                // Default sorting for calender entries
+                                formattedEvents.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                                resolve({
+                                    data: formattedEvents,
+                                    fromName: fromName,
+                                    fromWheres: fromWheres
+                                });
+                            });
                         } else {
                             response.text().then(function (txt) {
                                 // Try as json
@@ -285,7 +403,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                             .replace(/"/g, '&quot;')
                                             .replace(/'/g, '&#39;');
                                     resolve({
-                                        data: data,
+                                        data: txt,
                                         fromName: fromName,
                                         fromWheres: fromWheres
                                     });
@@ -321,6 +439,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
  * @param [string} mode string with mode (get, list, defs, create, update, delete)
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
  * @param {object} data object with parameters to send along (only on POST and UPDATE)
+ * @param {boolean} corsfetch if true the request will be send over local cors provider (avoiding cors problems)
  * @returns {Promise} Promise that resolves with datacapsle when data was send / recived
  */
 remoteHandler.addToWaitlist = function (fromName, fromWheres, mode, supressErrorMessage, data) {
@@ -357,7 +476,7 @@ remoteHandler.lookAtWaitlist = function () {
             break;
         }
     }
-    remoteHandler.fetch(set.fromName, set.fromWheres, set.mode, set.supressErrorMessage, set.data).then(function (res) {
+    remoteHandler.fetch(set.fromName, set.fromWheres, set.mode, set.supressErrorMessage, set.data, set.corsfetch).then(function (res) {
         set.callbackResolve(res);
     }).catch(function (err) {
         set.callbackReject(err);
