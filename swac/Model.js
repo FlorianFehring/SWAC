@@ -222,22 +222,6 @@ export default class Model {
             data[0] = dataCapsule;
         }
 
-        // Get default values
-        if (!dataRequest.attributeDefaults) {
-            if (comp && comp.options.attributeDefaults) {
-                dataRequest.attributeDefaults = comp.options.attributeDefaults;
-            } else {
-                dataRequest.attributeDefaults = new Map();
-            }
-        }
-        if (!dataRequest.attributeRenames) {
-            if (comp && comp.options.attributeRenames) {
-                dataRequest.attributeRenames = comp.options.attributeRenames;
-            } else {
-                dataRequest.attributeRenames = new Map();
-            }
-        }
-
         // Check if filter contains renamed attributes and rename attrs in filter
 //        console.log('TEST comp',comp.options.attributeRenames);
 //        for(let curRename of comp.options.attributeRenames) {
@@ -290,36 +274,38 @@ export default class Model {
 //                continue;
 //            }
             // Set default values
-            let defaults = dataRequest.attributeDefaults.get(dataRequest.fromName);
-            let gdefaults = dataRequest.attributeDefaults.get('*');
-            if (defaults && gdefaults)
-                defaults = Object.assign(defaults, gdefaults);
-            else if (gdefaults)
-                defaults = gdefaults;
-            if (defaults) {
-                for (let curAttr in defaults) {
-                    if (typeof curSet[curAttr] === 'undefined') {
-                        let curVal = defaults[curAttr];
-                        // Calculate default value
-                        let placeholders = curVal.match(/%\w+%/g);
-                        if (placeholders && placeholders.length > 0) {
-                            let eq = curVal;
-                            let repall = true;
-                            for (let curPlaceh of placeholders) {
-                                let curName = curPlaceh.split('%').join('');
-                                if (typeof curSet[curName] !== 'undefined')
-                                    eq = eq.replace(curPlaceh, curSet[curName]);
-                                else {
-                                    Msg.error('Model', 'Variable >' + curName + '< for calculation >' + eq + '< not found in set >' + dataRequest.fromName + '[' + curSet.id + ']<');
-                                    repall = false;
-                                    break;
+            if (dataRequest.attributeDefaults) {
+                let defaults = dataRequest.attributeDefaults.get(dataRequest.fromName);
+                let gdefaults = dataRequest.attributeDefaults.get('*');
+                if (defaults && gdefaults)
+                    defaults = Object.assign(defaults, gdefaults);
+                else if (gdefaults)
+                    defaults = gdefaults;
+                if (defaults) {
+                    for (let curAttr in defaults) {
+                        if (typeof curSet[curAttr] === 'undefined') {
+                            let curVal = defaults[curAttr];
+                            // Calculate default value
+                            let placeholders = curVal.match(/%\w+%/g);
+                            if (placeholders && placeholders.length > 0) {
+                                let eq = curVal;
+                                let repall = true;
+                                for (let curPlaceh of placeholders) {
+                                    let curName = curPlaceh.split('%').join('');
+                                    if (typeof curSet[curName] !== 'undefined')
+                                        eq = eq.replace(curPlaceh, curSet[curName]);
+                                    else {
+                                        Msg.error('Model', 'Variable >' + curName + '< for calculation >' + eq + '< not found in set >' + dataRequest.fromName + '[' + curSet.id + ']<');
+                                        repall = false;
+                                        break;
+                                    }
                                 }
-                            }
-                            if (repall) {
-                                curSet[curAttr] = eval(eq);
-                            }
-                        } else
-                            curSet[curAttr] = curVal;
+                                if (repall) {
+                                    curSet[curAttr] = eval(eq);
+                                }
+                            } else
+                                curSet[curAttr] = curVal;
+                        }
                     }
                 }
             }
@@ -340,10 +326,14 @@ export default class Model {
                 curSet['swac_joinsetsCount'] = 0;
 
             // Set attribute renameing
-            for (let [curAttr, curRename] of dataRequest.attributeRenames) {
-                if (typeof curSet[curAttr] !== 'undefined') {
-                    curSet[curRename] = curSet[curAttr];
-                    delete curSet[curAttr];
+            if (dataRequest.attributeRenames) {
+                curSet['swac_renamedAttrsByRequest'] = {};
+                for (let [curAttr, curRename] of dataRequest.attributeRenames) {
+                    if (typeof curSet[curAttr] !== 'undefined') {
+                        curSet[curRename] = curSet[curAttr];
+                        delete curSet[curAttr];
+                        curSet['swac_renamedAttrsByRequest'][curAttr] = curRename;
+                    }
                 }
             }
 

@@ -849,6 +849,53 @@ DEFINTION of SET:\n\
             }
         }
 
+        // Set default values
+        let defaults = this.options.attributeDefaults.get(set.swac_fromName);
+        let gdefaults = this.options.attributeDefaults.get('*');
+        if (defaults && gdefaults)
+            defaults = Object.assign(defaults, gdefaults);
+        else if (gdefaults)
+            defaults = gdefaults;
+        if (this.options.attributeDefaults) {
+            for (let curAttr in defaults) {
+                if (typeof set[curAttr] === 'undefined') {
+                    let curVal = defaults[curAttr];
+                    // Calculate default value
+                    let placeholders = curVal.match(/%\w+%/g);
+                    if (placeholders && placeholders.length > 0) {
+                        let eq = curVal;
+                        let repall = true;
+                        for (let curPlaceh of placeholders) {
+                            let curName = curPlaceh.split('%').join('');
+                            if (typeof set[curName] !== 'undefined')
+                                eq = eq.replace(curPlaceh, set[curName]);
+                            else {
+                                Msg.error('Model', 'Variable >' + curName + '< for calculation >' + eq + '< not found in set >' + dataRequest.fromName + '[' + set.id + ']<');
+                                repall = false;
+                                break;
+                            }
+                        }
+                        if (repall) {
+                            set[curAttr] = eval(eq);
+                        }
+                    } else
+                        set[curAttr] = curVal;
+                }
+            }
+        }
+
+        // Set attribute renameing
+        if (this.options?.attributeRenames.size > 0) {
+            set['swac_renamedAttrsByComp'] = {};
+            for (let [curAttr, curRename] of this.options.attributeRenames) {
+                if (typeof set[curAttr] !== 'undefined') {
+                    set[curRename] = set[curAttr];
+                    delete set[curAttr];
+                    set['swac_renamedAttrsByComp'][curAttr] = curRename;
+                }
+            }
+        }
+
         // Fetch data from api for actual data if url is configured
 //        if (this.options.apiActualUrlAttr) {
 //            let actualurl = this.getDataValue(set, this.options.apiActualUrlAttr);
