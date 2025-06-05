@@ -146,7 +146,6 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
         };
 
         if (typeof txt !== 'undefined') {
-            console.log('TEST body: ' + txt);
             try {
                 fetchConf.body = JSON.stringify(txt); // must match 'Content-Type' header
             } catch (e) {
@@ -277,22 +276,37 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
 
                                 const formattedEvents = [];
 
-                                // Get date events should calculated until (default 12 month)
-                                let untilDate = new Date();
-                                untilDate.setMonth(untilDate.getMonth() + 12);
-                                untilDate.setDate(untilDate.getDate() + 1);
+                                // Date for first posible event
+                                let firstPosibleDate = new Date();
+                                // Date for last posible event (default 12 month from now)
+                                let lastPosibleDate = new Date();
+                                lastPosibleDate.setMonth(lastPosibleDate.getMonth() + 12);
+                                lastPosibleDate.setDate(lastPosibleDate.getDate() + 1);
                                 // Get order
                                 let orderBy = 'startDate';
                                 let orderDir = 'ASC';
                                 for (let curWhere in fromWheres) {
-                                    // Get calculation endDate for events
-                                    if (fromWheres[curWhere].startsWith('endDate,lt')) {
-                                        let untilDateStr = fromWheres[curWhere].replace('endDate,lt,', '');
-                                        untilDate = new Date(untilDateStr);
+                                    // Work on filter
+                                    if (curWhere === 'filter') {
+                                        // Expand multiple filter
+                                        let filters = fromWheres[curWhere].split('&');
+                                        for (let curFilter of filters) {
+                                            let curFilterStr = curFilter.replace('filter=', '');
+                                            // Get first posible startDate for events
+                                            if (curFilterStr.startsWith('startDate,gt')) {
+                                                let dateStr = curFilterStr.replace('startDate,gt,', '');
+                                                firstPosibleDate = new Date(dateStr);
+                                            }
+                                            // Get last posible endDate for events
+                                            if (curFilterStr.startsWith('endDate,lt')) {
+                                                let dateStr = curFilterStr.replace('endDate,lt,', '');
+                                                lastPosibleDate = new Date(dateStr);
+                                            }
+                                        }
                                     }
+
                                     // Get order
                                     if (curWhere.toLowerCase() === 'order') {
-                                        console.log('TEST found order');
                                         orderBy = fromWheres[curWhere].split(',')[0];
                                         orderDir = fromWheres[curWhere].split(',')[1];
                                     }
@@ -300,6 +314,13 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
 
                                 events.forEach(event => {
                                     const vevent = new ICAL.Event(event);
+                                    // Get start and endDate
+                                    let startDate = vevent.startDate.toJSDate();
+                                    let endDate = null;
+                                    if (vevent.endDate) {
+                                        endDate = vevent.endDate.toJSDate();
+                                    }
+
                                     if (vevent.component.getFirstPropertyValue('rrule')) {
                                         // Wiederholungsregel verarbeiten
                                         const dtstart = vevent.startDate;
@@ -312,13 +333,18 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                         let next;
 
                                         while ((next = expansion.next())) {
-                                            const nextDate = next.toJSDate();
-                                            if (nextDate.getTime() > untilDate.getTime())
-                                                break;
-                                            // Termine in der Vergangenheit ausschließen
-                                            const currentDate = new Date();
-                                            if (nextDate < currentDate)
+                                            let nextDate = next.toJSDate();
+                                            // Exclute events before first posible date
+                                            if (nextDate.getTime() < firstPosibleDate.getTime()) {
+                                                Msg.info('Remote', 'Excluded ' + vevent.summary + ' because ' + nextDate + ' is before ' + firstPosibleDate);
                                                 continue;
+                                            }
+                                            // Exclude events after last posible date
+                                            if (nextDate.getTime() > lastPosibleDate.getTime()) {
+                                                Msg.info('Remote', 'Excluded ' + vevent.summary + ' because ' + nextDate + ' is after ' + lastPosibleDate);
+                                                break;
+                                            }
+
                                             let image = 'no_image';
                                             let imagealt = 'Sorry, no image available';
                                             if (vevent.summary) {
@@ -333,8 +359,8 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                                 title: vevent.summary || 'Unbekannter Titel',
                                                 image: image,
                                                 imagealt: imagealt,
-                                                startDate: next.toString(),
-                                                endDate: vevent.endDate ? vevent.endDate.toString() : null,
+                                                startDate: nextDate.toString(),
+                                                endDate: vevent.endDate ? endDate.toString() : null,
                                                 description: vevent.description || '',
                                                 locationName: vevent.location ? vevent.location.split('\n')[0] : '',
                                                 locationAddress: vevent.location ? vevent.location.split('\n').slice(1).join(', ') : ''
@@ -347,10 +373,17 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                             formattedEvents.push(formattedEvent);
                                         }
                                     } else {
-                                        // Termine in der Vergangenheit ausschließen
-                                        const currentDate = new Date(); // Holen Sie sich das aktuelle Datum und Zeit
-                                        if (vevent.endDate && new Date(vevent.endDate) < currentDate)
+
+                                        // Exclute events before first posible date
+                                        if (endDate && endDate.getTime() < firstPosibleDate.getTime()) {
+                                            Msg.info('Remote', 'Excluded ' + vevent.summary + ' because ' + endDate + ' is before ' + firstPosibleDate);
                                             return;
+                                        }
+                                        // Exclude events after last posible date
+                                        if (endDate.getTime() > lastPosibleDate.getTime()) {
+                                            Msg.info('Remote', 'Excluded ' + vevent.summary + ' because ' + endDate + ' is after ' + lastPosibleDate);
+                                            return;
+                                        }
 
                                         let image = 'no_image';
                                         let imagealt = 'No image available';
@@ -366,8 +399,8 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                             title: vevent.summary || 'Unbekannter Titel',
                                             image: image,
                                             imagealt: imagealt,
-                                            startDate: vevent.startDate.toString().replace('Z', ''),
-                                            endDate: vevent.endDate ? vevent.endDate.toString().replace('Z', '') : null,
+                                            startDate: startDate.toString().replace('Z', ''),
+                                            endDate: vevent.endDate ? endDate.toString().replace('Z', '') : null,
                                             description: vevent.description || '',
                                             locationName: vevent.location ? vevent.location.split('\n')[0] : '',
                                             locationAddress: vevent.location ? vevent.location.split('\n').slice(1).join(', ') : '',
@@ -377,9 +410,6 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                         if (vevent.startDate.toString().length === 10) {
                                             formattedEvent.wholeDay = true;
                                         }
-
-                                        let startDate = vevent.startDate.toJSDate();
-                                        let endDate = vevent.endDate.toJSDate();
 
                                         if (startDate.getFullYear() === endDate.getFullYear() &&
                                                 startDate.getMonth() === endDate.getMonth() &&
