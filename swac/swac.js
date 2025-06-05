@@ -504,6 +504,9 @@ SWAC.replaceGlobalPlaceholders = function () {
         let val;
         if (curSps[0].startsWith('{{date:')) {
             val = new Date();
+            if (curSps[1].startsWith('now')) {
+                // Keep val unmodified
+            }
             if (curSps[1].startsWith('min-')) {
                 let diff = parseInt(curSps[1].replace('min-', ''));
                 val.setMinutes(val.getTime() - diff);
