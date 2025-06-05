@@ -508,35 +508,35 @@ SWAC.replaceGlobalPlaceholders = function () {
                 // Keep val unmodified
             }
             if (curSps[1].startsWith('min-')) {
-                let diff = parseInt(curSps[1].replace('min-', ''));
-                val.setMinutes(val.getTime() - diff);
+                let diff = parseInt(curSps[1].replace('min-', '')) || 0;
+                val.setMinutes(val.getMinutes() - diff);
             }
             if (curSps[1].startsWith('min+')) {
-                let diff = parseInt(curSps[1].replace('min+', ''));
-                val.setMinutes(val.getTime() + diff);
+                let diff = parseInt(curSps[1].replace('min+', '')) || 0;
+                val.setMinutes(val.getMinutes() + diff);
             }
             if (curSps[1].startsWith('h-')) {
-                let diff = parseInt(curSps[1].replace('h-', ''));
-                val.setHours(val.getTime() - diff);
+                let diff = parseInt(curSps[1].replace('h-', '')) || 0;
+                val.setHours(val.getHours() - diff);
             }
             if (curSps[1].startsWith('h+')) {
-                let diff = parseInt(curSps[1].replace('h+', ''));
-                val.setHours(val.getTime() + diff);
+                let diff = parseInt(curSps[1].replace('h+', '')) || 0;
+                val.setHours(val.getHours() + diff);
             }
             if (curSps[1].startsWith('day-')) {
-                let diff = parseInt(curSps[1].replace('day-', ''));
-                val.setDate(val.getTime() - diff);
+                let diff = parseInt(curSps[1].replace('day-', '')) || 0;
+                val.setDate(val.getDate() - diff);
             }
             if (curSps[1].startsWith('day+')) {
-                let diff = parseInt(curSps[1].replace('day+', ''));
-                val.setDate(val.getTime() + diff);
+                let diff = parseInt(curSps[1].replace('day+', '')) || 0;
+                val.setDate(val.getDate() + diff);
             }
             if (curSps[1].startsWith('mon-')) {
-                let diff = parseInt(curSps[1].replace('mon-', ''));
+                let diff = parseInt(curSps[1].replace('mon-', '')) || 0;
                 val.setMonth(val.getMonth() - diff);
             }
             if (curSps[1].startsWith('mon+')) {
-                let diff = parseInt(curSps[1].replace('mon+', ''));
+                let diff = parseInt(curSps[1].replace('mon+', '')) || 0;
                 val.setMonth(val.getMonth() + diff);
             }
             //Format datetime to iso
