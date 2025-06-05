@@ -279,9 +279,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                 // Date for first posible event
                                 let firstPosibleDate = new Date();
                                 // Date for last posible event (default 12 month from now)
-                                let lastPosibleDate = new Date();
-                                lastPosibleDate.setMonth(lastPosibleDate.getMonth() + 12);
-                                lastPosibleDate.setDate(lastPosibleDate.getDate() + 1);
+                                let lastPosibleDate = null;
                                 // Get order
                                 let orderBy = 'startDate';
                                 let orderDir = 'ASC';
@@ -312,6 +310,17 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                     }
                                 }
 
+                                // Check if dates are valid
+                                if (lastPosibleDate === null || isNaN(lastPosibleDate.getTime())) {
+                                    Msg.error('Remote','Given lastPosibleDate >' + lastPosibleDate + '< is not a valid date.');
+                                    lastPosibleDate = new Date();
+                                    lastPosibleDate.setMonth(lastPosibleDate.getMonth() + 12);
+                                    lastPosibleDate.setDate(lastPosibleDate.getDate() + 1);
+                                }
+                                if(firstPosibleDate === null | isNaN(firstPosibleDate.getTime())) {
+                                    firstPosibleDate = new Date();
+                                }
+
                                 events.forEach(event => {
                                     const vevent = new ICAL.Event(event);
                                     // Get start and endDate
@@ -320,7 +329,6 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                     if (vevent.endDate) {
                                         endDate = vevent.endDate.toJSDate();
                                     }
-
                                     if (vevent.component.getFirstPropertyValue('rrule')) {
                                         // Wiederholungsregel verarbeiten
                                         const dtstart = vevent.startDate;
