@@ -126,7 +126,7 @@ export default class Model {
             } else {
                 let fetchUrl = dataRequest.fromName;
                 // Use Proxy access if configured
-                if(comp.options.useProxy) {
+                if(comp.options.useProxy && SWAC.config.proxy) {
                     fetchUrl = SWAC.config.proxy.replace('%url%', dataRequest.fromName);
                 }
                 
