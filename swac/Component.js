@@ -1108,8 +1108,8 @@ DEFINTION of SET:\n\
                         // Date compare
                         if (isNaN(set[parts[0]]) && !isNaN(setdate.valueOf())) {
                             let compDate = new Date(parts[2]);
-                            if (setdate >= compDate) {
-                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of lt-filter date compare. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
+                            if (setdate.getTime() >= compDate.getTime()) {
+                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of lt-filter date compare. set.' + parts[0] + ' is >' + set[parts[0]] + '< but shold not be grater than >' + parts[2] + '<');
                                 return false;
                             }
                             continue;
@@ -1120,7 +1120,7 @@ DEFINTION of SET:\n\
                         if (!isNaN(setnum)) {
                             let compNum = new Number(parts[2]);
                             if (setnum >= compNum) {
-                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of lt-filter number compare. set.' + parts[0] + ' is not ' + parts[2] + ' but is ' + set[parts[0]]);
+                                Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of lt-filter number compare. set.' + parts[0] + ' is >' + set[parts[0]] + '< but shold not be grater than >' + parts[2] + '<');
                                 return false;
                             }
                             continue;
