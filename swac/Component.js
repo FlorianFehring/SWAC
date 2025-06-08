@@ -211,7 +211,7 @@ export default class Component {
 
         this.desc.opts[1019] = {
             name: 'lazyLoading',
-            desc: 'The number of sets that should be lazy loaded on lazy load events. If 0 all data is loaded at once.',
+            desc: 'Number of sets that should be lazy loaded on lazy load events. If 0 all data is loaded at once.',
             example: 10
         };
         if (!options.lazyLoading)
@@ -239,7 +239,7 @@ export default class Component {
 
         this.desc.opts[1022] = {
             name: 'fetchNewSetsEvery',
-            desc: 'In live mode the component fetches new data (with higher ids) periodically. Timespan is given in seconds.',
+            desc: 'Time in seconds when to fetch new datasets from the datasource(s)',
             example: 10
         };
         if (!options.fetchNewSetsEvery)
@@ -1069,7 +1069,7 @@ DEFINTION of SET:\n\
                     // eq-filter
                     if (curPart.includes(',eq,')) {
                         // Saw equal needed here because numbers are strings in fromWheres
-                        if (set[paramName] != parts[2] && set[paramName] + '' != parts[2] + '') {
+                        if (parts[2] != undefined && parts[2] !== '' && set[paramName] != parts[2] && set[paramName] + '' != parts[2] + '') {
                             Msg.warn('Model', 'Set >' + set.swac_fromName + '[' + set.id + ']< not accepted because of eq-filter. set.' + paramName + ' is not ' + parts[2] + ' but is ' + set[paramName], this.requestor);
                             return false;
                         }
