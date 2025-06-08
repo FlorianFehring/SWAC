@@ -133,13 +133,14 @@ export default class ComponentHandler {
                 let optionsRequestor = {
                     fromName: requestor.optionsName
                 };
+                let thisRef = this;
                 // Get options from datasource
                 Model.load(optionsRequestor).then(function (optionsdata) {
                     options = optionsdata;
                     Msg.info('ComponentHandler',
                             '>' + requestor.id + '< runs with custom options from datasource >' + requestor.optionsName + '<', requestor);
                     options.optionsSource = 'model';
-                    this.updateOptsFromURL(options, requestor, resolve)
+                    thisRef.updateOptsFromURL(options, requestor, resolve)
                 }).catch(function (error) {
                     Msg.error('ComponentHandler',
                             'Could not load options for >' + requestor.id + '<: ' + error, requestor);
