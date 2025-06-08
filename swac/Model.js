@@ -121,12 +121,13 @@ export default class Model {
             if (typeof gvar === 'object' && gvar !== window && !gvar.nodeName) {
                 Msg.info('model', 'Useing data from global variable for >' + dataRequest.fromName + '<', comp);
                 dataCapsule = thisRef.convertData({data: gvar, fromName: dataRequest.fromName}, dataRequest, comp);
-                comp.lastloaded = dataCapsule.length - 1;
+                if(comp)
+                    comp.lastloaded = dataCapsule.length - 1;
                 resolve(dataCapsule);
             } else {
                 let fetchUrl = dataRequest.fromName;
                 // Use Proxy access if configured
-                if(comp.options.useProxy && SWAC.config.proxy) {
+                if(comp && comp.options.useProxy && SWAC.config.proxy) {
                     fetchUrl = SWAC.config.proxy.replace('%url%', dataRequest.fromName);
                 }
                 
@@ -317,7 +318,7 @@ export default class Model {
             }
 
             // Count subsets
-            let joinName = dataRequest.fromWheres.join;
+            let joinName = dataRequest?.fromWheres?.join;
             if (curSet[joinName]) {
                 curSet['swac_joinsetsCount'] = curSet[joinName].length;
                 let joinSetIds = [];
