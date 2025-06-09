@@ -33,10 +33,10 @@ export default class View extends Component {
 
         this.desc.opts[1101] = {
             name: "showWhenNoDataMsg",
-            desc: "Show information about no data."
+            desc: "Custom text to show when no data is available. If set to false no information is shown, if set to true default system message is shown."
         };
         if (!options.showWhenNoDataMsg)
-            this.options.showWhenNoDataMsg = false;
+            this.options.showWhenNoDataMsg = true;
 
         this.desc.opts[1102] = {
             name: "showNoRightsInfo",
@@ -154,12 +154,6 @@ export default class View extends Component {
         // Set checking is disabled
         if (this.options.checkSets === false) {
             return true;
-        }
-
-        // Exculde duplicates
-        if (this.data[set.swac_fromName].sets[set.id]) {
-            Msg.flow('View', 'Dataset >' + set.swac_fromName + '[' + set.id + ']< not accepted because it would be duplicate.', this.requestor);
-            return false;
         }
 
         // Check if size exeeded
@@ -515,7 +509,7 @@ export default class View extends Component {
                 Msg.flow('View', 'Useing onpage template for >' + this.requestor.id + '<', this.requestor);
                 // Remove loading information
                 this.remCoverMsg();
-                // Copy innerHTML as template                
+                // Copy innerHTML as template
                 // Replace special placeholder for requestor.id
                 this.requestor.innerHTML = this.requestor.innerHTML.replaceAll('{requestor.id}', this.requestor.id);
                 // Readd error msg
@@ -595,8 +589,9 @@ export default class View extends Component {
     onAddData(evt) {
         evt.preventDefault();
         let datainElem = this.requestor.querySelector('.swac_adddataurl');
-        let dataPromise = Model.load({
-            fromName: datainElem.value
+        Model.load({
+            fromName: datainElem.value,
+            fromWheres: {}
         }, this);
 
     }
@@ -656,10 +651,12 @@ export default class View extends Component {
     insertNoDataInformation() {
         Msg.flow('View', 'insertNoDataInformation()', this.requestor);
         let noDataText;
-        if (this.requestor.swac_comp.options.showWhenNoDataMsg) {
-            noDataText = this.requestor.swac_comp.options.showWhenNoDataMsg;
-        } else {
+        if (this.requestor.swac_comp.options.showWhenNoDataMsg === false) {
+            return;
+        } else if (this.requestor.swac_comp.options.showWhenNoDataMsg === true) {
             noDataText = SWAC.lang.dict.core.model_nodata;
+        } else {
+            noDataText = this.requestor.swac_comp.options.showWhenNoDataMsg;
         }
         // Get repeatable for sets
         let repeatables = this.findElemsRepeatableForSet(this.requestor);
@@ -1073,7 +1070,7 @@ export default class View extends Component {
      */
     createRepeatedForAttribute(attrFromName, attrName, template) {
         // Check if attribute isnt generally hidden
-        if (this?.options?.inputsVisibility && this.options.inputsVisibility[0]?.hide.includes(attrName)) {
+        if (this?.options?.attrVisibility && this.options.attrVisibility[0]?.hide.includes(attrName)) {
             return;
         }
         // Create clone for insertion of set
