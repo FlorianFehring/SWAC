@@ -26,28 +26,34 @@ export default class View extends Component {
 
         this.desc.opts[1100] = {
             name: "showWhenNoData",
-            desc: "Show mediaeditor even if there is not picture loaded from start."
+            desc: "Show mediaeditor even if there is not picture loaded from start.",
+            example: false
         };
         if (typeof options.showWhenNoData === 'undefined')
             this.options.showWhenNoData = false;
 
         this.desc.opts[1101] = {
             name: "showWhenNoDataMsg",
-            desc: "Custom text to show when no data is available. If set to false no information is shown, if set to true default system message is shown."
+            desc: "Custom text to show when no data is available. If set to false no information is shown, if set to true default system message is shown.",
+            example: 'My data is missing'
         };
         if (!options.showWhenNoDataMsg)
             this.options.showWhenNoDataMsg = true;
 
         this.desc.opts[1102] = {
             name: "showNoRightsInfo",
-            desc: "Show information when there is no access right. If false simply no data is shown."
+            desc: "Show information when there is no access right. If false simply no data is shown.",
+            example: true
         };
         if (typeof options.showNoRightsInfo === 'undefined')
             this.options.showNoRightsInfo = true;
 
         this.desc.opts[1103] = {
             name: "inViOpts",
-            desc: "Options to set when swac_[requestor.id]_invi should be fired. See Present component automatic lazy loading."
+            desc: "Options to set when swac_[requestor.id]_invi should be fired. See Present component automatic lazy loading.",
+            example: {
+                threshold: 0.1
+            }
         };
         if (!options.inViOpts)
             this.options.inViOpts = {
@@ -56,7 +62,8 @@ export default class View extends Component {
 
         this.desc.opts[1104] = {
             name: "lazyLoadMode",
-            desc: "Mode of the lazy loading. end (Load sets when reaching end of component), none (no automatic lazy loading)"
+            desc: "Mode of the lazy loading. end (Load sets when reaching end of component), none (no automatic lazy loading)",
+            example: 'end'
         };
         if (!options.lazyLoadMode)
             this.options.lazyLoadMode = 'none';
@@ -75,6 +82,19 @@ export default class View extends Component {
         };
         if (!options.respectLoadingOrder)
             this.options.respectLoadingOrder = false;
+                this.desc.opts[1107] = {
+            name: 'attrVisibility',
+            desc: 'Visibilty definition for attributes. Allows to hide attributes with or without conditions. Use attributes: applyOnAttr, aplyOnValue and hide: [Names of input elements]',
+            example: [
+                {
+                    applyOnAttr: 'stringval',
+                    applyOnVal: 'string',
+                    hide: ['id']
+                }
+            ]
+        };
+        if (!options.attrVisibility)
+            this.options.attrVisibility = [];
 
         this.desc.funcs[2001] = {
             name: 'copy',
