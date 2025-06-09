@@ -126,10 +126,6 @@ export default class Model {
                 resolve(dataCapsule);
             } else {
                 let fetchUrl = dataRequest.fromName;
-                // Use Proxy access if configured
-                if(comp && comp.options.useProxy && SWAC.config.proxy) {
-                    fetchUrl = SWAC.config.proxy.replace('%url%', dataRequest.fromName);
-                }
                 
                 // Get data from remote (fetchGet uses data from first datasource that delivers data)
                 Remote.fetchGet(fetchUrl, dataRequest.fromWheres, true).then(
@@ -152,7 +148,7 @@ export default class Model {
                         if (SWAC.config.proxy) {
                             let corsurl = SWAC.config.proxy.replace('%url%', dataRequest.fromName);
                             // Check if file is ziped and activate unzip
-                            if (dataRequest.fromName.endsWith('.zip') || dataRequest.fromName.endsWith('.gz')) {
+                            if (dataRequest.fromName.includes('.zip') || dataRequest.fromName.includes('.gz')) {
                                 corsurl += '&unzip=true';
                             }
                             fetch(corsurl, {method: "post",

@@ -259,14 +259,6 @@ export default class Component {
         };
         if (!options.apiActualUrlAttr)
             this.options.apiActualUrlAttr = null;
-        
-        this.desc.opts[1025] = {
-            name: 'useProxy',
-            desc: 'If you want to use the globally configured proxy (configuration.js) set this value to true.',
-            example: true
-        };
-        if (!options.useProxy)
-            this.options.useProxy = false;
 
         this.desc.funcs = [];
         this.desc.funcs[1000] = {
