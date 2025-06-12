@@ -9,4 +9,4 @@ Es ist ausdrücklich untersagt:
 - Dieses Modul in kommerziellen Projekten zu verwenden.
 - Das Modul weiterzugeben oder in Open-Source-Projekten zu veröffentlichen.
 
-Für Lizenzanfragen oder Sondervereinbarungen kontaktieren Sie: [Deine Kontaktinformationen].
+Für Lizenzanfragen oder Sondervereinbarungen kontaktieren Sie: florian.fehring@googlemail.com.
