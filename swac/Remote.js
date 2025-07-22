@@ -381,7 +381,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                             formattedEvents.push(formattedEvent);
                                         }
                                     } else {
-
+                                        // Single date event
                                         // Exclute events before first posible date
                                         if (endDate && endDate.getTime() < firstPosibleDate.getTime()) {
                                             Msg.info('Remote', 'Excluded ' + vevent.summary + ' because ' + endDate + ' is before ' + firstPosibleDate);
@@ -418,7 +418,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                         if (vevent.startDate.toString().length === 10) {
                                             formattedEvent.wholeDay = true;
                                         }
-
+                                        
                                         if (startDate.getFullYear() === endDate.getFullYear() &&
                                                 startDate.getMonth() === endDate.getMonth() &&
                                                 startDate.getDate() === endDate.getDate()) {
@@ -426,9 +426,8 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                         } else {
                                             formattedEvent.endNotSameDay = true;
                                             // Correcture for iCal depending end date is on next date
-                                            endDate.setDate(endDate.getDate() - 1);
-                                            let formattedDate = `${endDate.getDate().toString().padStart(2, '0')}.${(endDate.getMonth() + 1).toString().padStart(2, '0')}.${endDate.getFullYear()}`;
-                                            formattedEvent.endDate = formattedDate;
+//                                            endDate.setDate(endDate.getDate() - 1);
+                                            formattedEvent.endDate = endDate.toString().replace('Z', '');
                                         }
 
                                         // Normale Events verarbeiten
