@@ -82,7 +82,7 @@ export default class View extends Component {
         };
         if (!options.respectLoadingOrder)
             this.options.respectLoadingOrder = false;
-                this.desc.opts[1107] = {
+        this.desc.opts[1107] = {
             name: 'attrVisibility',
             desc: 'Visibilty definition for attributes. Allows to hide attributes with or without conditions. Use attributes: applyOnAttr, aplyOnValue and hide: [Names of input elements]',
             example: [
@@ -239,14 +239,55 @@ export default class View extends Component {
             for (let curRepeatableForSet of repeatableForSets) {
                 let repeated = this.createRepeatedForSet(set, curRepeatableForSet);
                 repeateds.push(repeated);
-                // Load images
-                let imgs = repeated.querySelectorAll('img[data-src]');
-                for (let curImg of imgs) {
-                    let src = curImg.getAttribute('data-src');
-                    // Set src or placeholder
-                    if (!src.includes('{'))
-                        curImg.src = src;
-                }
+                // Load elements that contain a data-src
+                const dataSrcElems = repeated.querySelectorAll("[data-src]");
+                dataSrcElems.forEach(elem => {
+                    let src = elem.getAttribute("data-src");
+                    // Finde alle Platzhalter im Format {key} oder {key.subkey}
+                    const matches = src.match(/{([^}]+)}/g);
+
+                    if (matches) {
+                        matches.forEach(placeholder => {
+                            const path = placeholder.slice(1, -1); // Entferne die geschweiften Klammern
+                            const keys = path.split('.'); // Zerlege verschachtelte Schlüssel
+
+                            // Navigiere durch das Objekt 'set'
+                            let value = set;
+                            for (let key of keys) {
+                                if (value && typeof value === 'object' && key in value) {
+                                    value = value[key];
+                                } else {
+                                    value = ''; // Fallback bei fehlendem Wert
+                                    break;
+                                }
+                            }
+
+                            // Ersetze den Platzhalter im src
+                            src = src.replace(placeholder, value);
+                        });
+                    }
+
+                    // Typabhängige Initialisierung
+                    const tag = elem.tagName.toLowerCase();
+                    if (tag === "img" || tag === "iframe" || tag === "script") {
+                        elem.src = src;
+                    } else if (tag === "a" || tag === "link") {
+                        elem.href = src;
+                    } else if (tag === "source") {
+                        elem.src = src;
+                        const parent = elem.closest("audio, video");
+                        if (parent) {
+                            parent.load(); // wichtig!
+                        }
+                    } else if (tag === "audio" || tag === "video") {
+                        elem.src = src;
+                        elem.load(); // wichtig!
+                    } else {
+                        // Fallback: versuche src zu setzen
+                        elem.src = src;
+                    }
+                });
+
 
                 // Load sub requestors
                 this.findSubRequestors(repeated);
