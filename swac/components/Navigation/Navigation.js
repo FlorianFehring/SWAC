@@ -120,14 +120,14 @@ export default class Navigation extends View {
                 exportBtn.addEventListener('click', this.exportSitemapCode.bind(this));
             }
 
-            let srcsets = this.requestor.querySelectorAll('[srcset]');
+            let srcsets = this.requestor.querySelectorAll('[data-srcset]');
             for (let curImg of srcsets) {
-                let imgsrc = curImg.getAttribute('srcset').replace('logo', this.options.logoName);
+                let imgsrc = curImg.getAttribute('data-srcset').replace('logo', this.options.logoName);
                 curImg.setAttribute('srcset', SWAC.config.app_root + imgsrc);
             }
-            let srcs = this.requestor.querySelectorAll('[src]');
+            let srcs = this.requestor.querySelectorAll('[data-src]');
             for (let curImg of srcs) {
-                let imgsrc = curImg.getAttribute('src').replace('logo', this.options.logoName);
+                let imgsrc = curImg.getAttribute('data-src').replace('logo', this.options.logoName);
                 curImg.setAttribute('src', SWAC.config.app_root + imgsrc);
             }
 
