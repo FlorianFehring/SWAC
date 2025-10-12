@@ -83,6 +83,37 @@
     height: 250px;
 }
 
+
+.swac_onHover {
+  position: relative;
+}
+
+.swac_onHover > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  transition: opacity 0.3s ease;
+}
+
+.swac_onHover > div:nth-child(1) {
+  opacity: 1;
+  z-index: 1;
+}
+
+.swac_onHover > div:nth-child(2) {
+  opacity: 0;
+  z-index: 2;
+}
+
+.swac_onHover:hover > div:nth-child(1) {
+  opacity: 0;
+}
+
+.swac_onHover:hover > div:nth-child(2) {
+  opacity: 1;
+}
+
 @media (max-width: 760px) {
     .swac_ondesktop {
         display: none;
