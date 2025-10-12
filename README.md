@@ -6,4 +6,6 @@ Development of SWAC begun in 2020 at the HSBI and is maintained by the SolarComp
 
 Documentation can be found as a webpage, self useing the SWAC and shows the components at work. See the SWACdoc repository for details.
 
-Feel free to open issues if you find any errors or missing explanaition.
+Any help improving this API is welcome. See CONTRIBUTING.md for more information.
+
+This software is developed for everyone. Please use it wise for freedom, peace and equality. For all beeings.
