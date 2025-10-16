@@ -145,12 +145,12 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
             referrer: 'no-referrer' // *client
         };
 
-        if (typeof txt !== 'undefined') {
+        if (typeof data !== 'undefined') {
             try {
-                fetchConf.body = JSON.stringify(txt); // must match 'Content-Type' header
+                fetchConf.body = JSON.stringify(data); // must match 'Content-Type' header
             } catch (e) {
                 Msg.error('Model', 'Could not save data because it was not transformable to JSON: ' + e);
-                console.log(txt);
+                console.log(data);
                 return;
             }
         }
