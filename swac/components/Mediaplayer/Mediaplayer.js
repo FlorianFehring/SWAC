@@ -394,7 +394,6 @@ export default class Mediaplayer extends View {
         if (!this.options.artistsAttr)
             this.options.artistsAttr = 'artists';
 
-
         this.desc.events[0] = {
             name: 'swac_REQUESTOR_ID_playstart',
             desc: 'Event fired when a new title begins to play.',
@@ -777,8 +776,29 @@ export default class Mediaplayer extends View {
 //                            thisRef.loadComments();
 //                            thisRef.calculateTimeline();
 //                        });
+                        //console.log('TEST mediaElem add error handling:',mediaElem);
+                        mediaElem.addEventListener('loadedmetadata', function () {
+                           console.log('TEST loadedMetaData for',mediaElem.title);
+                        });
+                        mediaElem.addEventListener('abort', function () {
+                           console.log('TEST abort for',mediaElem.title);
+                        });
+                        mediaElem.addEventListener('emptied', function () {
+                           console.log('TEST emptied for',mediaElem.title);
+                        });
+                        mediaElem.addEventListener('stalled', function () {
+                           console.log('TEST stalled for',mediaElem.title);
+                        });
+                        mediaElem.addEventListener('suspend', function () {
+                           console.log('TEST suspend for',mediaElem.title);
+                        });
+                        mediaElem.addEventListener('waiting', function () {
+                           console.log('TEST waiting for',mediaElem.title);
+                        });
+                        
                         // If an error occures while loading try again
                         mediaElem.addEventListener('error', function (err) {
+                            //console.log('TEST mediaElemError: ',err,mediaElem.title)
                             // Show error notification
                             for (let curRepeated of repeateds) {
                                 let errElem = curRepeated.querySelector('.swac_mediaplayer_error');
@@ -1161,7 +1181,7 @@ export default class Mediaplayer extends View {
             return;
         }
         // Switch to next title
-        if (this.actTitle !== secTitle) {
+        if (!this.actTitle || this.actTitle !== secTitle) {
             this.actTitle = secTitle;
             this.titleEnded = null;
             Msg.info('Mediaplayer', 'Switching to title >' + this.actTitle.title + '<', this.requestor);
