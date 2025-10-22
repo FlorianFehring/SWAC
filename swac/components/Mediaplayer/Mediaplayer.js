@@ -655,7 +655,7 @@ export default class Mediaplayer extends View {
             }
             for (let curRepeated of repeateds) {
                 let artistsElem = curRepeated.querySelector('.swac_mediaplayer_artist');
-                if(artistsElem)
+                if (artistsElem)
                     artistsElem.innerHTML = artists;
             }
         }
@@ -753,13 +753,13 @@ export default class Mediaplayer extends View {
                         mediaElem.setAttribute('uk-height-viewport', '');
                         let thisRef = this;
                         // Calculate timeline without metadata if possible
-                        if(set.duration) {
+                        if (set.duration) {
                             thisRef.playlist.set(slideNo, set);
                             // Load comments
                             thisRef.loadComments();
                             thisRef.calculateTimeline();
                         }
-                        
+
 //                        mediaElem.addEventListener('loadedmetadata', function () {
 //                            set.duration = Math.round(mediaElem.duration + 0.5);
 //                            Msg.info('Mediaplayer', 'Added media >' + mediaElem.title + ' '
@@ -776,49 +776,51 @@ export default class Mediaplayer extends View {
 //                            thisRef.loadComments();
 //                            thisRef.calculateTimeline();
 //                        });
-                        //console.log('TEST mediaElem add error handling:',mediaElem);
                         mediaElem.addEventListener('loadedmetadata', function () {
-                           console.log('TEST loadedMetaData for',mediaElem.title);
+                            console.log('TEST loadedMetaData for', mediaElem.title);
                         });
                         mediaElem.addEventListener('abort', function () {
-                           console.log('TEST abort for',mediaElem.title);
+                            console.log('TEST abort for', mediaElem.title);
                         });
                         mediaElem.addEventListener('emptied', function () {
-                           console.log('TEST emptied for',mediaElem.title);
+                            console.log('TEST emptied for', mediaElem.title);
                         });
                         mediaElem.addEventListener('stalled', function () {
-                           console.log('TEST stalled for',mediaElem.title);
+                            console.log('TEST stalled for', mediaElem.title);
                         });
                         mediaElem.addEventListener('suspend', function () {
-                           console.log('TEST suspend for',mediaElem.title);
+//                            console.log('TEST suspend for', mediaElem.title);
                         });
                         mediaElem.addEventListener('waiting', function () {
-                           console.log('TEST waiting for',mediaElem.title);
+                            console.log('TEST waiting for', mediaElem.title);
                         });
-                        
+                        mediaElem.addEventListener('canplay', function () {
+                            console.log('TEST canplay for', mediaElem.title);
+                        });
+
+                        // Determine where error events come from
+                        let errReportingElem = mediaElem;
+                        let sourceElem = mediaElem.querySelector('source');
+                        if (sourceElem) {
+                            errReportingElem = sourceElem;
+                        }
+
                         // If an error occures while loading try again
-                        mediaElem.addEventListener('error', function (err) {
-                            //console.log('TEST mediaElemError: ',err,mediaElem.title)
-                            // Show error notification
+                        errReportingElem.addEventListener('error', function () {
+                            const err = mediaElem.error;
+                            console.log('TEST mediaElemError:', err, mediaElem.title);
+
+                            // Show error in gui
                             for (let curRepeated of repeateds) {
                                 let errElem = curRepeated.querySelector('.swac_mediaplayer_error');
                                 if (errElem)
                                     errElem.classList.remove('swac_dontdisplay');
                             }
-                            if (!mediaElem.retries) {
-                                mediaElem.retries = 1;
-                                mediaElem.src = basepath + path;
-                                mediaElem.pause();
-                                let runSecs = thisRef.progressElem.value - set.startsec;
-                                mediaElem.currentTime = runSecs;
-                                mediaElem.play();
-                            } else {
-                                // Jump over not working title
-                                thisRef.playNextTitle();
-                            }
+
+                            thisRef.playNextTitle();
                         });
                         mediaElem.addEventListener('playing', function (evt) {
-                            mediaElem.retries = 0;
+
                         });
                     } else if (set.duration) {
                         Msg.warn('Mediaplayer', 'Added media >'
@@ -1132,16 +1134,17 @@ export default class Mediaplayer extends View {
      * @returns {undefined}
      */
     async playNextSecond() {
-//        console.log('TEST called playNextSecond()');
         // Stop if actual second is beyond max
         if (parseInt(this.progressElem.value) >= parseInt(this.progressElem.max)) {
             if (this.options.loop) {
+                Msg.info('Mediaplayer', 'All titles on playlist are played. Loop list.', this.requestor);
                 this.progressElem.value = 0;
                 this.actTitle = null;
                 this.actMediaElem = null;
                 let completeEvent = new CustomEvent('swac_' + this.requestor.id + '_playlist_loop', {});
                 document.dispatchEvent(completeEvent);
             } else {
+                Msg.info('Mediaplayer', 'All titles on playlist are played. Playback stoped.', this.requestor);
                 clearInterval(this.interval);
                 this.interval = null;
                 this.progressElem.value = 0;
@@ -1158,7 +1161,7 @@ export default class Mediaplayer extends View {
                 }
             }
         }
-//console.log('TEST progess value: ' + this.progressElem.value);
+
         // Get title at second
         let secTitle = this.getTitleAtSecond(this.progressElem.value);
         if (!secTitle) {
@@ -1168,11 +1171,13 @@ export default class Mediaplayer extends View {
         // Get next to play title
         let nextTitle = this.getNextTitle();
         if (secTitle.skip && this.clickedTitle !== secTitle) {
+            Msg.info('Mediaplayer', 'Title >' + secTitle.tile + '< skipped.', this.requestor);
             this.progressElem.value = nextTitle.startsec;
             return;
         }
         // Check if title is at end and should be stopped
         if (this.actTitle && this.actTitle.autostop && this.progressElem.value >= nextTitle.startsec) {
+            Msg.info('Mediaplayer', 'Title >' + this.actTitle.title + '< ended and playback auto stopped.', this.requestor);
             this.stopPlay();
         }
         // If title is ended wait until next title should start
@@ -1182,9 +1187,13 @@ export default class Mediaplayer extends View {
         }
         // Switch to next title
         if (!this.actTitle || this.actTitle !== secTitle) {
+            Msg.info(
+                    'Mediaplayer',
+                    'Switching from >' + (this.actTitle?.title ?? 'none') + '< to title >' + (this.actTitle?.title ?? 'unknown') + '<',
+                    this.requestor
+                    );
             this.actTitle = secTitle;
             this.titleEnded = null;
-            Msg.info('Mediaplayer', 'Switching to title >' + this.actTitle.title + '<', this.requestor);
             // Get matching slide
             let slide = this.slideshowElem.querySelector('[swac_setid="' + this.actTitle.id + '"]');
             // Pause previous playback
@@ -1228,7 +1237,6 @@ export default class Mediaplayer extends View {
             } else {
                 Msg.info('Mediaplayer', 'There is no actual playable media element.', this.requestor);
             }
-
             // Update playnow information
             this.updateCurrentTitleInformation(this.actTitle);
 
@@ -1548,12 +1556,10 @@ export default class Mediaplayer extends View {
             UIkit.modal.alert(SWAC.lang.dict.Mediaplayer.title_problem);
             return;
         }
-//        console.log('clicked on ' + setElem.swac_dataset.title + ' with start at ' + Math.round(setElem.swac_dataset.startsec + 0.5));
         this.progressElem.value = Math.round(setElem.swac_dataset.startsec + 0.5);
         this.clickedTitle = setElem.swac_dataset;
         // Autostart at title if its not playing
         if (!this.interval) {
-//            console.log('TEST onClickPlaylistEntry startPlay()');
             this.startPlay();
         }
     }
