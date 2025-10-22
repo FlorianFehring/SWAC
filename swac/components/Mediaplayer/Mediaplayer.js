@@ -808,8 +808,7 @@ export default class Mediaplayer extends View {
                         // If an error occures while loading try again
                         errReportingElem.addEventListener('error', function () {
                             const err = mediaElem.error;
-                            console.log('TEST mediaElemError:', err, mediaElem.title);
-
+                            Msg.error('MediaPlayer','Error playing title >' + mediaElem.title + '<: ' + err, this.requestor);
                             // Show error in gui
                             for (let curRepeated of repeateds) {
                                 let errElem = curRepeated.querySelector('.swac_mediaplayer_error');
@@ -1053,7 +1052,6 @@ export default class Mediaplayer extends View {
         Msg.flow('Mediaplayer', 'Start playing', this.requestor);
         // Start interval
         if (!this.interval) {
-//            console.log('TEST startPlay() new interval');
             this.interval = setInterval(this.playNextSecond.bind(this), 1000);
         }
 
@@ -1071,6 +1069,7 @@ export default class Mediaplayer extends View {
      * @returns {undefined}
      */
     stopPlay() {
+        Msg.flow('MediaPlayer','stopPlay()',this.requestor);
         if (this.actMediaElem) {
             this.actMediaElem.pause();
         }
@@ -1159,12 +1158,14 @@ export default class Mediaplayer extends View {
                     curPlayBtn.setAttribute('uk-icon', 'play');
                     curPlayBtn.setAttribute('uk-tooltip', SWAC.lang.dict.Mediaplayer.play);
                 }
+                return;
             }
         }
 
         // Get title at second
         let secTitle = this.getTitleAtSecond(this.progressElem.value);
         if (!secTitle) {
+            Msg.info('MediaPlayer','No title found for second >'+this.progressElem.value+'<',this.reqeustor);
             clearInterval(this.interval);
             UIkit.modal.alert(SWAC.lang.dict.Mediaplayer.title_none);
         }
