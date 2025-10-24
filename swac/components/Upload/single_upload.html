@@ -1,0 +1,31 @@
+<div>
+    <div class="swac_upload uk-placeholder uk-text-center">
+        <span uk-icon="icon: cloud-upload"></span>
+        <span class="uk-text-middle" swac_lang="Upload.selectfile">Select file</span>
+        <div uk-form-custom>
+            <input class="uk-input swac_fileselect" type="file">
+            <span class="uk-link" swac_lang="Upload.draganddropfile">Drop file here</span>
+        </div>
+    </div>
+    <progress class="uk-progress swac_upload_progressbar" value="0" max="100" hidden></progress>
+    <div id="help_container"></div>
+</div>
+<div>
+    <div class="swac_upload_forUpload swac_dontdisplay">
+        <table class="uk-table uk-table-divider">
+            <thead>
+                <tr>
+                    <th swac_lang="Upload.answer_key">Key</th>
+                    <th swac_lang="Upload.answer_value">Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="swac_repeatForValue">
+                    <td swac_lang="{attrName}">{attrName}</td>
+                    <td><input class="uk-input uk-form-width-medium" name="{attrName}" value="{*}" /></td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="swac_upload_result_savebtn uk-button uk-button-primary" swac_lang="save">Save</button>
+    </div>
+</div>

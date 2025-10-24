@@ -29,6 +29,12 @@ export default class Upload extends View {
             style: 'upload',
             desc: 'Addition to the upload template. Displays a preview of the media file to upload.'
         }
+        this.desc.templates[2] = {
+            name: 'single_upload',
+            style: 'upload',
+            desc: 'A simpler upload form for single file uploads.'
+        }
+
         this.desc.reqPerTpl[0] = {
             selc: '.swac_upload',
             desc: 'Container where users can drop their files for upload.'
@@ -186,6 +192,12 @@ export default class Upload extends View {
         if (typeof options.camcapture === 'undefined')
             this.options.camcapture = false;
 
+        this.desc.events[0] = {
+            name: 'swac_REQUESTOR_ID_uploaded',
+            desc: 'Event fired when a file was succsessfully uploaded.',
+            data: 'Delivers the response recived from upload endpoint (as JSON).'
+        }
+
         // Definition of available plugins
         if (!options.plugins) {
             this.options.plugins = new Map();
@@ -232,24 +244,25 @@ export default class Upload extends View {
 
             // Add event listener for click on capture mode
             let camcapturelinkElem = this.requestor.querySelector('.swac_upload_camcapture_link');
-            if (this.options.camcapture) {
+            if (this.options.camcapture && camcapturelinkElem) {
                 camcapturelinkElem.addEventListener('click', this.onCamcaptureStart.bind(this));
                 this.updateAvailableDevices();
                 let deviceListElem = this.requestor.querySelector('.swac_upload_devicelist');
                 deviceListElem.addEventListener('change', this.onDeviceSelect.bind(this));
                 let takePhotoElem = this.requestor.querySelector('.swack_upload_takephoto');
-                takePhotoElem.addEventListener('click',this.onTakePhoto.bind(this));
+                takePhotoElem.addEventListener('click', this.onTakePhoto.bind(this));
                 let capVideoElem = this.requestor.querySelector('.swac_upload_capvideo');
-                capVideoElem.addEventListener('click',this.onCaptureVideo.bind(this));
-            } else {
+                capVideoElem.addEventListener('click', this.onCaptureVideo.bind(this));
+            } else if (camcapturelinkElem) {
                 camcapturelinkElem.remove();
             }
 
             // Note new files
             this.newFiles = [];
-            UIkit.upload('#' + this.requestor.id + ' .swac_upload', {
+            console.log('TEST multiple: ' + this.options.multiple);
+            const uploader = UIkit.upload('#' + this.requestor.id + ' .swac_upload', {
                 allow: "*.*", // Note: Limitations are not working here (user becomes no message)
-                url: '',
+                url: this.options.uploadTargetURL,
                 multiple: this.options.multiple,
 
                 beforeAll: function (p) {
@@ -357,12 +370,14 @@ export default class Upload extends View {
 //                    if (!this.uploadURL.includes('create?ooid=')) {
 //                        return;
 //                    }
-
-
                 },
-                complete: function (p) {
-//                    console.log('complete:');
-//                    console.log(p);
+                complete: function (xhr) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        document.dispatchEvent(new CustomEvent('swac_' + thisRef.requestor.id + '_uploaded', {detail: response}))
+                    } catch (e) {
+                        console.error('Antwort ist kein gültiges JSON:', xhr.responseText);
+                    }
                 },
 
                 progress: function (p) {
@@ -1353,35 +1368,35 @@ export default class Upload extends View {
                     spinner.remove();
                 })
     }
-    
+
     /**
      * Performed when user clicks on the take photo button
      */
     onTakePhoto() {
-        Msg.flow('Upload','onTakePhoto()',this.requestor);
+        Msg.flow('Upload', 'onTakePhoto()', this.requestor);
         let prevElem = this.requestor.querySelector('.swac_upload_preview');
         let canvasElem = prevElem.querySelector('canvas');
-        
+
         const context = canvasElem.getContext('2d');
         context.drawImage(prevElem.querySelector('video'), 0, 0, canvasElem.width, canvasElem.height);
         const name = Date.now().toString() + '-picture.jpeg';
         const type = 'image/jpeg';
         canvasElem.toBlob((blob) => {
-            const file = new File([blob], name, { type: type});
+            const file = new File([blob], name, {type: type});
             this.addFile(file);
-        },'image/jpeg');
+        }, 'image/jpeg');
     }
-    
+
     /**
      * Perforemed when user clicks on capture video button
      */
     onCaptureVideo() {
-        Msg.flow('Upload','onCaptureVideo()',this.requestor);
+        Msg.flow('Upload', 'onCaptureVideo()', this.requestor);
         let capVideoElem = this.requestor.querySelector('.swac_upload_capvideo');
         this.deviceRecorder.ondataavailable = (e) => {
             const name = Date.now().toString() + '-video.mp4';
             const type = 'video/mp4';
-            const file = new File([e.data], name, { type: type})
+            const file = new File([e.data], name, {type: type})
             this.addFile(file);
         }
         if (this.deviceRecorder.state === 'recording') {
