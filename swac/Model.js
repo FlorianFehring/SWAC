@@ -414,7 +414,7 @@ export default class Model {
             // Save every dataset
             for (let j in dataCapsle.data) {
                 // Exclude non data attributes
-                if (j === 'map' || j.startsWith('swac_'))
+                if (j === 'map') // || (j.startsWith('swac_') && j !== 'swac_from'))
                     continue;
                 if (dataCapsle.data[j].swac_isnew) {
                     delete dataCapsle.data[j].id;
@@ -424,7 +424,7 @@ export default class Model {
                 for (let attr in dataCapsle.data[j]) {
                     let curValue = dataCapsle.data[j][attr];
                     // TODO Send null values? Remove null check in component.js and edit.js
-                    if (curValue === null || attr.startsWith('swac_'))
+                    if (curValue === null) // || (attr.startsWith('swac_') && j !== 'swac_from'))
                         continue;
                     if (typeof curValue === 'string' && curValue !== '') {
                         let num = new Number(curValue);
