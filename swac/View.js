@@ -885,7 +885,13 @@ export default class View extends Component {
             return;
         }
         // Create clone for insertion of set
-        let clone = template.cloneNode(true);
+        let clone = null;
+        if (template.nodeName === 'TEMPLATE') {
+            const fragment = template.content.cloneNode(true);
+            clone = fragment.firstElementChild;
+        } else {
+            clone = template.cloneNode(true);
+        }
         // Workaround for uikit bug when dynamically adding tabs
         if (clone.classList.contains('uk-active')) {
             clone.classList.remove('uk-active');
@@ -897,7 +903,12 @@ export default class View extends Component {
         if (mode === 'set') {
             clone.classList.remove("swac_repeatForSet");
             clone.classList.add("swac_repeatedForSet");
-            template.parentNode.appendChild(clone);
+            let container = template.parentNode.querySelector('.swac_repeatedContainer');
+            if (container) {
+                container.appendChild(clone);
+            } else {
+                template.parentNode.appendChild(clone);
+            }
         } else {
             clone.classList.remove("swac_repeatForChild");
             clone.classList.add("swac_repeatedForChild");
