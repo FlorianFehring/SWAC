@@ -23,6 +23,7 @@ var Mediaplayer_en = {
     title_problem: 'This title is currently not available.',
     title_none: 'There is no title available.',
     anounce: 'Next you hear %title% from %artist%',
-    makeoffline: 'Make playlist available offline'
+    makeoffline: 'Make playlist available offline',
+    playnotallowed: 'Your browser has playback per key blocked. Please click ok and then space to start playback.'
 };
 export default Mediaplayer_en;

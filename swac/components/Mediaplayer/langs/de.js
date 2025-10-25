@@ -23,6 +23,7 @@ var Mediaplayer_de = {
     title_problem: 'Dieser Titel ist derzeit nicht verfügbar.',
     title_none: 'Es steht kein Titel zur Verfügung.',
     anounce: 'Als nächstes hören Sie %title% von %artist%',
-    makeoffline: 'Playlist offline verfügbar machen'
+    makeoffline: 'Playlist offline verfügbar machen',
+    playnotallowed: 'Ihr Browser hat die Wiedergabe per Taste blockiert. Klicken Sie auf ok und anschließend die Leertaste, um die Wiedergabe zu starten.'
 };
 export default Mediaplayer_de;

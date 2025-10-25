@@ -10,16 +10,19 @@
 
 <div class="swac_mediaplayer_container">
     <div class="swac_mediaplayer_slideshow uk-position-relative uk-visible-toggle uk-light" tabindex="-1" uk-slideshow="draggable: false">
-        <ul class="uk-slideshow-items" uk-height-viewport="min-height: 300; offset-bottom: 7">
-            <li class="swac_mediaplayer_playslide swac_repeatForSet">
+        <ul class="uk-slideshow-items swac_repeatedContainer" uk-height-viewport="min-height: 300; offset-bottom: 7">
+
+        </ul>
+        <template class="swac_repeatForSet">
+            <li class="swac_mediaplayer_playslide">
                 <div class="swac_mediaplayer_media"></div>
                 <div class="swac_mediaplayer_titleoverlay uk-overlay uk-overlay-default uk-position-bottom uk-text-center uk-transition-slide-left">
                     <h3 class="uk-margin-remove">{title}</h3>
                 </div>
             </li>
-        </ul>
-        <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous uk-slideshow-item="previous"></a>
-        <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next uk-slideshow-item="next"></a>
+        </template>
+<!--        <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous uk-slideshow-item="previous"></a>
+        <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next uk-slideshow-item="next"></a>-->
     </div>
     <div class="swac_mediaplayer_overlay swac_dontdisplay">
         <div class="swac_mediaplayer_overlaymedia"></div>
@@ -34,10 +37,10 @@
 </div>
 <div class="swac_mediaplayer_control">
     <span>
-        <a href="" class="swac_mediaplayer_playBtn uk-icon-button" uk-icon="play" uk-tooltip="Mediaplayer.play"></a>
-        <a href="" class="swac_mediaplayer_prevtitleBtn uk-icon-button" uk-icon="chevron-left" uk-tooltip="Mediaplayer.prevtitle"></a>
-        <a href="" class="swac_mediaplayer_nexttitleBtn uk-icon-button" uk-icon="chevron-right" uk-tooltip="Mediaplayer.nexttitle"></a>
-        <a href="" class="swac_mediaplayer_loopBtn uk-icon-button" uk-icon="refresh" uk-tooltip="Mediaplayer.nexttitle"></a>
+        <a href="" class="swac_mediaplayer_playBtn uk-icon-button" uk-icon="play" uk-tooltip="Mediaplayer.play" tabindex="0"></a>
+        <a href="" class="swac_mediaplayer_prevtitleBtn uk-icon-button" uk-icon="chevron-left" uk-tooltip="Mediaplayer.prevtitle" tabindex="1"></a>
+        <a href="" class="swac_mediaplayer_nexttitleBtn uk-icon-button" uk-icon="chevron-right" uk-tooltip="Mediaplayer.nexttitle" tabindex="2"></a>
+        <a href="" class="swac_mediaplayer_loopBtn uk-icon-button" uk-icon="refresh" uk-tooltip="Mediaplayer.nexttitle" tabindex="3"></a>
     </span>
     <input class="swac_mediaplayer_progress" type="range" value="0">
     <span>

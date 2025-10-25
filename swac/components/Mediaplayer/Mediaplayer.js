@@ -241,6 +241,11 @@ export default class Mediaplayer extends View {
             name: 'skip',
             desc: 'Skip this song, when played in playlist.'
         };
+        this.desc.optPerSet[10] = {
+            name: 'startAnimationEffect',
+            desc: 'Use this effect at start within slideshow. (every uikit slideshow effect)',
+            example: 'fade'
+        };
 
         this.desc.opts[0] = {
             name: "defaultDuration",
@@ -488,6 +493,7 @@ export default class Mediaplayer extends View {
             nextBtn.addEventListener('click', this.onClickNextTitleBtn.bind(this));
             let playBtn = this.requestor.querySelector('.swac_mediaplayer_playBtn');
             playBtn.addEventListener('click', this.togglePlay.bind(this));
+            playBtn.focus();
             this.loopBtn = this.requestor.querySelector('.swac_mediaplayer_loopBtn');
             this.loopBtn.addEventListener('click', this.toggleLoop.bind(this));
             if (this.options.loop) {
@@ -727,12 +733,15 @@ export default class Mediaplayer extends View {
                 mediaAreaFound = true;
 
                 let mediaCode = new Mediacode(this.data, set, this.options.pathattr, 'mimetype', basepath);
+//                console.log('TEST mediaCode:',set.id,mediaCode);
                 if (!set.alternative && !set.startonkey && !set.stoponkey) {
                     // Create first element for media
                     let mediaSubArea = mediaCode.getMediaElement();
+//                    console.log('TEST mediaSubArea',set.id,mediaSubArea);
                     mediaArea.appendChild(mediaSubArea);
                     // Get media element
                     let mediaElem = mediaArea.querySelector('audio, video');
+//                    console.log('TEST mediaElem',set.id, mediaElem);
                     // Get slide no
                     let slideNo = 0;
                     let slideSearchElem = curSetArea;
@@ -752,33 +761,32 @@ export default class Mediaplayer extends View {
                     if (mediaElem) {
                         mediaElem.setAttribute('uk-height-viewport', '');
                         let thisRef = this;
-                        // Calculate timeline without metadata if possible
+                        // Get media duration
                         if (set.duration) {
+                            // Use duration from dataset if available
                             thisRef.playlist.set(slideNo, set);
                             // Load comments
                             thisRef.loadComments();
                             thisRef.calculateTimeline();
+                        } else {
+                            // Try calculate duration from media
+                            if (mediaElem.duration) {
+                                set.duration = mediaElem.duration;
+                            } else {
+                                set.duration = this.options.defaultDuration;
+                            }
+                            thisRef.playlist.set(slideNo, set);
+                            mediaElem.load();
+                            mediaElem.addEventListener('loadedmetadata', function () {
+                                set.duration = mediaElem.duration;
+                                // Update set
+                                thisRef.playlist.set(slideNo, set);
+                                // Load comments
+                                thisRef.loadComments();
+                                thisRef.calculateTimeline();
+                            });
                         }
 
-//                        mediaElem.addEventListener('loadedmetadata', function () {
-//                            set.duration = Math.round(mediaElem.duration + 0.5);
-//                            Msg.info('Mediaplayer', 'Added media >' + mediaElem.title + ' '
-//                                    + set.id + '< to playlist with duration from metadata of >'
-//                                    + set.duration + '< seconds.', this.requestor);
-//                            thisRef.playlist.set(slideNo, set);
-//                            // Remove error notification
-//                            for (let curRepeated of repeateds) {
-//                                let errElem = curRepeated.querySelector('.swac_mediaplayer_error');
-//                                if (errElem)
-//                                    errElem.classList.add('swac_dontdisplay');
-//                            }
-//                            // Load comments
-//                            thisRef.loadComments();
-//                            thisRef.calculateTimeline();
-//                        });
-                        mediaElem.addEventListener('loadedmetadata', function () {
-                            console.log('TEST loadedMetaData for', mediaElem.title);
-                        });
                         mediaElem.addEventListener('abort', function () {
                             console.log('TEST abort for', mediaElem.title);
                         });
@@ -808,7 +816,7 @@ export default class Mediaplayer extends View {
                         // If an error occures while loading try again
                         errReportingElem.addEventListener('error', function () {
                             const err = mediaElem.error;
-                            Msg.error('MediaPlayer','Error playing title >' + mediaElem.title + '<: ' + err, this.requestor);
+                            Msg.error('MediaPlayer', 'Error playing title >' + mediaElem.title + '<: ' + err, this.requestor);
                             // Show error in gui
                             for (let curRepeated of repeateds) {
                                 let errElem = curRepeated.querySelector('.swac_mediaplayer_error');
@@ -822,16 +830,15 @@ export default class Mediaplayer extends View {
 
                         });
                     } else if (set.duration) {
-                        Msg.warn('Mediaplayer', 'Added media >'
+                        Msg.info('Mediaplayer', 'Added media >'
                                 + set.id + '< to playlist with duration from dataset of >'
                                 + set.duration + '< seconds.', this.requestor);
-
                         this.playlist.set(slideNo, set);
                         // Load comments
                         this.loadComments();
                         this.calculateTimeline();
                     } else {
-                        Msg.warn('Mediaplayer', 'Added media >'
+                        Msg.info('Mediaplayer', 'Added media >'
                                 + set.id + '< to playlist with duration from '
                                 + 'default option >' + this.options.defaultDuration
                                 + '< seconds.', this.requestor);
@@ -1069,7 +1076,7 @@ export default class Mediaplayer extends View {
      * @returns {undefined}
      */
     stopPlay() {
-        Msg.flow('MediaPlayer','stopPlay()',this.requestor);
+        Msg.flow('MediaPlayer', 'stopPlay()', this.requestor);
         if (this.actMediaElem) {
             this.actMediaElem.pause();
         }
@@ -1114,15 +1121,11 @@ export default class Mediaplayer extends View {
                 let thisRef = this;
                 this.fadeout(this.actMediaElem, this.actTitle.fadeout);
                 setTimeout(function () {
-                    clearInterval(thisRef.interval);
-                    thisRef.interval = null;
-                    thisRef.playNextTitle();
+                    thisRef.stopPlay();
                 }, this.actTitle.fadeout * 1000);
             } else {
                 this.actMediaElem.pause();
-                clearInterval(this.interval);
-                this.interval = null;
-                this.playNextTitle();
+                this.stopPlay();
             }
         }
     }
@@ -1165,7 +1168,7 @@ export default class Mediaplayer extends View {
         // Get title at second
         let secTitle = this.getTitleAtSecond(this.progressElem.value);
         if (!secTitle) {
-            Msg.info('MediaPlayer','No title found for second >'+this.progressElem.value+'<',this.reqeustor);
+            Msg.info('MediaPlayer', 'No title found for second >' + this.progressElem.value + '<', this.reqeustor);
             clearInterval(this.interval);
             UIkit.modal.alert(SWAC.lang.dict.Mediaplayer.title_none);
         }
@@ -1177,9 +1180,10 @@ export default class Mediaplayer extends View {
             return;
         }
         // Check if title is at end and should be stopped
-        if (this.actTitle && this.actTitle.autostop && this.progressElem.value >= nextTitle.startsec) {
+        if (this.actTitle && this.actTitle.autostop && this.progressElem.value >= nextTitle.startsec - 1) {
             Msg.info('Mediaplayer', 'Title >' + this.actTitle.title + '< ended and playback auto stopped.', this.requestor);
             this.stopPlay();
+            return;
         }
         // If title is ended wait until next title should start
         if (this.titleEnded === secTitle) {
@@ -1218,8 +1222,16 @@ export default class Mediaplayer extends View {
                     let runSecs = this.progressElem.value - this.actTitle.startsec;
                     this.actMediaElem.currentTime = runSecs;
                 }
+                // Fadein if defined
                 if (this.actTitle.fadein)
                     this.fadein(this.actMediaElem, this.actTitle.fadein);
+                // Set volume
+                if (this.actTitle.volume) {
+                    this.actMediaElem.volume = this.actTitle.volume / 100;
+                    let volumeButton = this.requestor.querySelector('.swac_mediaplayer_volume');
+                    volumeButton.value = this.actTitle.volume;
+                }
+                // Start playing title
                 this.actMediaElem.play();
 
                 // Add event listener for waiting on finished playing
@@ -1253,50 +1265,20 @@ export default class Mediaplayer extends View {
         if (this.actMediaElem && this.actMediaElem.paused) {
             Msg.info('Mediaplayer', 'Resume playing >' + this.actMediaElem.title + '<', this.requestor);
             this.actMediaElem.load();
-            this.actMediaElem.play();
+            this.actMediaElem.play().then().catch(error => {
+                // Autoplay wurde blockiert
+                UIkit.modal.alert(SWAC.lang.dict.Mediaplayer.playnotallowed);
+                clearInterval(this.interval);
+                this.interval = null;
+            });
             if ("mediaSession" in navigator) {
                 navigator.mediaSession.playbackState = 'playing';
             }
         }
-        // Register error event handlers
-        if (this.actMediaElem) {
-            let thisRef = this;
-//            this.actMediaElem.addEventListener('suspend', function () {
-//                clearInterval(thisRef.interval);
-//                thisRef.actMediaElem.pause();
-//                // If original element is there try replace with new audio element
-//                if (thisRef.actMediaElem.lastElementChild) {
-//                    let lastSrc = thisRef.actMediaElem.lastElementChild.src;
-//                    let newMediaElem = new Audio(lastSrc + '?debugload=' + Date.now());
-//                    newMediaElem.preload = 'auto';
-//                    newMediaElem.setAttribute('preload', 'auto');
-//                    thisRef.actMediaElem.replaceWith(newMediaElem);
-//                    thisRef.actMediaElem = newMediaElem;
-////                    newMediaElem.load();
-//                    let playProm = newMediaElem.play();
-//                    playProm.then(function (res) {
-//                        console.log('playProm result: ', res);
-//                    }).catch(function (err) {
-//                        console.log('playProm err: ', err);
-//                    });
-//                    newMediaElem.addEventListener('suspend', function () {
-//                        if (newMediaElem.readyState === 0) {
-//                            let urlParams = new URLSearchParams(window.location.search);
-//                            if (!urlParams.get('clearstates'))
-//                                window.location.href = window.location + '&clearstates=true';
-//                            else
-//                                window.location.reload(true);
-//                        }
-//                    });
-//                }
-//            });
-        }
 
-        if (this.progressElem.value === this.lastProgressElemValue) {
+        if (this.actMediaElem && this.progressElem.value === this.lastProgressElemValue) {
             this.hangingTimes++
             if (this.hangingTimes > 5) {
-                // Reload clearing cache
-//                window.location.reload(true);
                 this.actMediaElem.load();
                 this.actMediaElem.play();
             }
@@ -1311,14 +1293,20 @@ export default class Mediaplayer extends View {
             this.timelineclicked = false;
         }
         // Update playlist progress
-        this.progressElem.value = this.actTitle.startsec + this.actMediaElem.currentTime;
+        if (this.actMediaElem) {
+            this.progressElem.value = this.actTitle.startsec + this.actMediaElem.currentTime;
+        } else {
+            this.progressElem.value++;
+        }
         let listPlayTime = this.formatSecondsToReadable(this.progressElem.value);
         for (let curCurTimeElem of this.curListTimeElems)
             curCurTimeElem.innerHTML = listPlayTime;
         // update playtime for title
-        let titlePlayTime = this.formatSecondsToReadable(this.actMediaElem.currentTime);
-        for (let curTimeElem of this.curTitleTimeElems) {
-            curTimeElem.innerHTML = titlePlayTime;
+        if (this.actMediaElem) {
+            let titlePlayTime = this.formatSecondsToReadable(this.actMediaElem.currentTime);
+            for (let curTimeElem of this.curTitleTimeElems) {
+                curTimeElem.innerHTML = titlePlayTime;
+            }
         }
 
         // Start fadeout if title has reached position of fadeout
@@ -1372,6 +1360,7 @@ export default class Mediaplayer extends View {
      * @returns {WatchableSet} Title set
      */
     getTitleAtSecond(sec) {
+        Msg.flow('Mediaplayer', 'getTitleAtSecond(' + sec + ')', this.requestor);
         for (let [key, set] of this.playlist) {
             if (sec >= set.startsec && sec <= (set.startsec + set.duration)) {
                 return set;
@@ -1391,9 +1380,17 @@ export default class Mediaplayer extends View {
         }
         let nextTitle;
         let nextId = curTitle.slideno + 1;
-        nextTitle = this.playlist.get(nextId);
-        while ((!nextTitle || nextTitle.startonkey || nextTitle.skip) && nextId <= this.playlist.size) {
-            nextTitle = this.playlist.get(nextId++);
+        const sortedIds = Array.from(this.playlist.keys()).sort((a, b) => a - b);
+        const startIndex = sortedIds.findIndex(id => id >= nextId);
+
+        for (let i = startIndex; i < sortedIds.length; i++) {
+            const id = sortedIds[i];
+            const title = this.playlist.get(id);
+            if (!title || title.startonkey || title.skip) {
+                continue;
+            }
+            nextTitle = title;
+            break;
         }
         if (!nextTitle)
             nextTitle = this.playlist.get(1);
@@ -1406,20 +1403,27 @@ export default class Mediaplayer extends View {
      * @returns {WatschableSet} Prev title
      */
     getPrevTitle() {
-        let curTitle = this.getTitleAtSecond(this.progressElem.value);
-        if (!curTitle)
-            return this.playlist.get(this.playlist.size);
-        let prevTitle;
-        let prevId = curTitle.slideno - 1;
-        prevTitle = this.playlist.get(prevId);
-        while ((!prevTitle || prevTitle.startonkey || prevTitle.skip) && prevId >= 0) {
-            prevTitle = this.playlist.get(prevId--);
+        const curTitle = this.getTitleAtSecond(this.progressElem.value);
+        if (!curTitle) {
+            // Fallback: letzter Eintrag in der Map
+            const sortedIds = Array.from(this.playlist.keys()).sort((a, b) => b - a);
+            return this.playlist.get(sortedIds[0]);
         }
-        if (!prevTitle) {
-            let maxId = Math.max(...this.playlist.keys());
-            prevTitle = this.playlist.get(maxId);
+
+        const sortedIds = Array.from(this.playlist.keys()).sort((a, b) => b - a);
+        const curIndex = sortedIds.findIndex(id => id === curTitle.slideno);
+
+        for (let i = curIndex + 1; i < sortedIds.length; i++) {
+            const id = sortedIds[i];
+            const title = this.playlist.get(id);
+            if (!title || title.startonkey || title.skip) {
+                continue;
+            }
+            return title;
         }
-        return prevTitle;
+
+        // Fallback: falls kein gültiger vorheriger Titel gefunden wurde
+        return this.playlist.get(sortedIds[0]);
     }
 
     /**
@@ -1437,16 +1441,26 @@ export default class Mediaplayer extends View {
      * Jump to prev title
      */
     playPrevTitle() {
-        // Send play event
-        let completeEvent = new CustomEvent('swac_' + this.requestor.id + '_toprev', {
-            detail: {
-                set: this.actTitle,
-                duration: this.progressElem.value - this.actTitle.startsec
+        if (this.actTitle) {
+            // Send play prev event
+            let completeEvent = new CustomEvent('swac_' + this.requestor.id + '_toprev', {
+                detail: {
+                    set: this.actTitle,
+                    duration: this.progressElem.value - this.actTitle.startsec
+                }
+            });
+            document.dispatchEvent(completeEvent);
+            // Stop playback
+            if (this.actTitle.autostop) {
+                this.stopPlay();
             }
-        });
-        document.dispatchEvent(completeEvent);
+        }
         let prevTitle = this.getPrevTitle();
         this.progressElem.value = Math.round(prevTitle.startsec + 0.5);
+        this.actTitle = null;
+        if (prevTitle.autoplay) {
+            this.startPlay();
+        }
         if (!this.interval) {
             this.updateCurrentTitleInformation();
         }
@@ -1467,19 +1481,30 @@ export default class Mediaplayer extends View {
      * Jump to next title
      */
     playNextTitle() {
-        // Send play event
-        let completeEvent = new CustomEvent('swac_' + this.requestor.id + '_tonext', {
-            detail: {
-                set: this.actTitle,
-                duration: this.progressElem.value - this.actTitle.startsec
+        if (this.actTitle) {
+            // Send tonext event
+            let tonextEvent = new CustomEvent('swac_' + this.requestor.id + '_tonext', {
+                detail: {
+                    set: this.actTitle,
+                    duration: this.progressElem.value - this.actTitle.startsec
+                }
+            });
+            document.dispatchEvent(tonextEvent);
+            // Stop playback
+            if (this.actTitle.autostop) {
+                this.stopPlay();
             }
-        });
-        document.dispatchEvent(completeEvent);
-        let nextTitle = this.getNextTitle();
-        this.progressElem.value = Math.round(nextTitle.startsec + 0.5);
-        if (!this.interval) {
-            this.updateCurrentTitleInformation();
         }
+        let nextTitle = this.getNextTitle();
+        // Set time on starttime for next title
+        this.progressElem.value = Math.round(nextTitle.startsec + 0.5);
+        this.actTitle = null;
+        // Start playback when autoplay is active
+        if (nextTitle.autoplay) {
+            this.startPlay();
+        }
+        if (!this.interval)
+            this.updateCurrentTitleInformation();
     }
 
     /**
@@ -1596,6 +1621,11 @@ export default class Mediaplayer extends View {
             inline: "nearest"
         });
 
+        // Apply title slide effect
+        if (title.startAnimationEffect) {
+            this.updateSlideshowAnimation(title.startAnimationEffect);
+        }
+
         // Show matching slide
         UIkit.slideshow(this.slideshowElem).show(title.slideno);
 
@@ -1638,12 +1668,12 @@ export default class Mediaplayer extends View {
         } else if (playerElem.msRequestFullscreen) { /* IE11 */
             playerElem.msRequestFullscreen();
         }
-        let prevElem = this.requestor.querySelector('[uk-slidenav-previous]');
-        prevElem.classList.add('swac_dontdisplay');
-        prevElem.setAttribute('style', 'display: none;');
-        let nextElem = this.requestor.querySelector('[uk-slidenav-next]');
-        nextElem.classList.add('swac_dontdisplay');
-        nextElem.setAttribute('style', 'display: none;');
+//        let prevElem = this.requestor.querySelector('[uk-slidenav-previous]');
+//        prevElem.classList.add('swac_dontdisplay');
+//        prevElem.setAttribute('style', 'display: none;');
+//        let nextElem = this.requestor.querySelector('[uk-slidenav-next]');
+//        nextElem.classList.add('swac_dontdisplay');
+//        nextElem.setAttribute('style', 'display: none;');
         document.addEventListener('fullscreenchange', this.onFullscreenchange.bind(this), false);
         document.addEventListener('MSFullscreenChange', this.onFullscreenchange.bind(this), false);
     }
@@ -1653,12 +1683,12 @@ export default class Mediaplayer extends View {
      */
     onFullscreenchange(evt) {
         if (this.isfullscreen) {
-            let prevElem = this.requestor.querySelector('[uk-slidenav-previous]');
-            prevElem.classList.remove('swac_dontdisplay');
-            prevElem.setAttribute('style', 'display: block;');
-            let nextElem = this.requestor.querySelector('[uk-slidenav-next]');
-            nextElem.classList.remove('swac_dontdisplay');
-            nextElem.setAttribute('style', 'display: block;');
+//            let prevElem = this.requestor.querySelector('[uk-slidenav-previous]');
+//            prevElem.classList.remove('swac_dontdisplay');
+//            prevElem.setAttribute('style', 'display: block;');
+//            let nextElem = this.requestor.querySelector('[uk-slidenav-next]');
+//            nextElem.classList.remove('swac_dontdisplay');
+//            nextElem.setAttribute('style', 'display: block;');
             this.isfullscreen = false;
         } else {
             this.isfullscreen = true;
@@ -1694,7 +1724,7 @@ export default class Mediaplayer extends View {
             evt.preventDefault();
         let volumeButton = this.requestor.querySelector('.swac_mediaplayer_volume');
         let volume = volumeButton.value / 100;
-        // Adjust volume at all medias
+        // Adjust let volumeButton = this.requestor.querySelector('.swac_mediaplayer_volume');volume at all medias
         let mediaElems = this.requestor.querySelectorAll('audio, video');
         for (let curMediaElem of mediaElems) {
             curMediaElem.volume = volume;
@@ -1925,37 +1955,45 @@ export default class Mediaplayer extends View {
      */
     onKeydown(evt) {
         evt.preventDefault();
-        // When space pressed start play (keycode 166: Play button from pointer)
-        if (evt.keyCode === 32 || evt.keyCode === 116) {
-            // If play is stopped start
-            if (!this.interval) {
-                this.startPlay();
-            } else {
-                // Stop play
-                this.stopPlay();
-            }
-            // Keycode: 87 white screen button from pointer
-        } else if (evt.keyCode === 37 || evt.keyCode === 87) {
-            // Jump to prev title
-            this.playPrevTitle();
-            // Keycode 66: black screen button from pointer)
-        } else if (evt.keyCode === 39 || evt.keyCode === 66) {
-            // Jump to next title
-            this.playNextTitle();
-        } else if (evt.keyCode === 38) {
-            // Fade in
-            this.fadeinPlay();
-            // Keycode: 69: Erease button from pointer
-        } else if (evt.keyCode === 40 || evt.keyCode === 69) {
-            // Fade out
-            this.fadeoutPlay();
-        } else if (evt.keyCode === 27) {
-            this.onClickFullBtn(evt);
-        } else {
-            let char = String.fromCharCode(evt.keyCode);
-            Msg.warn('Mediaplayer', 'Unknown keycode >' + evt.keyCode + '< char (' + char + ') pressed.', this.requestor);
+//        console.log('keycode:', evt.keyCode, evt.key);
+        let baseKeyPressed = true;
+        switch (evt.key) {
+            case ' ':
+                // If play is stopped start
+                if (!this.interval) {
+                    this.startPlay();
+                } else {
+                    // Stop play
+                    this.stopPlay();
+                }
+                break;
+            case 'ArrowLeft':
+                // Jump to prev title
+                this.playPrevTitle();
+                break;
+            case 'ArrowRight':
+                // Jump to next title
+                this.playNextTitle();
+                break;
+            case 'ArrowUp':
+                // Fade in
+                this.fadeinPlay();
+                break;
+            case 'ArrowDown':
+                // Fade out
+                this.fadeoutPlay();
+                break;
+            case 'Escape':
+                this.onClickFullBtn(evt);
+                break;
+            default:
+                Msg.warn('Mediaplayer', 'Unknown key >' + evt.key + '< pressed.', this.requestor);
+                baseKeyPressed = false;
+        }
+
+        if (!baseKeyPressed) {
             // Get medias to start
-            let startms = this.keystartmedias.get(char);
+            let startms = this.keystartmedias.get(evt.key);
             if (startms) {
                 for (let curSet of startms) {
                     let curElem = this.requestor.querySelector('#keymedia_' + curSet.id);
@@ -1968,7 +2006,7 @@ export default class Mediaplayer extends View {
             }
 
             // Get medias to stop
-            let stopms = this.keystopmedias.get(char);
+            let stopms = this.keystopmedias.get(evt.key);
             if (stopms) {
                 for (let curSet of stopms) {
                     let curElem = this.requestor.querySelector('#keymedia_' + curSet.id);
@@ -2047,6 +2085,34 @@ export default class Mediaplayer extends View {
                 }
                 SWAC.serviceWorker.postMessage('{"action":"cacheFile","value": "' + basepath + path + '"}');
             }
+        }
+    }
+
+    updateSlideshowAnimation(newAnimation) {
+        if (!newAnimation)
+            return;
+
+        const showElem = this.requestor.querySelector('[uk-slideshow]');
+        if (!showElem)
+            return;
+
+        const slideshow = UIkit.getComponent(showElem, 'slideshow');
+        if (!slideshow)
+            return;
+
+        const currentOptions = {...slideshow.$options};
+        const currentIndex = slideshow.index;
+
+        slideshow.$destroy();
+
+        UIkit.slideshow(showElem, {
+            ...currentOptions,
+            animation: newAnimation
+        });
+
+        const newSlideshow = UIkit.getComponent(showElem, 'slideshow');
+        if (newSlideshow) {
+            newSlideshow.show(currentIndex);
         }
     }
 }
