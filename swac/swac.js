@@ -155,6 +155,7 @@ SWAC.loadGlobalComponents = function () {
         // Register swac serviceworker
         navigator.serviceWorker.register(this.config.app_root + '/serviceworker.js')
                 .then(function (registration) {
+                    thisRef.swRegistration = registration;
                     if (registration.installing) {
                         thisRef.serviceWorker = registration.installing;
                         Msg.flow('SWACProgressive', 'ServiceWorker is now installing');
