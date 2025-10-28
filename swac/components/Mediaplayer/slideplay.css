@@ -11,7 +11,6 @@
 }
 .swac_mediaplayer_media > video {
     height: 100%;
-    width: 90%;
 }
 .swac_mediaplayer_media > div {
     height: 100%;
@@ -19,6 +18,23 @@
 .swac_mediaplayer_media > iframe {
     width: 100%;
     height: 100%;
+}
+.swac_mediaplayer_copynotice {
+    z-index: 999;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    font-size: 0.75rem;
+    display: flex;
+justify-content: center; /* Zentriert horizontal */
+align-items: center; /* Zentriert vertikal */
+    height: 30px;
+    min-width: 100px;
+    margin: 5px;
+    background: linear-gradient(45deg, rgba(255, 0, 150, 0.5), rgba(0, 150, 255, 0.5));
+    /* mix-blend-mode: overlay; */
+    pointer-events: none;
+    border-radius: 25px;
 }
 
 .swac_mediaplayer_control {

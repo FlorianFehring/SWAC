@@ -456,6 +456,7 @@ export default class Mediaplayer extends View {
         this.synth = window.speechSynthesis;
         this.clickedTitle; // Title last clicked on
         this.cortryTo = null;
+        this.actCopyrightNotice = null;
     }
 
     init() {
@@ -1088,6 +1089,12 @@ export default class Mediaplayer extends View {
             curPlayBtn.setAttribute('uk-icon', 'play');
             curPlayBtn.setAttribute('uk-tooltip', SWAC.lang.dict.Mediaplayer.play);
         }
+        // Remove copyright notice
+        let copyrightElem = document.querySelector('.swac_mediaplayer_copynotice');
+        if (copyrightElem) {
+            // Remove copy notice after end
+            copyrightElem.remove();
+        }
 
         // Update media metadata
         if ("mediaSession" in navigator) {
@@ -1192,6 +1199,12 @@ export default class Mediaplayer extends View {
         }
         // Switch to next title
         if (!this.actTitle || this.actTitle !== secTitle) {
+            // If title is ended and loop is active reset timeline
+            if (this.actTitle?.loop) {
+                this.progressElem.value = this.actTitle.startsec;
+                return;
+            }
+
             Msg.info(
                     'Mediaplayer',
                     'Switching from >' + (this.actTitle?.title ?? 'none') + '< to title >' + (this.actTitle?.title ?? 'unknown') + '<',
@@ -1212,6 +1225,22 @@ export default class Mediaplayer extends View {
                 this.interval = null;
                 await this.anounceTitle();
                 this.interval = setInterval(this.playNextSecond.bind(this), 1000);
+            }
+
+            // Hide old copyrightnotice
+            if (this.actCopyrightNotice) {
+                this.actCopyrightNotice.remove();
+                this.actCopyrightNotice = null;
+            }
+
+            // Create new copyright notice
+            if (this.actTitle.copyright) {
+                let playerElem = this.requestor.querySelector('.swac_mediaplayer_slideshow');
+                let copyNoticeElem = document.createElement('div');
+                copyNoticeElem.innerHTML = this.actTitle.copyright;
+                copyNoticeElem.classList.add('swac_mediaplayer_copynotice');
+                playerElem.appendChild(copyNoticeElem);
+                this.actCopyrightNotice = copyNoticeElem;
             }
 
             // Get actual media element
@@ -2002,6 +2031,24 @@ export default class Mediaplayer extends View {
                     if (curSet.fadein)
                         this.fadein(curElem, curSet.fadein);
                     curElem.play();
+                    // Display copyright notice
+                    if (curSet.copyright) {
+                        let playerElem = this.requestor.querySelector('.swac_mediaplayer_slideshow');
+                        let copyNoticeElem = document.createElement('div');
+                        copyNoticeElem.innerHTML = curSet.copyright;
+                        copyNoticeElem.classList.add('swac_mediaplayer_copynotice');
+                        playerElem.appendChild(copyNoticeElem);
+                        curElem.addEventListener('ended', () => {
+                            let copyrightElem = document.querySelector('.swac_mediaplayer_copynotice');
+                            // Remove copy notice after end
+                            copyrightElem.remove();
+                        });
+                        curElem.addEventListener('pause', () => {
+                            let copyrightElem = document.querySelector('.swac_mediaplayer_copynotice');
+                            // Remove copy notice after end
+                            copyrightElem.remove();
+                        });
+                    }
                 }
             }
 

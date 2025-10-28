@@ -99,6 +99,10 @@ export default class Mediacode {
         vidElem.setAttribute('controls', 'controls');
         vidElem.setAttribute('preload', 'metadata');
         vidElem.removeAttribute('controls');
+        vidElem.classList.add('uk-cover');
+        if(this.set.loop) {
+            vidElem.setAttribute('loop','loop');
+        }
         vidElem.innerHTML = SWAC.lang.dict.Mediacode.novideosupport;
         this.createMediaSource(vidElem);
         return vidElem;
@@ -135,6 +139,9 @@ export default class Mediacode {
         audioElem.title = title;
 //        audioElem.setAttribute('controls', 'controls');
         audioElem.setAttribute('preload', 'none');
+        if(this.set.loop) {
+            audioElem.setAttribute('loop','loop');
+        }
         audioElem.innerHTML = SWAC.lang.dict.Mediacode.noaudiosupport;
         this.createMediaSource(audioElem);
         divElem.appendChild(audioElem);
