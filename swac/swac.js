@@ -498,9 +498,12 @@ SWAC.replaceGlobalPlaceholders = function () {
     for (const key in this.config.globalparams) {
         SWAC.searchAndReplace('{{' + key + '}}', this.config.globalparams[key], document);
     }
+    // Clean HTML from invisible chars
+    const cleanHTML = document.body.innerHTML.replace(/[\u200B-\u200D\uFEFF]/g, '');
     // Replace special placeholders
-    const sps = [...document.body.innerHTML.matchAll(/{{date:([^}]*)}}/g)];
+    const sps = [...cleanHTML.matchAll(/{{date:([^}]*)}}/g)];
     for (let curSps of sps) {
+
         let val;
         if (curSps[0].startsWith('{{date:')) {
             val = new Date();
@@ -546,7 +549,7 @@ SWAC.replaceGlobalPlaceholders = function () {
 
             }
         }
-        SWAC.searchAndReplace(curSps[0], val, document);
+        SWAC.searchAndReplace(curSps[0], val, document, true);
     }
 
     // Remove placeholders that can not be filled
@@ -568,8 +571,7 @@ SWAC.replaceGlobalPlaceholders = function () {
  * @param {HTMLElement} elem Element where to replace (and childs) 
  * @returns {undefined}
  */
-SWAC.searchAndReplace = function (search, replace, elem) {
-//    console.log('TEST searchAndReplace ', search, replace, elem);
+SWAC.searchAndReplace = function (search, replace, elem, debug) {
     // Exclude pre elements
     if (elem.nodeName === 'PRE' && !elem.hasAttribute('swac_allowReplace')) {
         return;
@@ -577,7 +579,10 @@ SWAC.searchAndReplace = function (search, replace, elem) {
     // Look at attributes
     if (typeof elem.attributes !== 'undefined') {
         for (var curAttr of elem.attributes) {
-            curAttr.value = curAttr.value.replaceAll(search, replace);
+            const cleanValue = curAttr.value.replace(/[\u200B-\u200D\uFEFF]/g, '');
+            if (cleanValue.includes(search)) {
+                curAttr.value = cleanValue.replaceAll(search, replace);
+            }
         }
     }
     if (typeof elem.nodeValue !== 'undefined' && elem.nodeValue !== null) {
@@ -586,7 +591,7 @@ SWAC.searchAndReplace = function (search, replace, elem) {
     // Look at child nodes
     if (elem.nodeType === 1 || elem.nodeType === 9) {
         for (var nextChild of elem.childNodes) {
-            this.searchAndReplace(search, replace, nextChild);
+            this.searchAndReplace(search, replace, nextChild, debug);
         }
     }
 };
