@@ -1,0 +1,28 @@
+var Booking_pl = {
+    availableitems: 'Dostępne',
+    itemimg: 'Obraz przedmiotu',
+    booknow: 'Zarezerwuj teraz',
+    available: 'wolny',
+    notavailable: 'zajęty',
+    availability_again_from: 'ponownie dostępny od',
+    bookingpermail: 'Wyślij do nas e-mail, aby zarezerwować ten przedmiot.',
+    booking: 'Rezerwacja',
+    bookingdata: 'Dane rezerwacji',
+    from: 'od',
+    until: 'do',
+    persons: 'Osoby',
+    personaldata: 'Twoje dane',
+    firstname: 'Imię',
+    lastname: 'Nazwisko',
+    street: 'Ulica',
+    housenumber: 'Numer domu',
+    zipcode: 'Kod pocztowy',
+    city: 'Miasto',
+    country: 'Kraj',
+    submit: 'Zarezerwuj',
+    cancle: 'Anuluj',
+    placesleft: '%avail% z %total% dostępnych',
+    booksucseed: 'Rezerwacja zakończona sukcesem. Wkrótce otrzymasz więcej informacji e-mailem.',
+    bookerror: 'Niestety wystąpił błąd podczas rezerwacji. Skontaktuj się z nami.'
+};
+export default Booking_pl;

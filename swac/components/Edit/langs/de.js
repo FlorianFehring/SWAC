@@ -19,6 +19,7 @@ var Edit_de = {
     couldnotsave: "Die Eingaben können nicht gespeichert werden.",
     refDelete: "Verbindung löschen",
     save: "Speichern",
+    saved: "Ihre Eingaben wurden gespeichert.",
     delchild: "Löschen",
     filesourcenotsupported: "Diese Funktion steht bei aus Dateien geladenen Daten nicht zur Verfügung.",
     groupeditbtn: 'Gruppenbearbeitung',

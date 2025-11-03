@@ -1,0 +1,28 @@
+var User_pl = {
+    login: 'Logowanie',
+    enterlogindata: 'Proszę podać swoje dane dostępowe.',
+    username: 'Nazwa użytkownika',
+    userpwd: 'Hasło',
+    loginprogress: 'Proszę o chwilę cierpliwości, trwa logowanie.',
+    nologinpossible: 'Logowanie jest obecnie niemożliwe.',
+    logout: 'Wyloguj',
+    registerhere: 'Nie masz jeszcze konta? Zarejestruj się tutaj.',
+    pwdlost: 'Zapomniałeś hasła?',
+    regconfirminfo: 'Wysłaliśmy do Ciebie wiadomość e-mail z kodem potwierdzającym. Wprowadź go w poniższe pole. Jeśli wiadomość nie pojawi się w ciągu kilku minut, sprawdź folder spam.',
+    regconfirm: 'Potwierdź rejestrację',
+    regconfirmed: 'Rejestracja potwierdzona. Możesz się teraz zalogować.',
+    accept_privacy: 'Musisz zaakceptować naszą <a href="%privacy_url%" target="_new">politykę prywatności</a>.',
+    accept_terms: 'Musisz zaakceptować nasze <a href="%terms_url%" target="_new">warunki użytkowania</a>.',
+    accept_privacy_terms: 'Musisz zaakceptować nasze <a href="%terms_url%" target="_new">warunki użytkowania</a> oraz <a href="%privacy_url%" target="_new">politykę prywatności</a>.',
+    dontaccept: 'Odrzucam',
+    accept: 'Akceptuję',
+    notaccepted_terms: 'Odrzuciłeś warunki, dlatego nie możesz dalej korzystać z usługi.',
+    maillogininfo: 'Wprowadź swoją nazwę użytkownika lub adres e-mail, aby otrzymać wiadomość umożliwiającą jednorazowe logowanie.',
+    maillogin: 'Wyślij e-mail',
+    mailloginsend: 'Jeśli Twój adres e-mail lub nazwa użytkownika istnieje, wiadomość została właśnie wysłana.',
+    mailloginfail: 'Nie udało się zalogować. Możliwe, że jednorazowe logowanie zostało już wykorzystane.',
+    account: 'Konto',
+    autologout: 'Zostałeś automatycznie wylogowany.',
+    regtokenhere: 'Wprowadź tutaj kod z wiadomości e-mail'
+};
+export default User_pl;

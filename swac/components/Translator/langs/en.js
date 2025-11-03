@@ -4,6 +4,7 @@ var Translator_en = {
     couldnotloadlanguage: "Sorry coult not load language",
     "de": "German",
     "en": "English",
-    "fr": "French"
+    "fr": "French",
+    "pl": "Polish"
 };
 export default Translator_en;

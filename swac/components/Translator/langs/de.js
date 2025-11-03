@@ -4,6 +4,7 @@ var Translator_de = {
     couldnotloadlanguage: "Entschuldigung, die Sprache konnte nicht geladen werden",
     "de": "Deutsch",
     "en": "Englisch",
-    "fr": "Französisch"
+    "fr": "Französisch",
+    "pl": "Polnisch"
 };
 export default Translator_de;
