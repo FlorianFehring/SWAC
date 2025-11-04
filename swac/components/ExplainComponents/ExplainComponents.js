@@ -213,6 +213,10 @@ export default class ExplainComponents extends View {
         if (component.desc.reqPerSet) {
             // Create tablerow for each required attribute
             for (let curReq of component.desc.reqPerSet) {
+                if(!curReq) {
+                    this.addDocumentationError(SWAC.lang.dict.ExplainComponents.doc_err_mis_reqperset);
+                    continue;
+                }
                 let tr = document.createElement("tr");
                 let td1 = document.createElement("td");
                 td1.innerHTML = curReq.name;
@@ -494,6 +498,8 @@ export default class ExplainComponents extends View {
 
                             // Check if it is required
                             for (let curReq of component.desc.reqPerSet) {
+                                if(!curReq)
+                                    continue;
                                 if (curName === curReq.name) {
                                     found = true;
                                     // Description tag for template
@@ -502,6 +508,8 @@ export default class ExplainComponents extends View {
                             }
                             // Check if it is optional
                             for (let curReq of component.desc.optPerSet) {
+                                if(!curReq)
+                                    continue;
                                 if (curName === curReq.name) {
                                     found = true;
                                     // Description tag for template

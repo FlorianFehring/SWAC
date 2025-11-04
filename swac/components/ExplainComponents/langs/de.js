@@ -43,6 +43,7 @@ var ExplainComponents_de = {
     pluginsNone: "Diese Komponente hat keine Plugins",
     params: "Parameter und Rückgabe",
     events: 'Events',
-    eventsdesc: 'Nachfolgend sind die Events aufgeführt, welche von dieser Komponente gefeuert werden können. Jedes Event ist ein JS CustomEvent und die angegebene Daten werden im Attribut "detail" geliefert. REQUESTOR_Id ist durch die ID des swa-Elements zu ersetzen.'
+    eventsdesc: 'Nachfolgend sind die Events aufgeführt, welche von dieser Komponente gefeuert werden können. Jedes Event ist ein JS CustomEvent und die angegebene Daten werden im Attribut "detail" geliefert. REQUESTOR_Id ist durch die ID des swa-Elements zu ersetzen.',
+    doc_err_mis_reqperset: 'Prüfen Sie die Dokumentation der erforderlichen Attribute. Das Dokumentationsarray >reqPerSet< enthält einen leeren Slot.'
 };
 export default ExplainComponents_de;
