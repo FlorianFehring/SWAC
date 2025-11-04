@@ -30,6 +30,14 @@ export default class Speech extends View {
             selc: '.swac_speech_reply',
             desc: 'Element where to display the reply in current dialog.'
         };
+        this.desc.optPerTpl[3] = {
+            selc: '.swac_speech_request_text',
+            desc: 'Element where to display the request text in current dialog.'
+        };
+        this.desc.optPerTpl[4] = {
+            selc: '.swac_speech_reply_text',
+            desc: 'Element where to display the reply text in current dialog.'
+        };
 
         this.desc.reqPerSet[0] = {
             name: 'id',
