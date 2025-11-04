@@ -7,7 +7,7 @@ export default class Surfbar extends View {
     constructor(options = {}) {
         super(options);
         this.name = 'Surfbar';
-        this.desc.text = 'Surfbar for auto surfing sites.';
+        this.desc.text = 'With Surfbar you can create automatic calling of webpages for showcases.';
         this.desc.developers = 'Florian Fehring';
         this.desc.license = '(c) by Florian Fehring';
 
@@ -15,7 +15,14 @@ export default class Surfbar extends View {
             name: 'default',
             desc: 'Default surfbar template.'
         };
-
+        this.desc.reqPerTpl[0] = {
+            selc: '.swac_surfbar_startstopbtn',
+            desc: 'Button to start or stop surfbar running.'
+        };
+        this.desc.reqPerTpl[1] = {
+            selc: '.swac_surfbar_counter',
+            desc: 'Place where to show the visit counter.'
+        };
         this.desc.reqPerSet[0] = {
             name: 'id',
             desc: 'Datasets id. Required for ordering.'
@@ -24,7 +31,7 @@ export default class Surfbar extends View {
             name: 'link',
             desc: 'HTTP link to a page or document.'
         };
-        this.desc.reqPerSet[3] = {
+        this.desc.reqPerSet[2] = {
             name: 'ma',
             desc: 'Visits duration in seconds.'
         };
