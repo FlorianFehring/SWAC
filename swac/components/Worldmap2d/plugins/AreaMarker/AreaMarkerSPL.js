@@ -1,11 +1,11 @@
 import SWAC from '../../../../swac.js'
 import Plugin from '../../../../Plugin.js'
 import Model from '../../../../Model.js';
-export default class AreaMarker extends Plugin {
+
+export default class AreaMarkerSPL extends Plugin {
     constructor(options = {}) {
         super(options)
         this.name = 'Worldmap2d/plugins/AreaMarker'
-        this.desc = {}
         this.desc.text = 'Markeable Map'
         this.desc.depends = []
         this.desc.templates = []
@@ -14,7 +14,6 @@ export default class AreaMarker extends Plugin {
             style: 'areamarker',
             desc: 'Default template for AreaMarker',
         }
-        this.desc.opts = []
         this.desc.opts[0] = {
             name: "areaRequestor",
             desc: "Requestor that gets the areas that should be displayed.",
