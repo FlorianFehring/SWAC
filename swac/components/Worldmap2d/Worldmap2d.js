@@ -114,6 +114,92 @@ export default class Worldmap2d extends View {
             desc: 'Template with area for plugins'
         };
 
+        this.desc.reqPerTpl[0] = {
+            selc: '.swac_worldmap_map',
+            desc: 'Container where the map is added.'
+        };
+        this.desc.optPerTpl[0] = {
+            selc: '.worldmap2d',
+            desc: 'Element to embed map.'
+        };
+        this.desc.optPerTpl[1] = {
+            selc: '.swac_worldmap2d_addmodel',
+            desc: 'Area with input elements for adding new models to the map.'
+        };
+        this.desc.optPerTpl[2] = {
+            selc: '.swac_worldmap2d_plugins_area',
+            desc: 'Area where plugins place their menue symbols.'
+        };
+        this.desc.optPerTpl[3] = {
+            selc: '.swac_worldmap_tooltip',
+            desc: 'Container used as tooltip for displaying data on the map.'
+        };
+        this.desc.optPerTpl[4] = {
+            selc: '.swac_worldmap_tooltip_value',
+            desc: 'Container inside the tooltip where data should be displayed.'
+        };
+        this.desc.optPerTpl[5] = {
+            selc: '.swac_worldmap_valuename',
+            desc: 'Place inside tooltip where to display the values name.'
+        };
+        this.desc.optPerTpl[6] = {
+            selc: '.swac_worldmap_value',
+            desc: 'Place inside tooltip where to display the values value.'
+        };
+        this.desc.optPerTpl[7] = {
+            selc: '.swac_worldmap_ts',
+            desc: 'Place inside tooltip where to display the values timestamp.'
+        };
+        this.desc.optPerTpl[8] = {
+            selc: '.swac_worldmap_setid',
+            desc: 'Place inside tooltip where to display the values dataset id.'
+        };
+        this.desc.optPerTpl[9] = {
+            selc: '.swac_worldmap_tooltip_position',
+            desc: 'Area inside tooltip where position information is placed.'
+        };
+        this.desc.optPerTpl[10] = {
+            selc: '.swac_worldmap_latout',
+            desc: 'Place inside the tooltip where to display the latitude.'
+        };
+        this.desc.optPerTpl[11] = {
+            selc: '.swac_worldmap_lonout',
+            desc: 'Place inside the tooltip where to display the longitude.'
+        };
+        this.desc.optPerTpl[12] = {
+            selc: '.swac_worldmap_heightout',
+            desc: 'Place inside the tooltip where to display the altitude.'
+        };
+        this.desc.optPerTpl[13] = {
+            selc: '.swac_worldmap2d_addModelDialog',
+            desc: 'Area to display for adding models.'
+        };
+        this.desc.optPerTpl[14] = {
+            selc: '.swac_worldmap2d_typeselect',
+            desc: 'Select element where type of model can be selected.'
+        };
+        this.desc.optPerTpl[15] = {
+            selc: '.swac_worldmap2d_selectSubModel',
+            desc: 'Area to display for choosing a submodel from found models when adding a new model.'
+        };
+        this.desc.optPerTpl[16] = {
+            selc: '.swac_worldmap2d_subselect',
+            desc: 'Select element where submodel can be selected.'
+        };
+        this.desc.optPerTpl[17] = {
+            selc: '.swac_worldmap2d_repeatableForSubSelect',
+            desc: 'Element to be repeated for every found submodel.'
+        };
+        this.desc.optPerTpl[18] = {
+            selc: '.swac_worldmap2d_subselect_displayname',
+            desc: 'Element where the submodles name is displayed.'
+        };
+        this.desc.optPerTpl[19] = {
+            selc: '.swac_worldmap2d_subSelectSeparate',
+            desc: 'Selectbox to choose submodel.'
+        };
+
+
         this.desc.reqPerSet[0] = {
             name: "id",
             desc: "Id that identifies the dataset.",
@@ -474,9 +560,13 @@ export default class Worldmap2d extends View {
             // Activate addModel
             if (this.options.allowAddModels) {
                 let addModelElem = this.requestor.querySelector('.swac_worldmap2d_addmodel');
-                addModelElem.classList.remove('swac_dontdisplay');
-                let addBtn = addModelElem.querySelector('button');
-                addBtn.addEventListener('click', this.onAddModel.bind(this));
+                if (addModelElem) {
+                    addModelElem.classList.remove('swac_dontdisplay');
+                    let addBtn = addModelElem.querySelector('button');
+                    addBtn.addEventListener('click', this.onAddModel.bind(this));
+                } else {
+                    Msg.error('Worldmap2d', 'Option >allowAddModels< is set but there is no area >swac_worldmap2d_addmodel< in template for adding models.', this.requestor);
+                }
             }
 
             // For fitting on page, relative position
@@ -654,7 +744,7 @@ export default class Worldmap2d extends View {
      * Prepares the plugin menu bar on the map
      */
     preparePluginMenuBar() {
-        L.DomEvent.on(this.requestor.querySelector('.plugins'), 'click', L.DomEvent.stopPropagation);
+        L.DomEvent.on(this.requestor.querySelector('..swac_worldmap2d_plugins_area > div'), 'click', L.DomEvent.stopPropagation);
     }
 
     afterAddSet(set, repeateds) {

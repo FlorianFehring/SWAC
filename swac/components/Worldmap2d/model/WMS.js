@@ -192,7 +192,7 @@ export default class WMS extends MapModel {
         UIkit.modal(modalElem).show();
 
         // Register event handler for after choosing
-        let btn = modalElem.querySelector('.swac_worldmap2d_subselectbtn');
+        let btn = modalElem.querySelector('button');
         let thisRef = this;
         btn.addEventListener('click', function (evt) {
             evt.preventDefault();

@@ -37,21 +37,24 @@ export default class DataAndMediaShowModalSPL extends Plugin {
 
         this.desc.opts[1] = {
             name: 'data_iframelink',
-            desc: 'Link to the page embedding the data.'
+            desc: 'Link to the page embedding the data.',
+            type: 'url'
         };
         if (!options.data_iframelink)
             this.options.data_iframelink = null;
 
         this.desc.opts[2] = {
             name: 'meta_iframelink',
-            desc: 'Link to the page embedding the meta data.'
+            desc: 'Link to the page embedding the meta data.',
+            type: 'url'
         };
         if (!options.meta_iframelink)
             this.options.meta_iframelink = null;
 
         this.desc.opts[3] = {
             name: 'media_iframelink',
-            desc: 'Link to the page embedding the media page.'
+            desc: 'Link to the page embedding the media page.',
+            type: 'url'
         };
         if (!options.media_iframelink)
             this.options.media_iframelink = null;

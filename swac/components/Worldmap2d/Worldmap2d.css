@@ -268,7 +268,7 @@
     transition: width 450ms ease-out;
 }
 
-.plugins-wrapper {
+.swac_worldmap2d_plugins_area {
     width: 100%;
     height: 100%;
     top: 0px;
@@ -277,7 +277,7 @@
     display: flex;
 }
 
-.plugins {
+.swac_worldmap2d_plugins_area > div {
     margin-top: 100px;
     z-index: 1002;
 }

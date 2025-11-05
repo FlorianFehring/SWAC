@@ -24,6 +24,7 @@ export default class DataShowModalSPL extends Plugin {
         this.desc.opts[0] = {
             name: "attrsShown",
             desc: "List of attribute names that should be shown. Give the attribute names in the order, they should appear.",
+            type: 'string'
         };
         if (!options.attrsShown)
             this.options.attrsShown = null;
