@@ -744,7 +744,7 @@ export default class Worldmap2d extends View {
      * Prepares the plugin menu bar on the map
      */
     preparePluginMenuBar() {
-        L.DomEvent.on(this.requestor.querySelector('..swac_worldmap2d_plugins_area > div'), 'click', L.DomEvent.stopPropagation);
+        L.DomEvent.on(this.requestor.querySelector('.swac_worldmap2d_plugins_area > div'), 'click', L.DomEvent.stopPropagation);
     }
 
     afterAddSet(set, repeateds) {
