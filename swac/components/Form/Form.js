@@ -2,14 +2,14 @@ import SWAC from '../../swac.js';
 import View from '../../View.js';
 import Msg from '../../Msg.js';
 
-export default class ContactForm extends View {
+export default class Form extends View {
 
     constructor(options = {}) {
         super(options);
-        this.name = 'ContactForm';
-        this.desc.text = 'A customisable contact form';
-        this.desc.developers = 'Florian Fehring';
-        this.desc.license = '(c) by Florian Fehring';
+        this.name = 'Form';
+        this.desc.text = 'A customisable form component. Easier to use than the complex Edit component. Focosing on get data from form elements and send them.';
+        this.desc.developers = 'Florian Fehring (HSBI)';
+        this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {
             name: 'default',
@@ -19,13 +19,24 @@ export default class ContactForm extends View {
             selc: 'form',
             desc: 'Form element with input elements. Any input element value will be send with the name from the input elemtns name attribute.'
         };
+        
+        this.desc.opts[0] = {
+            name: "target",
+            desc: "Target URL or sourcename where to send form data. Data is send to this URL with POST method and JSON payload. Note: If this options is not set and a FROM clause is defined data will be send to that source.",
+            example: {
+                name: "My Name",
+                message: "My message"
+            }
+        };
+        if (!options.target)
+            this.options.target = null;
+        
         if (!options.showWhenNoData)
             this.options.showWhenNoData = true;
     }
 
     init() {
         return new Promise((resolve, reject) => {
-
             // Register event handler on form submit
             let formElem = this.requestor.querySelector('form');
             formElem.addEventListener('submit', this.onSubmit.bind(this));
@@ -50,6 +61,14 @@ export default class ContactForm extends View {
         let dataCapsule = {
             fromName: this.getMainSourceName()
         };
+        // Set configured target
+        if(this.options.target) {
+            dataCapsule.fromName = this.options.target;
+        }
+        if(!dataCapsule.fromName) {
+            UIkit.modal.alert(SWAC.lang.dict.Form.target_missing);
+        }
+        
         let dataset = {};
         if (this.options.saveAlongData !== null) {
             dataset = Object.assign({}, this.options.saveAlongData);
