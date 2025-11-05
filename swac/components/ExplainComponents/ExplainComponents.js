@@ -213,7 +213,7 @@ export default class ExplainComponents extends View {
         if (component.desc.reqPerSet) {
             // Create tablerow for each required attribute
             for (let curReq of component.desc.reqPerSet) {
-                if(!curReq) {
+                if (!curReq) {
                     this.addDocumentationError(SWAC.lang.dict.ExplainComponents.doc_err_mis_reqperset);
                     continue;
                 }
@@ -365,7 +365,7 @@ export default class ExplainComponents extends View {
         }
         // Look at plugins for requirements for template
         for (let curPlugin of this.compPlugins) {
-            if(!curPlugin.desc.reqPerTpl)
+            if (!curPlugin.desc.reqPerTpl)
                 continue;
             try {
                 // Create tablerow for each required attribute
@@ -396,7 +396,7 @@ export default class ExplainComponents extends View {
         }
         // Look at plugins for requirements for template
         for (let curPlugin of this.compPlugins) {
-            if(!curPlugin.desc.optPerTpl)
+            if (!curPlugin.desc.optPerTpl)
                 continue;
             // Create tablerow for each optional attribute
             for (let curOpt of curPlugin.desc.optPerTpl) {
@@ -498,7 +498,7 @@ export default class ExplainComponents extends View {
 
                             // Check if it is required
                             for (let curReq of component.desc.reqPerSet) {
-                                if(!curReq)
+                                if (!curReq)
                                     continue;
                                 if (curName === curReq.name) {
                                     found = true;
@@ -508,7 +508,7 @@ export default class ExplainComponents extends View {
                             }
                             // Check if it is optional
                             for (let curReq of component.desc.optPerSet) {
-                                if(!curReq)
+                                if (!curReq)
                                     continue;
                                 if (curName === curReq.name) {
                                     found = true;
@@ -520,7 +520,7 @@ export default class ExplainComponents extends View {
                             if (!found) {
                                 let ndeElem = deElem.cloneNode(true);
                                 ndeElem.classList.remove('swac_explain_forDocErr');
-                                ndeElem.innerHTML = 'Placeholder >' + curName + '< from template >' + curTemplate.name + '< is not documented.';
+                                ndeElem.innerHTML = 'Placeholder >' + curName + '< from template >' + curTemplate.name + '< is not documented on >' + component.name + '<.';
                                 deElem.parentElement.appendChild(ndeElem);
                             }
                         }
@@ -647,7 +647,7 @@ export default class ExplainComponents extends View {
                             }
                             // Search descriptions in plugins
                             for (let curPlugin of thisRef.compPlugins) {
-                                if(!curPlugin.desc.reqPerTpl)
+                                if (!curPlugin.desc.reqPerTpl)
                                     continue;
                                 for (let curOptPerTpl of curPlugin.desc.reqPerTpl) {
                                     if (curOptPerTpl.selc === '.' + curCls) {
@@ -670,7 +670,7 @@ export default class ExplainComponents extends View {
                             }
                             // Search descriptions in plugins
                             for (let curPlugin of thisRef.compPlugins) {
-                                if(!curPlugin.desc.optPerTpl)
+                                if (!curPlugin.desc.optPerTpl)
                                     continue;
                                 for (let curOptPerTpl of curPlugin.desc.optPerTpl) {
                                     if (curOptPerTpl.selc === '.' + curCls) {
@@ -687,7 +687,7 @@ export default class ExplainComponents extends View {
                                 if (deElem) {
                                     let ndeElem = deElem.cloneNode(true);
                                     ndeElem.classList.remove('swac_explain_forDocErr');
-                                    ndeElem.innerHTML = 'Used class >' + curCls + '< in template >' + curTemplate.name + '< is not documented.';
+                                    ndeElem.innerHTML = 'Used class >' + curCls + '< in template >' + curTemplate.name + '< is not documented on >' + component.name + '<.';
                                     deElem.parentElement.appendChild(ndeElem);
                                 }
                             }
@@ -760,7 +760,7 @@ export default class ExplainComponents extends View {
                 if (deElem) {
                     let ndeElem = deElem.cloneNode(true);
                     ndeElem.classList.remove('swac_explain_forDocErr');
-                    ndeElem.innerHTML = 'Option >' + curOption + '< is not documented in >'+component.name+'<.';
+                    ndeElem.innerHTML = 'Option >' + curOption + '< is not documented on >' + component.name + '<.';
                     deElem.parentElement.appendChild(ndeElem);
                 }
             }
@@ -778,11 +778,11 @@ export default class ExplainComponents extends View {
             if (typeof type === 'undefined' || type.startsWith('undefined')) {
                 let ndeElem = deElem.cloneNode(true);
                 ndeElem.classList.remove('swac_explain_forDocErr');
-                ndeElem.innerHTML = 'Option >' + curOption + '< has no valid type information. Either add a default value, a example value, or a type name.';
+                ndeElem.innerHTML = 'Option >' + curOption + '< has no valid type information. Either add a default value, a example value, or a type name on component >' + component.name + '<';
                 deElem.parentElement.appendChild(ndeElem);
             }
 
-            // Datatype
+// Datatype
             optDiv.querySelector('.swac_explain_option_type').innerHTML = type;
 
             optDivTpl.parentElement.appendChild(optDiv);
@@ -792,7 +792,8 @@ export default class ExplainComponents extends View {
     /**
      * Creates a description of the functions that the component has.
      * 
-     * @param {SWACcomponent} component component to describe
+     * @param 
+     {SWACcomponent} component component to describe
      * @returns {HTMLElement} HTML Element with the description
      */
     explainFunctions(component) {
@@ -974,14 +975,15 @@ export default class ExplainComponents extends View {
 
 
             //TODO insert highlights with popup that descripes the highlighted element
-        });
+        }
+        );
     }
 
     /**
      * Explains the styles this component offers
      * 
      * @param {SWACComponent} component Component to explain
-     * @returns {Element|this.explainTplRequirements.reqDiv}
+     * @returns {Element | this.explainTplRequirements.reqDiv}
      */
     explainStyles(component) {
         let stylesDiv = document.createElement('div');
@@ -1040,9 +1042,9 @@ export default class ExplainComponents extends View {
      * @param {SWACComponent} component Component where plugins should be explained from
      */
     explainPlugins(component) {
-        Msg.flow('ExplainComponents','explainPlugins()',this.requestor);
+        Msg.flow('ExplainComponents', 'explainPlugins()', this.requestor);
         let pldocElem = this.requestor.querySelector('.swac_explaincomponents_plugins');
-        if(!component.options.plugins) {
+        if (!component.options.plugins) {
             pldocElem.innerHTML = SWAC.lang.dict.ExplainComponents.pluginsNone;
             return;
         }
@@ -1052,7 +1054,7 @@ export default class ExplainComponents extends View {
             pldocNElem.classList.remove('swac_dontdisplay');
             pldocElem.parentElement.appendChild(pldocNElem);
             pldocNElem.querySelector('.swac_plugin_name').innerHTML = SWAC.lang.dict.ExplainComponents.plugins + ': ' + pluginname;
-            
+
             let thisRef = this;
             // Load component script
             import(SWAC.config.swac_root + 'components/' + component.name + '/plugins/' + curPlugin.id + '/' + curPlugin.id + 'SPL.js?vers=' + SWAC.desc.version)
@@ -1064,7 +1066,7 @@ export default class ExplainComponents extends View {
                             pldocNElem.querySelector('.swac_plugin_desc').innerHTML = explObj.desc.text;
                             // Explain options
                             let optDivTpl = pldocNElem.querySelector('.swac_repeatForOption');
-                            thisRef.explainOptions(explObj,optDivTpl);
+                            thisRef.explainOptions(explObj, optDivTpl);
                         }
                     });
         }
@@ -1104,7 +1106,8 @@ export default class ExplainComponents extends View {
                 }
             }
             resolve();
-        });
+        }
+        );
     }
 
     /**
