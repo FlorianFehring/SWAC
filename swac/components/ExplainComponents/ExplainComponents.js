@@ -760,7 +760,7 @@ export default class ExplainComponents extends View {
                 if (deElem) {
                     let ndeElem = deElem.cloneNode(true);
                     ndeElem.classList.remove('swac_explain_forDocErr');
-                    ndeElem.innerHTML = 'Option >' + curOption + '< is not documented.';
+                    ndeElem.innerHTML = 'Option >' + curOption + '< is not documented in >'+component.name+'<.';
                     deElem.parentElement.appendChild(ndeElem);
                 }
             }
