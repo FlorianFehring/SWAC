@@ -30,8 +30,8 @@ export default class Navigation extends View {
             desc: 'Simple sitemap generated from the navigation data.'
         };
         this.desc.templates[3] = {
-            name: 'webPush',
-            style: 'webPush',
+            name: 'nav_webPush',
+            style: 'nav_webPush',
             desc: 'Display for webPush application.'
         };
         this.desc.styles[0] = {

@@ -23,8 +23,14 @@ export default class Present extends View {
             name: 'table_for_all_datasets',
             desc: 'Creates a table which displays all datasets.'
         };
-        this.desc.templates[2] = {
-            name: 'webPush',
+        this.desc.templates[3] = {
+            name: 'present_webPush_grid',
+            style: 'present_webPush',
+            desc: 'Display for webPush application.'
+        };
+        this.desc.templates[4] = {
+            name: 'present_webPush_list',
+            style: 'present_webPush',
             desc: 'Display for webPush application.'
         };
 
