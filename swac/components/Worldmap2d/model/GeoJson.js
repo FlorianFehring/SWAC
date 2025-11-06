@@ -128,7 +128,12 @@ export default class GeoJson extends MapModel {
             // Get datadescription component
             let datadescComp = null;
             if (thisRef.options.datadescription) {
-                datadescComp = document.querySelector(thisRef.options.datadescription).swac_comp;
+                let ddeElem = document.querySelector(thisRef.options.datadescription);
+                if (!ddeElem) {
+                    Msg.warn('GeoJson', 'Could not find datadescription component with selector >' + thisRef.options.datadescription + '< model will be colored with default values.');
+                } else {
+                    datadescComp = ddeElem.swac_comp;
+                }
             } else {
                 Msg.warn('GeoJson', 'There is no description component bound and no visoptions set. Model will be colored with default values.');
             }
