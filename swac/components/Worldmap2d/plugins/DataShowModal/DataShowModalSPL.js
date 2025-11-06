@@ -21,14 +21,6 @@ export default class DataShowModalSPL extends Plugin {
             desc: 'Button to delete the dataset shown in modal.'
         };
 
-        this.desc.opts[0] = {
-            name: "attrsShown",
-            desc: "List of attribute names that should be shown. Give the attribute names in the order, they should appear.",
-            type: 'string'
-        };
-        if (!options.attrsShown)
-            this.options.attrsShown = null;
-
         this.desc.opts[1] = {
             name: "attrsFormat",
             desc: "Map of swac_lang_format instructions for attribute names",
@@ -90,8 +82,8 @@ export default class DataShowModalSPL extends Plugin {
         }
         // Add new data
         let contElem = this.modal.querySelector('.worldmap2d_repeatForValue');
-        if (this.options.attrsShown) {
-            for (let curAttr of this.options.attrsShown) {
+        if (this.options.attributeOrder) {
+            for (let curAttr of this.options.attributeOrder) {
                 this.modifyModalContent(contElem, set, curAttr);
             }
         } else {
