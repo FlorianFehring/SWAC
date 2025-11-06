@@ -1,11 +1,12 @@
-.swac_webPush {
-    width: 220px;
+.nav {
+    width: 200px;
+    height: 100%;
     background-color: #f9f9f9;
     border-right: 1px solid #ddd;
     padding: 15px;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: auto;
     font-family: Arial, sans-serif;
     text-decoration: none;
 }
