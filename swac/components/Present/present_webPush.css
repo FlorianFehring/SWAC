@@ -1,5 +1,6 @@
 .present_main {
     overflow: scroll;
+    height: 100%;
 }
 
 .card {
