@@ -930,8 +930,11 @@ export default class ExplainComponents extends View {
         } else if (obj.constructor === Map) {
             string.push('new Map(');
             let fent = obj.entries().next().value;
-            if (fent)
+            if (fent) {
+                string.push('[');
                 string.push(this.convertToText(obj.entries().next().value));
+                string.push(']');
+            }
             string.push(')');
         } else if (typeof (obj) == "object" && (obj.join == undefined)) {
             string.push("{\n");
