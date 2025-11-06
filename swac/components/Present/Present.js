@@ -23,17 +23,21 @@ export default class Present extends View {
             name: 'table_for_all_datasets',
             desc: 'Creates a table which displays all datasets.'
         };
+        this.desc.templates[2] = {
+            name: 'webPush',
+            desc: 'Display for webPush application.'
+        };
 
         this.desc.reqPerSet[0] = {
             name: '*',
             desc: 'at least one value as an attribute (named whatever you want)'
         };
-        
+
         this.desc.optPerSet[0] = {
             name: 'id',
             desc: 'Datasets id. Required for ordering.'
         };
-        
+
         this.desc.optPerSet[1] = {
             name: 'parent',
             desc: 'Parent set id. Required for ordering.'
@@ -60,7 +64,7 @@ export default class Present extends View {
                 id: 'FilterSort',
                 active: false
             });
-    }
+        }
     }
 
     init() {
@@ -72,9 +76,9 @@ export default class Present extends View {
                     gridelem.setAttribute('uk-sortable', "handle: .uk-card");
                 } else {
                     Msg.warn('present', 'Option >arangeable> for >'
-                            + this.requestor.id + '< was set to true, but there is no '
-                            + 'element in the template that is able to build '
-                            + 'arangeable elements.', this.requestor);
+                        + this.requestor.id + '< was set to true, but there is no '
+                        + 'element in the template that is able to build '
+                        + 'arangeable elements.', this.requestor);
                 }
             }
             resolve();
@@ -83,10 +87,10 @@ export default class Present extends View {
 
     afterAddSet(set, repeateds) {
         // Get repeateds if they are unkown
-        if(!repeateds) {
-            repeateds = this.requestor.querySelectorAll('[swac_setid="' + set.id + '"][swac_fromName="'+set.swac_fromName+'"]');
+        if (!repeateds) {
+            repeateds = this.requestor.querySelectorAll('[swac_setid="' + set.id + '"][swac_fromName="' + set.swac_fromName + '"]');
         }
-        
+
         super.afterAddSet(set, repeateds);
         // Check for missing table cells on table template
         if (this.requestor.templateName.includes('table') && repeateds) {
@@ -103,7 +107,7 @@ export default class Present extends View {
                                 repAttrElem.classList.remove('swac_repeatForValue');
                                 repAttrElem.classList.add('swac_repeatedForValue');
                                 repAttrElem.innerHTML = '';
-                                if(repAttrElem) {
+                                if (repAttrElem) {
                                     // Add cell behind last cell
                                     lastAttrElem.after(repAttrElem);
                                 } else {

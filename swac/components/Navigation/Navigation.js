@@ -32,7 +32,7 @@ export default class Navigation extends View {
         this.desc.templates[3] = {
             name: 'webPush',
             style: 'webPush',
-            desc: 'Simple sitemap generated from the navigation data.'
+            desc: 'Display for webPush application.'
         };
         this.desc.styles[0] = {
             selc: ".swac_navigation_head",
