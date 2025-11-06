@@ -29,6 +29,11 @@ export default class Navigation extends View {
             style: 'sitemap',
             desc: 'Simple sitemap generated from the navigation data.'
         };
+        this.desc.templates[3] = {
+            name: 'webPush',
+            style: 'webPush',
+            desc: 'Simple sitemap generated from the navigation data.'
+        };
         this.desc.styles[0] = {
             selc: ".swac_navigation_head",
             desc: "Makes the navigation a head navigation that stays sticky in its position on scrolling."
@@ -272,7 +277,7 @@ export default class Navigation extends View {
         // Create display element
         let sitemapCodeElem = document.createElement('div');
         sitemapCodeElem.innerHTML = this.encode(sitemapCode);
-//        this.requestor.appendChild(sitemapCodeElem);
+        //        this.requestor.appendChild(sitemapCodeElem);
         UIkit.modal.alert(sitemapCodeElem)
     }
 
