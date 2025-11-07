@@ -3,6 +3,7 @@ import SWAC from "./swac.js"
 export default class WebPush {
 
     static host = window.location.host;
+    static url = `https://${WebPush.host}/WebPush/smarttemplate/push`;
 
     async subscribe() {
         if (SWAC.config.progressive.supportpush) {
@@ -16,7 +17,7 @@ export default class WebPush {
             var key = subscription.getKey ? subscription.getKey('p256dh') : '';
             var auth = subscription.getKey ? subscription.getKey('auth') : '';
 
-            return await fetch(`https://${WebPush.host}/WebPush/smarttemplate/push/subscribe`, {
+            return await fetch(`${WebPush.url}/subscribe`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -29,7 +30,7 @@ export default class WebPush {
     }
 
     async getKey() {
-        return await fetch(`https://${WebPush.host}/WebPush/smarttemplate/push/key`, {
+        return await fetch(`${WebPush.url}/key`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         }).then(response => response.json()).then(data => data.key);
@@ -37,7 +38,7 @@ export default class WebPush {
     }
 
     async send() {
-        await fetch(`https://${WebPush.host}/WebPush/smarttemplate/push/send`, {
+        await fetch(`${WebPush.url}/send`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
