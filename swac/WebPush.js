@@ -2,6 +2,8 @@ import SWAC from "./swac.js"
 
 export default class WebPush {
 
+    static host = window.location.host;
+
     async subscribe() {
         if (SWAC.config.progressive.supportpush) {
             const subscription = await navigator.serviceWorker.ready.then(async registration =>
@@ -14,7 +16,7 @@ export default class WebPush {
             var key = subscription.getKey ? subscription.getKey('p256dh') : '';
             var auth = subscription.getKey ? subscription.getKey('auth') : '';
 
-            return await fetch('https://localhost:8181/WebPush/smarttemplate/push/subscribe', {
+            return await fetch(`https://${WebPush.host}/WebPush/smarttemplate/push/subscribe`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -27,7 +29,7 @@ export default class WebPush {
     }
 
     async getKey() {
-        return await fetch('https://localhost:8181/WebPush/smarttemplate/push/key', {
+        return await fetch(`https://${WebPush.host}/WebPush/smarttemplate/push/key`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' }
         }).then(response => response.json()).then(data => data.key);
@@ -35,7 +37,7 @@ export default class WebPush {
     }
 
     async send() {
-        await fetch('https://localhost:8181/WebPush/smarttemplate/push/send', {
+        await fetch(`https://${WebPush.host}/WebPush/smarttemplate/push/send`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
