@@ -328,7 +328,6 @@ export default class Worldmap2d extends View {
         };
         if (typeof options.clusterMarkers === 'undefined' || options.clusterMarkers === "false")
             this.options.clusterMarkers = false;
-
         this.desc.opts[12] = {
             name: "modelFiles",
             desc: "List of files with geo informations. Each entry is an object with url, layername and filetype (shapefile / geojson)",
@@ -340,24 +339,6 @@ export default class Worldmap2d extends View {
         };
         if (!options.modelFiles)
             this.options.modelFiles = [];
-
-        this.desc.opts[13] = {
-            name: "idGeolocationComponent",
-            example: "geolocation",
-            desc: "(optional) If provided, the map will search for a geolocation component with the given id, and register itself as a listener for position updates."
-        };
-        if (typeof options.idGeolocationComponent === 'undefined')
-            this.options.idGeolocationComponent = null;
-
-        this.desc.opts[14] = {
-            name: "latchOnLocation",
-            example: "false",
-            desc: "If true, the map will latch on the user's location, i.e. the map will move with the user's location."
-        };
-        if (typeof options.latchOnLocation === 'undefined') {
-            //when no option provided, enable latchOnLocation by default if idGeolocationComponent is provided
-            this.options.latchOnLocation = (typeof this.options.idGeolocationComponent === 'string' && this.options.idGeolocationComponent.length > 0);
-        }
 
         this.desc.opts[15] = {
             name: "customIconOptions",
@@ -1251,10 +1232,8 @@ export default class Worldmap2d extends View {
             longitude: position.coords.longitude,
             timestamp: position.timestamp
         };
-        if (this.options.latchOnLocation) {
-            this.viewer.panTo({lat: position.coords.latitude, lng: position.coords.longitude});
-        }
-
+        // Zoom map to users location
+        this.viewer.panTo({lat: position.coords.latitude, lng: position.coords.longitude});
 
         if (!this.options.userIcon) {
             const degree = position.coords.heading ? position.coords.heading : 0;
@@ -1294,7 +1273,6 @@ export default class Worldmap2d extends View {
         const latlng = L.latLng(this.lastReceivedPosition.latitude, this.lastReceivedPosition.longitude)
         this.userLocationMarker = L.marker(latlng, {icon: this.userIcon, zIndexOffset: 1000}).addTo(this.viewer)
         this.userLocationMarker.feature = feature;
-
     }
 
     /*
