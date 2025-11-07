@@ -470,7 +470,6 @@ export default class Worldmap2d extends View {
             this.options.plugins.set('SearchPlaces', {id: 'SearchPlaces', active: false});
             this.options.plugins.set('Timeline', {id: 'Timeline', active: false});
             this.options.plugins.set('ToggleClickInteractionButton', {id: 'ToggleClickInteractionButton', active: false});
-            this.options.plugins.set('ToggleLatchOnLocation', {id: 'ToggleLatchOnLocation', active: false});
         }
 
         this.desc.funcs[0] = {
