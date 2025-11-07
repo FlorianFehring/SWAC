@@ -961,7 +961,7 @@ export default class Worldmap2d extends View {
                     .replace('{lon-left}', (southWest_lon) ? southWest_lon : bounds._southWest.lng)
                     .replace('{lat-bottom}', (southWest_lat) ? southWest_lat : bounds._southWest.lat)
                     .replace('{lon-right}', (northEast_lon) ? northEast_lon : bounds._northEast.lng)
-                    .replace('{lat-top}', (southWest_lat) ? southWest_lat : bounds._northEast.lat)
+                    .replace('{lat-top}', (northEast_lat) ? northEast_lat : bounds._northEast.lat)
                     .replace('{zoom}', this.viewer.getZoom());
         } else if (uModelFile.loaded) {
             // No need to reload
@@ -1049,6 +1049,8 @@ export default class Worldmap2d extends View {
      */
     async loadDatasourcesFromOptions() {
         for (let [key, value] of this.options.datasources) {
+            if(!value)
+                continue;
             await window.swac.Model.load(value.datacapsule, this)
         }
     }
