@@ -24,16 +24,20 @@ export default class Present extends View {
             desc: 'Creates a table which displays all datasets.'
         };
         this.desc.templates[3] = {
-            name: 'present_webPush_grid',
+            name: 'present_webPush_notifications',
             style: 'present_webPush',
             desc: 'Display for webPush application.'
         };
         this.desc.templates[4] = {
-            name: 'present_webPush_list',
+            name: 'present_webPush_history',
             style: 'present_webPush',
             desc: 'Display for webPush application.'
         };
-
+        this.desc.templates[5] = {
+            name: 'present_webPush_triggers',
+            style: 'present_webPush',
+            desc: 'Display for webPush application.'
+        };
         this.desc.reqPerSet[0] = {
             name: '*',
             desc: 'at least one value as an attribute (named whatever you want)'
