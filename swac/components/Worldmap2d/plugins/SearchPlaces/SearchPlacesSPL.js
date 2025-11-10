@@ -17,6 +17,14 @@ export default class SearchPlacesSPL extends Plugin {
             desc: 'Default template for SearchPlaces',
         };
         
+        this.desc.opts[1] = {
+            name: "searchurl",
+            desc: "URL where to send the search request. Be aware that most APIs do not allow CORS requests. So you have to use a proxy.",
+            example: 'https://photon.komoot.io/api/'
+        }
+        if (!options.searchurl)
+            this.options.searchurl = 'http://localhost:8080/SmartData/smartdata/proxy/get?url=https://nominatim.openstreetmap.org/search'; 
+        
         // Attributes for internal usage
         this.searchplaces = null;
         this.modalOpenButton = null;
@@ -112,8 +120,9 @@ export default class SearchPlacesSPL extends Plugin {
         return new Promise((resolve, reject) => {
             searchValue = encodeURIComponent(searchValue);
             let Model = window.swac.Model;
+    
             let dataCapsule = {
-                fromName: "https://nominatim.openstreetmap.org/search",
+                fromName: this.options.searchurl,
                 fromWheres: {
                     q: searchValue,
                     format: 'geojson',
