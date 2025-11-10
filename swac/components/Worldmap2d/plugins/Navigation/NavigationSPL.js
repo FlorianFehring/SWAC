@@ -31,13 +31,22 @@ export default class NavigationSPL extends Plugin {
         };
         if (typeof options.createRouteFromData !== 'boolean')
             this.options.createRouteFromData = false;
-        
+
         this.desc.opts[1] = {
             name: "minDistanceBetweenTwoPoints",
             desc: "Minimum distance between two points to create a route. Distance is in meters."
         }
         if (!options.minDistanceBetweenTwoPoints)
-            this.options.minDistanceBetweenTwoPoints = 50; 
+            this.options.minDistanceBetweenTwoPoints = 50;
+
+        this.desc.opts[2] = {
+            name: "searchurl",
+            desc: "URL where to send the search request. Be aware that most APIs do not allow CORS requests. So you have to use a proxy.",
+            example: 'https://photon.komoot.io/api/'
+        }
+        if (!options.searchurl)
+            this.options.searchurl = 'http://localhost:8080/SmartData/smartdata/proxy/get?url=https://nominatim.openstreetmap.org/search';
+
 
         // Attributes for internal usage
         this.map = null;
@@ -81,15 +90,15 @@ export default class NavigationSPL extends Plugin {
                     return;
                 }
                 this.name2Coordinates(e.target.value)
-                .then((feature) => {
-                    this.navigationobj.start = {
-                        lat: feature.geometry.coordinates[1],
-                        lng: feature.geometry.coordinates[0]
-                    }
-                })
-                .catch((err) => {
-                    this.navigationobj.start = null;
-                });
+                        .then((feature) => {
+                            this.navigationobj.start = {
+                                lat: feature.geometry.coordinates[1],
+                                lng: feature.geometry.coordinates[0]
+                            }
+                        })
+                        .catch((err) => {
+                            this.navigationobj.start = null;
+                        });
             });
 
             this.destinationInput.addEventListener('change', (e) => {
@@ -98,15 +107,15 @@ export default class NavigationSPL extends Plugin {
                     return;
                 }
                 this.name2Coordinates(e.target.value)
-                .then((feature) => {
-                    this.navigationobj.destination = {
-                        lat: feature.geometry.coordinates[1],
-                        lng: feature.geometry.coordinates[0]
-                    }
-                })
-                .catch((err) => {
-                    this.navigationobj.destination = null;
-                });
+                        .then((feature) => {
+                            this.navigationobj.destination = {
+                                lat: feature.geometry.coordinates[1],
+                                lng: feature.geometry.coordinates[0]
+                            }
+                        })
+                        .catch((err) => {
+                            this.navigationobj.destination = null;
+                        });
             });
 
             userLocationButton.addEventListener('click', (e) => {
@@ -138,7 +147,7 @@ export default class NavigationSPL extends Plugin {
             })
 
             startRoutingButton.addEventListener('click', (e) => {
-                this.startNavigation(); 
+                this.startNavigation();
             });
             endRoutingButton.addEventListener('click', (e) => {
                 this.stopNavigation();
@@ -170,21 +179,21 @@ export default class NavigationSPL extends Plugin {
                         this.navigationobj.start = e.latlng;
                         this.startInput.value = e.latlng.lat + ', ' + e.latlng.lat;
                         this.coordinates2Name(e.latlng.lat, e.latlng.lng)
-                        .then((name) => this.startInput.value = name);
+                                .then((name) => this.startInput.value = name);
                         return;
                     }
                     if (!this.navigationobj.start) {
                         this.navigationobj.start = e.latlng;
                         this.startInput.value = e.latlng.lat + ', ' + e.latlng.lat;
                         this.coordinates2Name(e.latlng.lat, e.latlng.lng)
-                        .then((name) => this.startInput.value = name);
+                                .then((name) => this.startInput.value = name);
                         return;
                     }
                     if (!this.navigationobj.destination) {
                         this.navigationobj.destination = e.latlng;
                         this.destinationInput.value = e.latlng.lat + ', ' + e.latlng.lat;
                         this.coordinates2Name(e.latlng.lat, e.latlng.lng)
-                        .then((name) => this.destinationInput.value = name);
+                                .then((name) => this.destinationInput.value = name);
                         return;
                     }
                 },
@@ -250,12 +259,10 @@ export default class NavigationSPL extends Plugin {
         this.overwriteLeafletEvents();
     }
 
-   
-
-     /**
+    /**
      * Starts the routing
      */
-     startNavigation() {
+    startNavigation() {
         if (!this.navigationobj.start || !this.navigationobj.destination || this.navigationobj.route) {
             return;
         }
@@ -280,25 +287,25 @@ export default class NavigationSPL extends Plugin {
             language: swac.lang.activeLang,
             createMarker: () => {
                 return null;
-            }   
+            }
         })
-        .on('routeselected', (e) => {
-            e.route.instructions.forEach((i) => {
-                const instruction = document.createElement('tr');
-                const td = document.createElement('td');
-                td.innerHTML = this.navigationobj.route.options.formatter.formatInstruction(i);
-                instruction.appendChild(td);
-                this.instructionsElem.appendChild(instruction);
-            })
-        })
-        .addTo(this.map);
+                .on('routeselected', (e) => {
+                    e.route.instructions.forEach((i) => {
+                        const instruction = document.createElement('tr');
+                        const td = document.createElement('td');
+                        td.innerHTML = this.navigationobj.route.options.formatter.formatInstruction(i);
+                        instruction.appendChild(td);
+                        this.instructionsElem.appendChild(instruction);
+                    })
+                })
+                .addTo(this.map);
 
         this.destinationIcon = L.marker(this.navigationobj.destination, {
             icon: L.divIcon({
                 html: '<div class="pulse"></div>',
                 className: 'css-icon',
                 iconSize: [22, 22],
-                iconAnchor: [15, 15], 
+                iconAnchor: [15, 15],
             }),
             zIndexOffset: 1000,
         }).addTo(this.map);
@@ -322,8 +329,6 @@ export default class NavigationSPL extends Plugin {
         }
         this.instructionsElem.innerHTML = "";
     }
-
-   
 
     /**
      * Overrides leaflet events to use maps clicks when navigation menu state is open
@@ -364,7 +369,7 @@ export default class NavigationSPL extends Plugin {
             searchValue = encodeURIComponent(searchValue);
             let Model = window.swac.Model;
             let dataCapsule = {
-                fromName: "https://nominatim.openstreetmap.org/search",
+                fromName: this.options.searchurl,
                 fromWheres: {
                     q: searchValue,
                     format: 'geojson',
@@ -501,14 +506,14 @@ export default class NavigationSPL extends Plugin {
      */
     calculateDistance(lat1, lon1, lat2, lon2) {
         function toRad(deg) {
-            return deg * (Math.PI/180)
+            return deg * (Math.PI / 180)
         }
 
         let R = 6371; // Radius of the earth in km
-        let dLat = toRad(lat2-lat1);
-        let dLon = toRad(lon2-lon1);
-        let a =  Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2);
-        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        let dLat = toRad(lat2 - lat1);
+        let dLon = toRad(lon2 - lon1);
+        let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         let d = R * c;
         return d;
     }
