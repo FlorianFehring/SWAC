@@ -443,7 +443,7 @@ export default class Worldmap2d extends View {
         if (!options.customMarkerTooltip) {
             this.options.customMarkerTooltip = new Map();
             this.options.customMarkerTooltip.set("default", {
-                content: '<b>{name}</b><br><img swac_hideOnEmpty="{icon}" src="{icon}" widht="200" height="100">',
+                content: '<b>{name}{title}</b><br><span class="displayval_name"></span><span class="displayval_value"></span><br><img swac_hideOnEmpty="{icon}" src="{icon}" widht="200" height="100">',
                 options: {direction: 'top', sticky: false, opacity: 0.8, offset: [0, -22]}});
         }
 
@@ -820,15 +820,17 @@ export default class Worldmap2d extends View {
 
             // Create marker
             marker = L.marker(latlng, markeropts);
-            // Create tooltip
-            let popopts = this.options.customMarkerTooltip.get(geoJSON.set.swac_fromName);
-            if (!popopts) {
-                popopts = this.options.customMarkerTooltip.get('default');
-            }
+            // Create tooltip when there is data to show
+            if (geoJSON.set.name || geoJSON.set.title || geoJSON.set.icon) {
+                let popopts = this.options.customMarkerTooltip.get(geoJSON.set.swac_fromName);
+                if (!popopts) {
+                    popopts = this.options.customMarkerTooltip.get('default');
+                }
 
-            let regex = /\{(.*?)\}/g
-            let content = popopts.content.replace(regex, (match, p1) => this.getDataValue(geoJSON.set, p1) !== null ? this.getDataValue(geoJSON.set, p1) : '');
-            marker.bindTooltip(content, popopts.options);
+                let regex = /\{(.*?)\}/g
+                let content = popopts.content.replace(regex, (match, p1) => this.getDataValue(geoJSON.set, p1) !== null ? this.getDataValue(geoJSON.set, p1) : '');
+                marker.bindTooltip(content, popopts.options);
+            }
         }
         // Add eventhandler and feature to marker and marker to map
         marker.on('click', this.map_click_evts.markerclick);
@@ -1049,7 +1051,7 @@ export default class Worldmap2d extends View {
      */
     async loadDatasourcesFromOptions() {
         for (let [key, value] of this.options.datasources) {
-            if(!value)
+            if (!value)
                 continue;
             await window.swac.Model.load(value.datacapsule, this)
         }
