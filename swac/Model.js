@@ -64,28 +64,28 @@ export default class Model {
                     dataRequest.fromWheres['filter'] = ecoFilter;
             }
             // Calculate request id
-            let requestId = dataRequest.fromName;
+            dataRequest.requestId = dataRequest.fromName;
             if (dataRequest.fromWheres) {
                 for (let curWhere in dataRequest.fromWheres) {
-                    requestId += curWhere + '=' + dataRequest.fromWheres[curWhere];
+                    dataRequest.requestId += curWhere + '=' + dataRequest.fromWheres[curWhere];
                 }
             }
 
             // Create datasource if not exists
             if (comp && !comp.data[dataRequest.fromName]) {
                 // Create WS for component and (inside WatchableSource) if needed for Model.store
-                new WatchableSource(dataRequest.fromName, comp);
+                new WatchableSource(dataRequest.fromName, comp, dataRequest.requestId);
             } else if (!comp) {
                 // Create WS if data is requested without component
-                new WatchableSource(dataRequest.fromName, Model);
+                new WatchableSource(dataRequest.fromName, Model, dataRequest.requestId);
             }
 
             // Check if data is allready loading
-            let loadProm = thisRef.requests.get(requestId);
+            let loadProm = thisRef.requests.get(dataRequest.requestId);
             let timeout = dataRequest.reloadInterval ? dataRequest.reloadInterval : 10000;
             if (!loadProm || loadProm.fromDate < Date.now() - timeout) {
                 loadProm = thisRef.getData(dataRequest, comp);
-                thisRef.requests.set(requestId, loadProm);
+                thisRef.requests.set(dataRequest.requestId, loadProm);
             }
             loadProm.then(function (data) {
                 resolve(data);
@@ -121,12 +121,12 @@ export default class Model {
             if (typeof gvar === 'object' && gvar !== window && !gvar.nodeName) {
                 Msg.info('model', 'Useing data from global variable for >' + dataRequest.fromName + '<', comp);
                 dataCapsule = thisRef.convertData({data: gvar, fromName: dataRequest.fromName}, dataRequest, comp);
-                if(comp)
+                if (comp)
                     comp.lastloaded = dataCapsule.length - 1;
                 resolve(dataCapsule);
             } else {
                 let fetchUrl = dataRequest.fromName;
-                
+
                 // Get data from remote (fetchGet uses data from first datasource that delivers data)
                 Remote.fetchGet(fetchUrl, dataRequest.fromWheres, true).then(
                         function (dataCapsule) {
@@ -248,9 +248,9 @@ export default class Model {
                 newLoaded++;
             }
             // If set is included in store, use old set instead, so that observers remain on the set
-            if (this.store[dataRequest.fromName]?.hasSet(curSet[idAttr])) {
+            if (this.store[dataRequest.requestId]?.hasSet(curSet[idAttr])) {
                 let newSet = curSet;
-                curSet = this.store[dataRequest.fromName].getSet(curSet[idAttr]);
+                curSet = this.store[dataRequest.requestId].getSet(curSet[idAttr]);
                 // Transfer added information to cached object
                 for (let curAttr in newSet) {
                     if (!curSet[curAttr]) {
@@ -355,7 +355,13 @@ export default class Model {
             transdata[curSet[idAttr]] = wset;
 
             // Add Data to source
-            Model.store[curSet.swac_fromName].addSet(wset);
+            //Model.store[curSet.swac_fromName].addSet(wset);
+            if (!Model.store[dataRequest.requestId]) {
+                Msg.error('model', 'Model.store for >' + dataRequest.requestId + '< is missing. Autofix by createing one.');
+                Model.store[dataRequest.requestId] = {};
+                Model.store[dataRequest.requestId] = new WatchableSource(dataRequest.fromName, Model);
+            }
+            Model.store[dataRequest.requestId].addSet(wset);
         }
         return transdata;
     }
