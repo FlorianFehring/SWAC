@@ -14,6 +14,14 @@ export default class Form extends View {
         this.desc.templates[0] = {
             name: 'default',
             desc: 'Default template.'
+        };        
+        this.desc.templates[1] = {
+            name: 'form_webPush_notifications',
+            desc: 'Form to create new notification'
+        };
+        this.desc.templates[2] = {
+            name: 'form_webPush_trigger',
+            desc: 'Form to create new trigger'
         };
         this.desc.reqPerTpl[0] = {
             selc: 'form',
