@@ -1,0 +1,23 @@
+<h3>New Trigger</h3>
+<form id="trigger_form" class="uk-form-stacked uk-margin-large-top" >
+    <div class="uk-margin">
+        <div class="uk-margin">
+            <label class="uk-form-label" for="channels">Type</label>
+            <select class="uk-select" id="select_actions" required>                   
+                <option value="time">Time</option>
+                <option value="event">Event</option>
+                <option value="once">Once</option>
+            </select>
+        </div>
+    </div>
+    <div class="uk-margin">
+        <label class="uk-form-label">Select Config</label>
+        <div uk-form-custom="target: true">
+            <input type="file" id="file-upload" accept=".json,application/json" required>
+            <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+        </div>
+    </div>
+    <div class="uk-margin uk-flex uk-flex-center">
+        <button class="uk-button uk-button-primary " type="submit">Create Trigger</button>
+    </div>
+</form>
