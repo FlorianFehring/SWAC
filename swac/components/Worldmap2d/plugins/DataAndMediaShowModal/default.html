@@ -1,54 +1,59 @@
-<div id="swac_worldmap2d_mappinmondal_modal" class="uk-modal-full" uk-modal>
+<div id="swac_worldmap2d_dataandmediashow_modal" class="uk-modal-full" uk-modal>
     <div class="uk-modal-dialog" uk-overflow-auto>
         <button class="uk-modal-close-full uk-close-large" type="button" uk-close></button>
         <div class="uk-modal-header">
             <h2 class="uk-modal-title"></h2>
         </div>
-        <div class="swac_worldmap2d_dataandmediashowmodal_iframe uk-modal-body">
+        <div class="swac_worldmap2d_dataandmediashow_body uk-modal-body">
             <ul uk-tab>
                 <li class="set_info"><a href="#" swac_lang="Worldmap2d_DataAndMediaShowModal.tab_info">Info</a></li>
-                <li class="set_metadata"><a href="#" swac_lang="Worldmap2d_DataAndMediaShowModal.tab_meta">Metadata</a></li>
-                <li class="set_data"><a href="#" swac_lang="Worldmap2d_DataAndMediaShowModal.tab_data">Data</a></li>
+                <li class="set_label swac_dontdisplay"><a href="#" swac_lang="Worldmap2d_DataAndMediaShowModal.tab_label">Label</a></li>
                 <li class="set_media"><a href="#" swac_lang="Worldmap2d_DataAndMediaShowModal.tab_media">Media</a></li>
             </ul>
 
-            <div class="swac_worldmap2d_dataandmediashowmodal_datatabs uk-switcher">
+            <div class="swac_worldmap2d_dataandmediashow_tabs uk-switcher">
                 <div>
                     <div class="uk-grid-column-small uk-grid-row-large uk-child-width-1-3@s uk-text-center" uk-grid>
-                        <div>
-                            <div class="uk-card uk-card-default uk-card-body">
-                                <label class="uk-form-label" for="form-stacked-text" swac_lang="Worldmap2d_DataAndMediaShowModal.loc_desc">Location description</label>
-                                <textarea class="swac_worldmap2d_dataandmediashowmodal_locdesc uk-textarea" rows="3" placeholder="Worldmap2d_DataAndMediaShowModal.loc_desc" aria-label="Textarea"></textarea>
-                                <label class="uk-form-label" for="form-stacked-text" swac_lang="Worldmap2d_DataAndMediaShowModal.oo_desc">Object description</label>
-                                <textarea class="swac_worldmap2d_dataandmediashowmodal_oodesc uk-textarea" rows="3" placeholder="Worldmap2d_DataAndMediaShowModal.oo_desc" aria-label="Textarea"></textarea>
-                            </div>
+                        <div class="uk-card uk-card-default uk-card-body">
+                            <textarea id="stdesc" class="swac_worldmap2d_dataandmediashow_setdesc uk-textarea" rows="3" placeholder="Worldmap2d_DataAndMediaShowModal.set_desc" aria-label="Textarea"></textarea>
+                            <textarea id="stdesc" class="swac_worldmap2d_dataandmediashow_subdesc uk-textarea" rows="3" placeholder="Worldmap2d_DataAndMediaShowModal.sub_desc" aria-label="Textarea"></textarea>
+                            <label class="uk-form-label" for="swac_worldmap2d_dataandmediashow_lat" swac_lang="Worldmap2d_DataAndMediaShowModal.gps_lat">Latitude</label>
+                            <input id="swac_worldmap2d_dataandmediashow_lat" class="swac_worldmap2d_dataandmediashow_lat uk-input uk-form-small uk-form-width-small" type="text" placeholder="52.586475" aria-label="Input">
+                            <label class="uk-form-label" for="swac_worldmap2d_dataandmediashow_lon" swac_lang="Worldmap2d_DataAndMediaShowModal.gps_lon">Longitude</label>
+                            <input id="swac_worldmap2d_dataandmediashow_lon" class="swac_worldmap2d_dataandmediashow_lon uk-input uk-form-small uk-form-width-small" type="text" placeholder="8.9258466" aria-label="Input">
+                            <button class="swac_worldmap2d_dataandmediashow_upd uk-button uk-form-small" swac_lang="Worldmap2d_DataAndMediaShowModal.gps_update">Set to current position</button>
+                            <button class="swac_worldmap2d_dataandmediashow_sav uk-button uk-form-small" swac_lang="Worldmap2d_DataAndMediaShowModal.gps_save">Save position</button>
+
                         </div>
-                        <div>
-                            <div class="uk-card uk-card-default uk-card-body">
-                                <label class="uk-form-label" for="form-stacked-text" swac_lang="Worldmap2d_DataAndMediaShowModal.oo_label">Label</label>
-                                <div id="dataandmediashowmodal_labels" swa="Labeling FROM none"></div>
-                            </div>
+                        <div class="uk-card uk-card-default uk-card-body">
+
                         </div>
-                        <div>
-                            <div class="uk-card uk-card-default uk-card-body">
-                                <label class="uk-form-label" for="form-stacked-text" swac_lang="Worldmap2d_DataAndMediaShowModal.gps_lat">Latitude</label>
-                                <input class="swac_worldmap2d_dataandmediashowmodal_lat uk-input" type="text" placeholder="52.586475" aria-label="Input">
-                                <label class="uk-form-label" for="form-stacked-text" swac_lang="Worldmap2d_DataAndMediaShowModal.gps_lon">Longitude</label>
-                                <input class="swac_worldmap2d_dataandmediashowmodal_lon uk-input" type="text" placeholder="8.9258466" aria-label="Input">
-                                <button class="swac_worldmap2d_dataandmediashowmodal_upd uk-button uk-button-default" swac_lang="Worldmap2d_DataAndMediaShowModal.gps_update">Set to current position</button>
-                                <button class="swac_worldmap2d_dataandmediashowmodal_sav uk-button uk-button-default" swac_lang="Worldmap2d_DataAndMediaShowModal.gps_save">Save position</button>
-                            </div>
+                        <div class="swac_worldmap2d_dataandmediashow_maindata uk-card uk-card-default uk-card-body">
+                            <table class="uk-table uk-table-divider uk-table-striped uk-table-small">
+                                <caption swac_lang="Worldmap2d_DataAndMediaShowModal.maintab_datatable">Datatable</caption>
+                                <thead>
+                                    <tr>
+                                        <th swac_lang="Worldmap2d_DataAndMediaShowModal.maintab_data_key">Key</th>
+                                        <th swac_lang="Worldmap2d_DataAndMediaShowModal.maintab_data_value">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="swac_worldmap2d_dataandmediashow_repeatForMainValue swac_dontdisplay">
+                                        <td class="key"></td>
+                                        <td class="value"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
-                <div>
-                    <iframe class="swac_worldmap2d_dataandmediashowmodal_meta_iframe" style="width: 100%; height: 500px"></iframe>
+                <!-- Tab for labeling -->
+                <div class="tab_label">
+
                 </div>
-                <div>
-                    <iframe class="swac_worldmap2d_dataandmediashowmodal_data_iframe" style="width: 100%; height: 500px"></iframe>
-                </div>
-                <div>
-                    <iframe class="swac_worldmap2d_dataandmediashowmodal_media_iframe" style="width: 100%; height: 500px"></iframe>
+                <!-- Tab for media -->
+                <div class="tab_media">
+
                 </div>
             </div>
         </div>
