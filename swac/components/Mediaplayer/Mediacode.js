@@ -157,7 +157,7 @@ export default class Mediacode {
     createMediaSource(mediaElem) {
         let sourceElem = document.createElement('source');
         if(!this.set[this.pathattr]) {
-            Msg.error('mediacode','Source in attribute >' + this.pathattr + 'is missing.',this.requestor);
+            Msg.error('mediacode','Source in attribute >' + this.pathattr + '< is missing.',this.requestor);
         }
         sourceElem.src = this.basepath + this.set[this.pathattr];
         sourceElem.type = this.set[this.typeattr];
