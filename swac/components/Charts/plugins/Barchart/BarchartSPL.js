@@ -259,7 +259,7 @@ export default class BarchartSPL extends Plugin {
     afterRemoveSet(set) {
         // Get component where this plugin instance belongs to
         let comp = this.requestor.parent.swac_comp;
-        let rsName = comp.getReadableSourceName(set.swa_fromName);
+        let rsName = comp.getReadableSourceName(set.swac_fromName);
         // Look at each source (datasets array entry in chart.js)
         for (let curSets of this.chart.data.datasets) {
             for (let curYAttr of comp.options.yAxisAttrNames) {
