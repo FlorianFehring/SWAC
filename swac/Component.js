@@ -999,6 +999,39 @@ DEFINTION of SET:\n\
         // Set checking is disabled
         if (this.options.checkSets === false)
             return true;
+        // Check if set matches the requirements of the component
+        function getValueByPath(obj, path) {
+            try {
+                return path
+                        .replace(/\[(\w+)\]/g, '.$1') // wandelt [0] in .0 um
+                        .replace(/^\./, '')           // entfernt führenden Punkt
+                        .split('.')
+                        .reduce((acc, part) => acc && acc[part], obj);
+            } catch (e) {
+                return undefined;
+            }
+        }
+
+        let someMissing = false;
+        for (let curReqAttr of this.desc.reqPerSet) {
+            if (curReqAttr.name !== '*') {
+                const value = getValueByPath(set, curReqAttr.name);
+                if (value === undefined) {
+                    someMissing = true;
+                    Msg.error(
+                            'Component',
+                            'ERROR required attribute >' + curReqAttr.name + '< is missing in set >' +
+                            set.swac_fromName + '[' + set.id + ']< Add attribute or use components option: attributeRenames: new Map([["your_attribute", "' + curReqAttr.name + '"]])',
+                            this.requestor
+                            );
+                }
+            }
+        }
+        if (someMissing) {
+            //TODO activate strict checking
+            //return false;
+        }
+
         // update filter for ecoMode
         if (this.ecoMode.active)
             this.requestor.fromWheres.filter = this.requestor.fromWheres.filter.replace('ecomode,eq,false', 'ecomode,eq,true');
