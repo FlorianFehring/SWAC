@@ -953,11 +953,14 @@ DEFINTION of SET:\n\
         // Add automatic set.id if there is no one
         if (typeof set.id === 'undefined') {
             // Get maximum id in sets
-            const maxId = Math.max(
+            let maxId = Math.max(
                     ...this.data[fromName].sets
                     .filter(item => item && typeof item.id === 'number' && !isNaN(item.id))
                     .map(item => item.id)
-                    ) +1;
+                    ) + 1;
+            if (!Number.isFinite(maxId)) {
+                maxId = 1;
+            }
             set.id = maxId;
             set.swac_isnew = true;
         }
