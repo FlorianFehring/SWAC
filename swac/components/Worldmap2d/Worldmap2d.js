@@ -205,24 +205,24 @@ export default class Worldmap2d extends View {
             desc: "Id that identifies the dataset.",
             type: "long"
         };
-        this.desc.reqPerSet[1] = {
+        
+        this.desc.optPerSet[0] = {
             name: "name",
             alt: "title",
             desc: "Name or title of the selection.",
             type: "String"
         };
-
-        this.desc.optPerSet[0] = {
+        this.desc.optPerSet[1] = {
             name: 'geoJSON',
             desc: 'GeoJSON formatted JSON to display on the map',
             type: 'application/geojson'
         };
-        this.desc.optPerSet[1] = {
+        this.desc.optPerSet[2] = {
             name: 'lat',
             desc: 'latitude for point. Attribute name is configurable over latAttr option.',
             type: 'String'
         };
-        this.desc.optPerSet[2] = {
+        this.desc.optPerSet[3] = {
             name: 'lon',
             desc: 'longitude for point. Attribute name is configurable over lonAttr option.',
             type: 'String'
