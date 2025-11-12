@@ -51,22 +51,27 @@ export default class Mediapreview extends View {
             desc: 'Mimetype of the media.'
         };
         this.desc.reqPerSet[2] = {
+            name: 'path',
+            desc: 'Path / URL to file or base64 encoded dataurl content.'
+        };
+        
+        this.desc.optPerSet[0] = {
             name: 'preview',
             desc: 'URL to preview file or base64 encoded dataurl preview content.'
         };
-        this.desc.optPerSet[0] = {
+        this.desc.optPerSet[1] = {
             name: 'preview_mimetype',
             desc: 'Mimetype of the preview media. Only needed if it is other than the main mimetype.'
         };
-        this.desc.optPerSet[1] = {
+        this.desc.optPerSet[2] = {
             name: 'title',
             desc: 'Media title'
         };
-        this.desc.optPerSet[2] = {
+        this.desc.optPerSet[3] = {
             name: 'name',
             desc: 'Media name'
         };
-        this.desc.optPerSet[3] = {
+        this.desc.optPerSet[4] = {
             name: 'link',
             desc: 'Link to follow on click on media file.'
         };
