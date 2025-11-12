@@ -939,7 +939,6 @@ DEFINTION of SET:\n\
             Msg.error('Component', 'Given array as set. Use only single sets on addSet()', this.requestor);
             return;
         }
-        console.log('TEST addSet');
         // Use watchablesource so that component gets informed about new datasets
         if (!this.data[fromName]) {
             this.data[fromName] = new WatchableSource(fromName, this);
@@ -953,7 +952,13 @@ DEFINTION of SET:\n\
 
         // Add automatic set.id if there is no one
         if (typeof set.id === 'undefined') {
-            set.id = this.data[fromName].count();
+            // Get maximum id in sets
+            const maxId = Math.max(
+                    ...this.data[fromName].sets
+                    .filter(item => item && typeof item.id === 'number' && !isNaN(item.id))
+                    .map(item => item.id)
+                    ) +1;
+            set.id = maxId;
             set.swac_isnew = true;
         }
 
