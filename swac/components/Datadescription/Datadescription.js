@@ -26,7 +26,7 @@ export default class Datadescription extends View {
             style: 'datadescription',
             desc: 'Shows the legend of the data'
         };
-        
+
         this.desc.reqPerTpl[0] = {
             selc: '.swac_repeatForLegend',
             desc: 'Element that is repeated for each legend.'
@@ -129,7 +129,9 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         this.desc.opts[2] = {
             name: 'onLegendEntryClick',
             desc: 'Function to execute, if the user clicks on a legend entry',
-            example: function(evt) { console.log('User clicked on legend entry.')}
+            example: function (evt) {
+                console.log('User clicked on legend entry.')
+            }
         };
         if (!options.onLegendEntryClick)
             this.options.onLegendEntryClick = null;
@@ -146,15 +148,15 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
             desc: 'Name of the source the description is used from.',
             example: 'mysource'
         };
-        if(!options.activeSource)
+        if (!options.activeSource)
             this.options.activeSource = null;
-        
+
         this.desc.opts[5] = {
             name: 'activeSet',
             desc: 'Id of the set the description is used from.',
             example: 1
         };
-        if(!options.activeSet)
+        if (!options.activeSet)
             this.options.activeSet = null;
 
         this.desc.opts[6] = {
@@ -291,9 +293,9 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
             // Search in object
             let dProps = visuAttribute.split('.');
             let dProp = set;
-            for(let curProp of dProps) {
+            for (let curProp of dProps) {
                 dProp = dProp[curProp];
-                if(!dProp)
+                if (!dProp)
                     break;
             }
             if (dProp) {
@@ -693,7 +695,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         attributeElem.classList.remove('swac_repeatForLegend');
         attributeElem.classList.add('swac_repeatedForLegend');
         // attributeElem.innerHTML = attributeElem.innerHTML.replace(new RegExp('{txt_desc}', 'g'), desc.txt_desc);
-        
+
         // Title Element
         const titleElem = attributeElem.querySelector('.swac_datadescription_datatitle');
         titleElem.value = desc.txt_title;
@@ -722,11 +724,12 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         borderColorAttributeElem.setAttribute('uk-tooltip', SWAC.lang.dict.Datadescription.borderColorTooltip);
         const deleteAttributeElem = attributeElem.querySelector('.swac_datadescription_attribute_delete');
         deleteAttributeElem.setAttribute('uk-tooltip', SWAC.lang.dict.Datadescription.attributeDeleteTooltip);
-        
-        desc.col = Colorcalculations.stringToHex(desc.col);
-        borderColorAttributeElem.value = desc.col;
-       
-        borderColorAttributeElem.style.setProperty('--color', desc.col);
+        if (desc.col) {
+            desc.col = Colorcalculations.stringToHex(desc.col);
+            borderColorAttributeElem.value = desc.col;
+
+            borderColorAttributeElem.style.setProperty('--color', desc.col);
+        }
         borderColorAttributeElem.addEventListener('input', () => {
             borderColorAttributeElem.style.setProperty('--color', borderColorAttributeElem.value);
         })
@@ -822,7 +825,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
             valueWrapper.style.marginLeft = '50px';
             for (var i in legenddata[attribute].values) {
                 const option = legenddata[attribute].values[i];
-                option.col = Colorcalculations.stringToHex(option.col); 
+                option.col = Colorcalculations.stringToHex(option.col);
                 const valueElem = this.newValueElement(legenddata, attribute, i, option.col, option.txt);
                 valueWrapper.appendChild(valueElem);
             }
@@ -838,7 +841,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
             // Add legend for color meanings
             for (var i in legenddata[attribute].values) {
                 const option = legenddata[attribute].values[i];
-                option.col = Colorcalculations.stringToHex(option.col); 
+                option.col = Colorcalculations.stringToHex(option.col);
                 const valueElem = this.newValueElement(legenddata, attribute, i, option.col, option.txt);
                 acordCont.appendChild(valueElem);
             }
@@ -891,7 +894,6 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         gradientElement.appendChild(lowElem);
         return gradientElement;
     }
-    
 
     /**
      *  Create new Option Element for an attribute in the legend 
@@ -979,7 +981,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
             valueData.style.display = 'none';
         });
 
-        colorBtn.addEventListener('input',(e) => {
+        colorBtn.addEventListener('input', (e) => {
             colorBtn.style.setProperty('--color', colorBtn.value);
             if (this.options.predefinedColors) {
                 // fire event only for the selected visuAttribute
@@ -1067,14 +1069,15 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
             if (curElem.id === element.id) {
                 elementInStorage = true;
                 break;
-            };
+            }
+            ;
         }
         if (!elementInStorage) {
             this.formatedDataElements.push(element);
         }
         let legenddata = this.data[this.options.activeSource].getSet(this.options.activeSet);
         for (var attribute in legenddata) {
-            if (typeof legenddata[attribute] === 'object') {       
+            if (typeof legenddata[attribute] === 'object') {
                 if (legenddata[attribute].visualise) {
                     let col = this.getAttributeColor(attribute);
                     let sel = '[swac_attrname=' + attribute + ']';
@@ -1130,7 +1133,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         for (let curElem of this.formatedDataElements) {
             this.formatDataElement(curElem);
         }
-        document.dispatchEvent(new CustomEvent('swac_Datadescription_'+ this.requestor.id +'_changed', {
+        document.dispatchEvent(new CustomEvent('swac_Datadescription_' + this.requestor.id + '_changed', {
         }));
     }
 
