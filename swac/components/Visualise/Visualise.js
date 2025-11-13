@@ -8,7 +8,7 @@ export default class Visualise extends View {
         super(options);
         this.name = 'Visualise';
         this.desc.text = "This components visualises the data given. It uses thermometer, hydrometer or icon representation. This component is not finished yet.";
-        this.desc.developers = 'Florian Fehring (FH Bielefeld), Jonas Ahrend, Stephan Dresselmann';
+        this.desc.developers = 'Florian Fehring (HSBI), Jonas Ahrend, Stephan Dresselmann';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.depends[0] = {

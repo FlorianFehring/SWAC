@@ -9,7 +9,7 @@ export default class User extends View {
         super(options);
         this.name = 'User';
         this.desc.text = 'This component offers user login and site protection';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

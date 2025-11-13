@@ -8,7 +8,7 @@ export default class Loadingbar extends View {
         super(options);
         this.name = 'Loadingbar';
         this.desc.text = 'Create a loadingbar with possibility to update status from other components or code.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
         
         this.desc.templates[0] = {

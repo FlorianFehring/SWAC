@@ -8,7 +8,7 @@ export default class Sync extends View {
         super(options);
         this.name = 'Sync';
         this.desc.text = 'Component for syncronising data from a source to another.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

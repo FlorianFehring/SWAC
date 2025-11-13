@@ -9,7 +9,7 @@ export default class Select extends View {
         super(options);
         this.name = 'Select';
         this.desc.text = "Creates a flexible selectbox. Can use checkboxes, selectbox, multiselect and datalist for selection and allows getting and setting selected ones over a unified interface.";
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

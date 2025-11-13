@@ -9,7 +9,7 @@ export default class Download extends View {
         super(options);
         this.name = 'Download';
         this.desc.text = 'Creates download areas for files';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.depends[0] = {

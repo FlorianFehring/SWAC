@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: LicenseRef-Proprietary
+
 import SWAC from '../../swac.js';
 import View from '../../View.js';
 import Msg from '../../Msg.js';

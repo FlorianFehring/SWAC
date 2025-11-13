@@ -1,3 +1,4 @@
+
 import SWAC from '../../swac.js';
 import View from '../../View.js';
 import Msg from '../../Msg.js';
@@ -8,7 +9,7 @@ export default class Charts extends View {
         super(options);
         this.name = 'Charts';
         this.desc.text = "Show bar- line or pie-chart and datatable for every data.";
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.depends[0] = {

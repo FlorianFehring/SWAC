@@ -1,8 +1,9 @@
+// SPDX-License-Identifier: LicenseRef-Proprietary
 /**
- * This component is NOT opensource.
- * Copyright by Florian Fehring
+ * PREMIUM component
  * 
- * @type type
+ * This SWAC component is NOT open source.
+ * Copyright by Florian Fehring
  */
 
 import SWAC from '../../swac.js';

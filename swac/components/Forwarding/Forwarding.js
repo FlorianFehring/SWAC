@@ -8,7 +8,7 @@ export default class Forwarding extends View {
         super(options);
         this.name = 'Forwarding';
         this.desc.text = 'The forwarding component allows automatic forwarding to another page depending on data.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.reqPerSet[0] = {

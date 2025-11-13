@@ -10,7 +10,7 @@ export default class Dashboard extends View {
 
         this.name = 'Dashboard';
         this.desc.text = 'General dashboard node component';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

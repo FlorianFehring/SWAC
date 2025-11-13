@@ -8,7 +8,7 @@ export default class Present extends View {
         super(options);
         this.name = 'Present';
         this.desc.text = 'Presents two dimensional datasets no matter of the number or names of columns. There are different templates for default presentation.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

@@ -8,7 +8,7 @@ export default class Dataanalyser extends View {
         super(options);
         this.name = 'Dataanalyser';
         this.desc.text = 'Data analysis tools';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
         
         this.desc.depends[0] = {

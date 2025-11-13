@@ -9,7 +9,7 @@ export default class Visualmodel extends View {
         super(options);
         this.name = 'Visualmodel';
         this.desc.text = "Component to create visual models from data, that shows the dependencies and hierarchie within the data.";
-        this.desc.developers = 'Florian Fehring (FH Bielefeld), Timon Buschendorf';
+        this.desc.developers = 'Florian Fehring (HSBI), Timon Buschendorf';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.depends[0] = {

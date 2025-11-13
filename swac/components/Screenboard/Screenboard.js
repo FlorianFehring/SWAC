@@ -8,7 +8,7 @@ export default class Screenboard extends View {
         super(options);
         this.name = 'Screenboard';
         this.desc.text = 'Create a responsive onscreen keyboard. This component does not work with data.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

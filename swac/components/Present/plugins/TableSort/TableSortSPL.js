@@ -8,7 +8,7 @@ export default class TableSortSPL extends Plugin {
         super(pluginconf);
         this.name = 'Present/plugins/TableSort';
         this.desc.text = 'This plugin allows a sorting of table based presents.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
         
         // internal attributes

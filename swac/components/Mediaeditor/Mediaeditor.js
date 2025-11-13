@@ -8,7 +8,7 @@ export default class Mediaeditor extends View {
         super(options);
         this.name = 'Mediaeditor';
         this.desc.text = 'Creates an editor for media files. Allows to create annotations on images.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
         
         this.desc.templates[0] = {

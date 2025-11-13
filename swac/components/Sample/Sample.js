@@ -15,7 +15,7 @@ export default class Sample extends View {
         super(options);
         this.name = 'Sample';
         this.desc.text = 'Description of this component for documentation.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
         
         // Include an external library that does not use export

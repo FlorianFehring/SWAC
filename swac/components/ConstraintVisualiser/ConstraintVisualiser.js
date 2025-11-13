@@ -8,7 +8,7 @@ export default class ConstraintVisualiser extends View {
         super(options);
         this.name = 'ConstraintVisualiser';
         this.desc.text = 'Component for visualising constraint solveing';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
         
         this.desc.depends[0] = {

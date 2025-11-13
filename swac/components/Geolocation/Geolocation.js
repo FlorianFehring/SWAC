@@ -8,7 +8,7 @@ export default class Geolocation extends View {
         super(options);
         this.name = 'Geolocation';
         this.desc.text = 'The geolocation component, allows the user to choose between not showing his location, or do it once or tracking his position. He can decide to remember a decition for following site calls.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

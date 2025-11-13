@@ -8,7 +8,7 @@ export default class Datadescription extends View {
         super(options);
         this.name = 'Datadescription';
         this.desc.text = 'Describe your data with text and colors. This component makes it possible to describe data. So a simple analysis is possible.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.depends[0] = {

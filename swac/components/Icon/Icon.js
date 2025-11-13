@@ -8,7 +8,7 @@ export default class Icon extends View {
         super(options);
         this.name = 'Icon';
         this.desc.text = 'Displays icons for keywords and mimetypes';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

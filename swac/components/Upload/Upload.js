@@ -15,7 +15,7 @@ export default class Upload extends View {
         super(options);
         this.name = 'Upload';
         this.desc.text = 'Creates a dialog for uploads including drag and drop possibility, file selection and upload status view.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

@@ -11,7 +11,7 @@ export default class Navigation extends View {
         super(options);
         this.name = 'Navigation';
         this.desc.text = 'The nav component gives you the possibility to simply create a navigation toolbar from data. But not only a toolbar is provied, it also gives methods for building links and navigation calls that can carry parameters and are only displayed on matching conditions.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

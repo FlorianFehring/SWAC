@@ -10,7 +10,7 @@ export default class Worldmap2d extends View {
 
         //component description
         this.desc.text = '2D Worldmap component for displaying data on a canvas. Useable for geojson data and plain datasets as well.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         //load dependencies

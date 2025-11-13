@@ -1,3 +1,11 @@
+// SPDX-License-Identifier: LicenseRef-Proprietary
+/**
+ * PREMIUM component
+ * 
+ * This SWAC component is NOT open source.
+ * Copyright by Florian Fehring
+ */
+
 import SWAC from '../../swac.js';
 import Model from '../../Model.js';
 import View from '../../View.js';
@@ -17,7 +25,6 @@ export default class Question extends View {
         super(options);
         this.name = 'Question';
         this.desc.text = 'Component for questioning users with a nice userinterface.';
-        this.desc.text = 'Component for createing survey forms.';
         this.desc.developers = 'Florian Fehring';
         this.desc.license = '(c) by Florian Fehring';
 

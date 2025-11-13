@@ -11,7 +11,7 @@ export default class Worldmap extends View {
         super(options);
         this.name = 'Worldmap';
         this.desc.text = '3D Worldmap component for displaying data on a globe. Useable for geojson data, gltf 3D models and plain datasets as well.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.depends[0] = {

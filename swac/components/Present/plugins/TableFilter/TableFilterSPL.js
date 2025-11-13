@@ -8,7 +8,7 @@ export default class TableFilterSPL extends Plugin {
         super(pluginconf);
         this.name = 'Present/plugins/TableFilter';
         this.desc.text = 'Adds input fields to headlines when useing a table based template, that allows filter for values';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
         
         // internal attributes

@@ -7,7 +7,7 @@ export default class ExplainComponents extends View {
         super(options);
         this.name = 'ExplainComponents';
         this.desc.text = 'Generates explanations of SWAC components.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.depends[0] = {

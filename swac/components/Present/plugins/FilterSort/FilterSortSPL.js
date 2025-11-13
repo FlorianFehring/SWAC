@@ -8,7 +8,7 @@ export default class FilterSortSPL extends Plugin {
         super(options);
         this.name = 'Present/plugins/FilterSort';
         this.desc.text = 'This plugin allows filtering and sorting in presented data.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.reqPerTpl[0] = {

@@ -8,7 +8,7 @@ export default class Datafilter extends View {
         super(options);
         this.name = 'Datafilter';
         this.desc.text = 'Datafilter component allows definition of a datasource thats sets can be filtered with the GUI. The filtered sets are reflected to another datasources that can be used as input on any other component.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

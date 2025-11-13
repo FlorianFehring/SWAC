@@ -15,7 +15,7 @@ export default class PresetManager extends View {
         super(options);
         this.name = 'PresetManager';
         this.desc.text = 'Manage presets for database objects like tables and datasets.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

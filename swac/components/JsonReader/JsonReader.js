@@ -9,7 +9,7 @@ export default class JsonReader extends View {
         super(options);
         this.name = 'JsonReader';
         this.desc.text = 'Component for reading contents from json files for useing them in other components or save them to database.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

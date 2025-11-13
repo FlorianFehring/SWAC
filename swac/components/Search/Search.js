@@ -11,7 +11,7 @@ export default class Search extends View {
         super(options);
         this.name = 'Search';
         this.desc.text = 'Create a flexible search box with extended features like autocompletition.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.depends[0] = {
