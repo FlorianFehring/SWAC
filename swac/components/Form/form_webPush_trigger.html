@@ -1,23 +1,27 @@
-<h3>New Trigger</h3>
-<form id="trigger_form" class="uk-form-stacked uk-margin-large-top" >
+<form id="trigger_form" class="uk-form-stacked" >
+    <h3>New Trigger</h3>
     <div class="uk-margin">
+        <label class="uk-form-label">Schedule</label>
         <div class="uk-margin">
-            <label class="uk-form-label" for="channels">Type</label>
-            <select class="uk-select" id="select_actions" required>                   
-                <option value="time">Time</option>
-                <option value="event">Event</option>
-                <option value="once">Once</option>
-            </select>
+            <input class="uk-input" id="schedule_type" type="text" placeholder="Type (e.g. recurring)" required>
+        </div>
+        <div class="uk-margin">
+            <input class="uk-input" id="schedule_cron" type="text" placeholder="Cron (e.g. * * * * *)" required>
+        </div>
+        <div class="uk-margin">
+            <input class="uk-input" id="schedule_timestamp" type="datetime-local" required>
         </div>
     </div>
     <div class="uk-margin">
-        <label class="uk-form-label">Select Config</label>
-        <div uk-form-custom="target: true">
-            <input type="file" id="file-upload" accept=".json,application/json" required>
-            <input class="uk-input uk-form-width-medium" type="text" placeholder="Select file" disabled>
+        <label class="uk-form-label">Conditions</label>
+        <ul id="conditions_list" class="uk-accordion" uk-accordion="multiple: true"></ul>
+        <div class="uk-margin-small-top uk-text-center">
+            <button id="add_condition_btn" class="uk-button uk-button-default" type="button">
+                Add Condition
+            </button>
         </div>
     </div>
     <div class="uk-margin uk-flex uk-flex-center">
-        <button class="uk-button uk-button-primary " type="submit">Create Trigger</button>
+        <button class="uk-button uk-button-primary" type="submit">Create Trigger</button>
     </div>
 </form>
