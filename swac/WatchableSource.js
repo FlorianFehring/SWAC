@@ -6,7 +6,7 @@ import Model from './Model.js';
  */
 export default class WatchableSource {
 
-    constructor(fromName, comp, requestId) {
+    constructor(fromName, comp, storeId) {
         let msg = 'Create WatchableSource for >' + fromName + '<';
         if (typeof fromName !== 'string') {
             Msg.error('WatchableSource', 'fromName must be a string but is: ' + typeof fromName);
@@ -25,19 +25,19 @@ export default class WatchableSource {
             msg += ' for requestor >' + comp.requestor.id + '<';
         }
         Msg.flow('WatchableSource', msg);
-        if(!requestId)
-            requestId = 'std';
+        if(!storeId)
+            storeId = 'std';
         // Create store Source
-        if (!Model.store[requestId]) {
-            Model.store[requestId] = {}; // If this line is remove a to much recursion error ocures. Why?
-            Model.store[requestId] = new WatchableSource(fromName, Model);
+        if (!Model.store[storeId]) {
+            Model.store[storeId] = {}; // If this line is remove a to much recursion error ocures. Why?
+            Model.store[storeId] = new WatchableSource(fromName, Model);
         }
 
         if (comp !== Model) {
             // Set WatchableSource into components data storage
             comp.data[fromName] = this;
             // Watch the Model.store for changes in the Source there (central store)
-            Model.store[requestId].addObserver(this);
+            Model.store[storeId].addObserver(this);
             // Let the requesting component watch the source to get informed about data changes
             this.addObserver(comp);
         }

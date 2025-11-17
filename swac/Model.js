@@ -43,6 +43,20 @@ export default class Model {
                     }
                 }
             }
+
+            // Calculate sore and request id
+            dataRequest.storeId = dataRequest.fromName;
+            dataRequest.requestId = dataRequest.fromName;
+            if (dataRequest.fromWheres) {
+                for (let curWhere in dataRequest.fromWheres) {
+                    // Size and page are not relevant for distinct datastore
+                    if (curWhere !== 'size' && curWhere !== 'page') {
+                        dataRequest.storeId += curWhere + '=' + dataRequest.fromWheres[curWhere];
+                    }
+                    dataRequest.requestId += curWhere + '=' + dataRequest.fromWheres[curWhere];
+                }
+            }
+
             // Calculate fromWheres for lazy loading
             if (comp?.options?.lazyLoading > 0) {
                 dataRequest.fromWheres['size'] = comp.options.lazyLoading;
@@ -63,21 +77,14 @@ export default class Model {
                 } else
                     dataRequest.fromWheres['filter'] = ecoFilter;
             }
-            // Calculate request id
-            dataRequest.requestId = dataRequest.fromName;
-            if (dataRequest.fromWheres) {
-                for (let curWhere in dataRequest.fromWheres) {
-                    dataRequest.requestId += curWhere + '=' + dataRequest.fromWheres[curWhere];
-                }
-            }
 
             // Create datasource if not exists
             if (comp && !comp.data[dataRequest.fromName]) {
                 // Create WS for component and (inside WatchableSource) if needed for Model.store
-                new WatchableSource(dataRequest.fromName, comp, dataRequest.requestId);
+                new WatchableSource(dataRequest.fromName, comp, dataRequest.storeId);
             } else if (!comp) {
                 // Create WS if data is requested without component
-                new WatchableSource(dataRequest.fromName, Model, dataRequest.requestId);
+                new WatchableSource(dataRequest.fromName, Model, dataRequest.storeId);
             }
 
             // Check if data is allready loading
@@ -248,9 +255,9 @@ export default class Model {
                 newLoaded++;
             }
             // If set is included in store, use old set instead, so that observers remain on the set
-            if (this.store[dataRequest.requestId]?.hasSet(curSet[idAttr])) {
+            if (this.store[dataRequest.storeId]?.hasSet(curSet[idAttr])) {
                 let newSet = curSet;
-                curSet = this.store[dataRequest.requestId].getSet(curSet[idAttr]);
+                curSet = this.store[dataRequest.storeId].getSet(curSet[idAttr]);
                 // Transfer added information to cached object
                 for (let curAttr in newSet) {
                     if (!curSet[curAttr]) {
@@ -356,12 +363,12 @@ export default class Model {
 
             // Add Data to source
             //Model.store[curSet.swac_fromName].addSet(wset);
-            if (!Model.store[dataRequest.requestId]) {
-                Msg.error('model', 'Model.store for >' + dataRequest.requestId + '< is missing. Autofix by createing one.');
-                Model.store[dataRequest.requestId] = {};
-                Model.store[dataRequest.requestId] = new WatchableSource(dataRequest.fromName, Model);
+            if (!Model.store[dataRequest.storeId]) {
+                Msg.error('model', 'Model.store for >' + dataRequest.storeId + '< is missing. Autofix by createing one.');
+                Model.store[dataRequest.storeId] = {};
+                Model.store[dataRequest.storeId] = new WatchableSource(dataRequest.fromName, Model);
             }
-            Model.store[dataRequest.requestId].addSet(wset);
+            Model.store[dataRequest.storeId].addSet(wset);
         }
         return transdata;
     }
