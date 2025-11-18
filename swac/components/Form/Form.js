@@ -86,11 +86,15 @@ export default class Form extends View {
         for(let curInput of formElem.elements) {
             // use only those with name and value
             if(curInput.name && curInput.value) {
-                dataset[curInput.name] = curInput.value;
+                if(curInput.type == 'checkbox'){
+                    dataset[curInput.name] = curInput.checked;
+                }else{
+                    dataset[curInput.name] = curInput.value;
+                }
             }
         }
         dataCapsule.data = [dataset];
-
+        console.log(dataCapsule.data)
         // Request data (returns promise)
         Model.save(dataCapsule).then(function (dataCaps) {
 
