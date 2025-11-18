@@ -20,6 +20,7 @@ export default class WebPush {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    name: "Test Name",
                     endpoint: subscription.endpoint,
                     key: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : '',
                     auth: auth ? btoa(String.fromCharCode.apply(null, new Uint8Array(auth))) : ''
@@ -37,9 +38,14 @@ export default class WebPush {
     }
 
     async send() {
-        await fetch(`${WebPush.url}/send`, {
+        return await fetch(`${WebPush.url}/send`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                title: "Test Message from PWA",
+                body: "This is a test notification sent from the SWAC WebPush module.",
+                icon: "https://localhost:8181/WebPush-PWA/img/logo.png"
+            })
+        }).then(response => response.json());
     }
 }
