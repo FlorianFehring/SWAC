@@ -4,37 +4,36 @@
     <fieldset class="uk-fieldset">
         <div class="uk-margin">
             <label class="uk-form-label" for="title">Notification Title</label>
-            <input class="uk-input" id="title" type="text" placeholder="Enter notification title" required>
+            <input class="uk-input" name="title" id="title" type="text" placeholder="Enter notification title" required>
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="message">Notification Message</label>
-            <textarea class="uk-textarea" id="message" rows="5" placeholder="Enter notification message"></textarea>
+            <textarea class="uk-textarea" name="body" id="body" rows="5" placeholder="Enter notification message"></textarea>
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="icon">Icon URL</label>
-            <input class="uk-input" id="icon" type="url" placeholder="https://example.com/icon.png">
+            <input class="uk-input" name="icon_url" id="icon_url" type="url" placeholder="https://example.com/icon.png">
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="image">Image URL</label>
-            <input class="uk-input" id="image" type="url" placeholder="https://example.com/image.jpg">
+            <input class="uk-input" name="image_url" id="image_url" type="url" placeholder="https://example.com/image.jpg">
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="vibrate">Vibrate Pattern</label>
-            <input class="uk-input" id="vibrate" type="text" placeholder="e.g. 100,50,100 (comma-separated ms)">
+            <input class="uk-input" name="vibrate" id="vibrate" type="text" placeholder="e.g. 100,50,100 (comma-separated ms)">
         </div>
         <label class="uk-form-label">Flags</label>
         <div class="uk-margin uk-grid-small uk-child-width-auto" uk-grid>
-            <label><input class="uk-checkbox" id="renotify" type="checkbox"> Renotify</label>
-            <label><input class="uk-checkbox" id="silent" type="checkbox"> Silent</label>
+            <label><input class="uk-checkbox" name="renotify" id="renotify" type="checkbox" > Renotify</label>
+            <label><input class="uk-checkbox" name="silent" id="silent" type="checkbox"> Silent</label>
         </div>
         <label class="uk-form-label">Trigger</label>
         <div class="uk-child-width-auto uk-flex uk-flex-center">
-            <input class="uk-input" id="trigger" type="number" placeholder="Trigger ID" readonly required>
+            <input class="uk-input" name ="trigger_id" id="trigger_id" type="number" placeholder="Trigger ID" readonly required>
             <button class="uk-button" id="open-trigger-btn" type="button">Select Trigger</button>
         </div>
-        <div class="uk-margin">
-            <label class="uk-form-label" for="channels">Actions</label>
-            <select class="uk-select" id="select_actions" multiple required></select>
+        <div class="uk-margin" id="select_actions">
+            <label class="uk-form-label" for="select_actions">Actions</label>
         </div>
         <div class="uk-margin uk-flex uk-flex-center">
             <button class="uk-button uk-button-primary " type="submit">Create Notification</button>
