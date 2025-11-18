@@ -14,7 +14,7 @@ export default class Form extends View {
         this.desc.templates[0] = {
             name: 'default',
             desc: 'Default template.'
-        };        
+        };
         this.desc.templates[1] = {
             name: 'form_webPush_notifications',
             desc: 'Form to create new notification'
@@ -27,7 +27,7 @@ export default class Form extends View {
             selc: 'form',
             desc: 'Form element with input elements. Any input element value will be send with the name from the input elemtns name attribute.'
         };
-        
+
         this.desc.opts[0] = {
             name: "target",
             desc: "Target URL or sourcename where to send form data. Data is send to this URL with POST method and JSON payload. Note: If this options is not set and a FROM clause is defined data will be send to that source.",
@@ -38,7 +38,7 @@ export default class Form extends View {
         };
         if (!options.target)
             this.options.target = null;
-        
+
         if (!options.showWhenNoData)
             this.options.showWhenNoData = true;
     }
@@ -59,7 +59,7 @@ export default class Form extends View {
     onSubmit(evt) {
         // Do not submit per HTML (would reload page)
         evt.preventDefault();
-        
+
         // Get form
         let formElem = this.requestor.querySelector('form');
 
@@ -70,35 +70,45 @@ export default class Form extends View {
             fromName: this.getMainSourceName()
         };
         // Set configured target
-        if(this.options.target) {
+        if (this.options.target) {
             dataCapsule.fromName = this.options.target;
         }
-        if(!dataCapsule.fromName) {
+        if (!dataCapsule.fromName) {
             UIkit.modal.alert(SWAC.lang.dict.Form.target_missing);
         }
-        
+
         let dataset = {};
         if (this.options.saveAlongData !== null) {
             dataset = Object.assign({}, this.options.saveAlongData);
         }
-        
+
         // Get any input field
-        for(let curInput of formElem.elements) {
+        for (let curInput of formElem.elements) {
             // use only those with name and value
-            if(curInput.name && curInput.value) {
-                if(curInput.type == 'checkbox'){
+            if (curInput.name && curInput.value) {
+                if (curInput.type == 'checkbox') {
                     dataset[curInput.name] = curInput.checked;
-                }else{
+                } else {
                     dataset[curInput.name] = curInput.value;
                 }
             }
         }
         dataCapsule.data = [dataset];
-        console.log(dataCapsule.data)
-        // Request data (returns promise)
-        Model.save(dataCapsule).then(function (dataCaps) {
-
-        }).catch();
+        let thisRef = this;
+        Model.save(dataCapsule).then(function (data) {
+            thisRef.afterSave(dataCapsule);
+            if (thisRef.options.customAfterSave) {
+                thisRef.options.customAfterSave.bind(thisRef);
+                try {
+                    thisRef.options.customAfterSave(data);
+                } catch (e) {
+                    Msg.error('Component', 'Error execution options.customAfterSave(): ' + e, this.requestor);
+                }
+            }
+        }).catch(function (error) {
+            UIkit.modal.alert(SWAC.lang.dict.core.model_saveerror);
+            Msg.error('Component', 'Could not save because of: ' + error);
+        });
     }
 
     /**
