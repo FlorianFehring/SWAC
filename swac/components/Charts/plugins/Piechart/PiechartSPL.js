@@ -18,6 +18,10 @@ export default class PiechartSPL extends Plugin {
         };
         if (!this.options.cutout)
             this.options.cutout = 'cutout';
+
+        // Internal attributes
+        this.pie_set_labels = [];       // One label for each dataset
+        this.pie_namedsets = new Map(); // Per attribute one entry with attribute values from all sets
     }
 
     init() {
@@ -26,73 +30,56 @@ export default class PiechartSPL extends Plugin {
             if (!this.contElements || this.contElements.length === 0) {
                 Msg.error('PiechartSPL', 'This plugin needs a contElement to insert the chart.', this.requestor);
             }
+
+            // Get draw area (only one contElement supported)
+            var ctx = this.contElements[0].querySelector('canvas');
+
+            this.chart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true
+                }
+            });
+
             resolve();
         });
     }
 
     afterAddSet(set, repeateds) {
-        if (!this.chart) {
-            this.initChart(set);
-            return;
-        }
-
-        // Get component where this plugin instance belongs to
         let comp = this.requestor.parent.swac_comp;
-
         let rsName = comp.getReadableSourceName(set.swac_fromName);
-        let sourceFound = false;
-        for (let curSets of this.chart.data.datasets) {
-            // Add new dataset to the correct chart datasets
-            if (curSets.label[0].startsWith(rsName + '.')) {
-                sourceFound = true;
-                let lastDotPos = curSets.label[0].lastIndexOf('.');
-                let attrName = curSets.label[0].substring(lastDotPos + 1);
-                // Add value
-                curSets.data.push(set[attrName]);
-                // Add color
-                if (comp.datadescription)
-                    curSets.backgroundColor.push(comp.datadescription.getValueColor(set, null, attrName));
+        // Add pie label
+        if(set.name)
+            this.pie_set_labels[set.id] = set.name + '(' + rsName + ')';
+        else if(set.title)
+            this.pie_set_labels[set.id] = set.title + '(' + rsName + ')';
+        else 
+            this.pie_set_labels[set.id] = set.id + '(' + rsName + ')';
+
+        // Create an chart dataset entry for each attribute in set
+        for (let curAttr in set) {
+            // Exclude swac internal attributes and id
+            if (!curAttr.startsWith('swac_') && curAttr !== 'id') {
+                // Exclude NaN values
+                if (!isNaN(set[curAttr])) {
+                    // Search if pie_set exists (one pie_set has all data for one piechart)
+                    let pie_set = this.pie_namedsets.get(curAttr);
+                    // Create new pie_set if not exists
+                    if (!pie_set) {
+                        let curSet = this.createSet(set, curAttr);
+                        this.pie_namedsets.set(curAttr, curSet);
+                    } else {
+                        pie_set.data[set.id] = set[curAttr];
+                    }
+                }
             }
         }
 
-        if(!sourceFound) {
-            Msg.error('PiechartSPL','You tried to add a dataset from another source to the pie chart. This is currently not supported.',comp.requestor);
-        }
-
-        this.chart.update();
-        this.chart.update();
-    }
-
-    /**
-     * Initilises the charttype based on the given set
-     * 
-     * @param {WatchableSet} set Representative dataset for chart data
-     */
-    initChart(set) {
-        // Get component where this plugin instance belongs to
-        let comp = this.requestor.parent.swac_comp;
-        // Get draw area (only one contElement supported)
-        var ctx = this.contElements[0].querySelector('canvas');
-
-        // Fill datasets
-        let datasets = [];
-        if (comp.options.xAxisAttrName) {
-            datasets.push(this.createSet(set, comp.options.xAxisAttrName));
-        }
-        // Create for y axis
-        for (let curYAttr of comp.options.yAxisAttrNames) {
-            datasets.push(this.createSet(set, curYAttr));
-        }
-
-        this.chart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                datasets: datasets
-            },
-            options: {
-                responsive: true
-            }
-        });
+        this.updateDraw();
     }
 
     /**
@@ -105,11 +92,11 @@ export default class PiechartSPL extends Plugin {
     createSet(set, attrName) {
         // Get component where this plugin instance belongs to
         let comp = this.requestor.parent.swac_comp;
-        let rsName = comp.getReadableSourceName(set.swac_fromName);
-
+        let dataarr = [];
+        dataarr[set.id] = set[attrName];
         let dataset = {
-            label: [rsName + '.' + attrName],
-            data: [set[attrName]]
+            label: attrName,
+            data: dataarr
         }
         if (comp.datadescription)
             dataset.backgroundColor = [comp.datadescription.getValueColor(set, null, attrName)];
@@ -118,18 +105,41 @@ export default class PiechartSPL extends Plugin {
     }
 
     afterRemoveSet(set) {
-        // Look at each source (datasets array entry in chart.js)
-        for (let curSets of this.chart.data.datasets) {
-            if (curSets.label === set.swac_fromName) {
-                // Look at each set
-                for (let i in curSets.data) {
-                    if (curSets.data[i].id === set.id) {
-                        curSets.data.splice(i, 1);
-                        break;
-                    }
-                }
+        // Remove entry from labels
+        this.pie_set_labels[set.id] = null;
+
+        // Look at each parameter
+        for (const namedSet of this.pie_namedsets.values()) {
+            if (Array.isArray(namedSet.data)) {
+                namedSet.data[set.id] = null;
             }
         }
+
+        this.updateDraw();
+    }
+
+    /**
+     * Updates the chart drawing
+     */
+    updateDraw() {
+        // Get component where this plugin instance belongs to
+        let comp = this.requestor.parent.swac_comp;
+
+        // Update labels
+        this.chart.data.labels = this.pie_set_labels.filter(v => v != null);
+
+        // Update data
+        let curNamedSet = this.pie_namedsets.get(comp.options.xAxisAttrName);
+        if (!curNamedSet) {
+            let applicableKey = this.pie_namedsets.keys().next().value;
+            curNamedSet = this.pie_namedsets.get(applicableKey);
+        }
+        // Build datasets object for chartjs
+        this.chart.data.datasets = [{
+                label: curNamedSet.label,
+                data: curNamedSet.data.filter(v => v != null)
+            }];
+
         this.chart.update();
     }
 }
