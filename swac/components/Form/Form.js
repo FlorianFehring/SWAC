@@ -17,10 +17,12 @@ export default class Form extends View {
         };
         this.desc.templates[1] = {
             name: 'form_webPush_notifications',
+            style: 'form_webPush',
             desc: 'Form to create new notification'
         };
         this.desc.templates[2] = {
             name: 'form_webPush_trigger',
+            style: 'form_webPush',
             desc: 'Form to create new trigger'
         };
         this.desc.reqPerTpl[0] = {

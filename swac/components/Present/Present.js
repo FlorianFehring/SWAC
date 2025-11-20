@@ -26,17 +26,17 @@ export default class Present extends View {
         this.desc.templates[3] = {
             name: 'present_webPush_notifications',
             style: 'present_webPush',
-            desc: 'Display for webPush application.'
+            desc: 'Display for notifications in webPush application.'
         };
         this.desc.templates[4] = {
             name: 'present_webPush_history',
             style: 'present_webPush',
-            desc: 'Display for webPush application.'
+            desc: 'Display for history in webPush application.'
         };
         this.desc.templates[5] = {
             name: 'present_webPush_triggers',
             style: 'present_webPush',
-            desc: 'Display for webPush application.'
+            desc: 'Display for triggers in webPush application.'
         };
         this.desc.reqPerSet[0] = {
             name: '*',
