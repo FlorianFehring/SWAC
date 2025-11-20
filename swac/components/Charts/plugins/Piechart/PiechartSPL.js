@@ -53,12 +53,12 @@ export default class PiechartSPL extends Plugin {
         let comp = this.requestor.parent.swac_comp;
         let rsName = comp.getReadableSourceName(set.swac_fromName);
         // Add pie label
-        if(set.name)
-            this.pie_set_labels[set.id] = set.name + '(' + rsName + ')';
-        else if(set.title)
-            this.pie_set_labels[set.id] = set.title + '(' + rsName + ')';
-        else 
-            this.pie_set_labels[set.id] = set.id + '(' + rsName + ')';
+        if (set.name)
+            this.pie_set_labels[set.id] = set.name;
+        else if (set.title)
+            this.pie_set_labels[set.id] = set.title;
+        else
+            this.pie_set_labels[set.id] = set.id;
 
         // Create an chart dataset entry for each attribute in set
         for (let curAttr in set) {
@@ -136,9 +136,9 @@ export default class PiechartSPL extends Plugin {
         }
         // Build datasets object for chartjs
         this.chart.data.datasets = [{
-                label: curNamedSet.label,
-                data: curNamedSet.data.filter(v => v != null)
-            }];
+            label: curNamedSet.label,
+            data: curNamedSet.data.filter(v => v != null)
+        }];
 
         this.chart.update();
     }
