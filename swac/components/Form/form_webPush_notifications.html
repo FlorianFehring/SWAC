@@ -1,6 +1,6 @@
 
 <form id="notification_form" class="uk-form-stacked">
-<h1 style="text-align: center;">Create a new Notification</h1>
+    <h1 style="text-align: center;">Create a new Notification</h1>
     <fieldset class="uk-fieldset">
         <div class="uk-margin">
             <label class="uk-form-label" for="title">Notification Title</label>
@@ -8,7 +8,7 @@
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="message">Notification Message</label>
-            <textarea class="uk-textarea" name="body" id="body" rows="5" placeholder="Enter notification message"></textarea>
+            <input class="uk-input" name="body" id="body" type="text" placeholder="Enter notification message"></input>
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="icon">Icon URL</label>
@@ -18,19 +18,21 @@
             <label class="uk-form-label" for="image">Image URL</label>
             <input class="uk-input" name="image_url" id="image_url" type="url" placeholder="https://example.com/image.jpg">
         </div>
-        <div class="uk-margin">
-            <label class="uk-form-label" for="vibrate">Vibrate Pattern</label>
-            <input class="uk-input" name="vibrate" id="vibrate" type="text" placeholder="e.g. 100,50,100 (comma-separated ms)">
-        </div>
         <label class="uk-form-label">Flags</label>
         <div class="uk-margin uk-grid-small uk-child-width-auto" uk-grid>
             <label><input class="uk-checkbox" name="renotify" id="renotify" type="checkbox" > Renotify</label>
             <label><input class="uk-checkbox" name="silent" id="silent" type="checkbox"> Silent</label>
         </div>
         <label class="uk-form-label">Trigger</label>
-        <div class="uk-child-width-auto uk-flex uk-flex-center">
-            <input class="uk-input" name ="trigger_id" id="trigger_id" type="number" placeholder="Trigger ID" readonly required>
-            <button class="uk-button" id="open-trigger-btn" type="button">Select Trigger</button>
+        <div class="uk-grid-collapse" uk-grid>
+            <div class="uk-width-auto">
+                <input class="uk-input trigger-id-input" id="trigger_id" type="number" readonly placeholder="ID">
+            </div>
+            <div class="uk-width-expand">
+                <button class="uk-button uk-width-expand" id="open-trigger-btn" type="button">
+                    Select Trigger
+                </button>
+            </div>
         </div>
         <div class="uk-margin" id="select_actions">
             <label class="uk-form-label" for="select_actions">Actions</label>
