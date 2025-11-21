@@ -1,5 +1,5 @@
 .present_main {
-    overflow: scroll;
+    overflow: auto;
     height: 100%;
 }
 
@@ -12,6 +12,11 @@
     color: white;
     text-align: center;
     vertical-align: middle;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding-right: 40px;
 }
 
 .title {
@@ -52,6 +57,42 @@
 
 .notif-text {
     font-size: 1rem;
+    flex: 1;
+}
+
+.notif-delete-btn {
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.header .notif-delete-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.notif-delete-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.notif-delete-btn:hover {
+    background-color: #d48c8c;
+    color: #d40000;
+}
+
+.notif-delete-btn:hover svg {
+    color: #d40000;
+}
+
+.deleted {
+    background-color: #898f92;
 }
 
 .event {
@@ -64,4 +105,12 @@
 
 .once {
     background-color: #c04f15;
+}
+
+.header h3 {
+    margin-bottom: 0;
+}
+
+.header button {
+    margin-bottom: 0;
 }
