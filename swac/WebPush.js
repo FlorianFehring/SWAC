@@ -2,7 +2,7 @@ import SWAC from "./swac.js"
 
 export default class WebPush {
 
-    static url = `https://${window.location.host}/WebPush/smarttemplate/push`;
+    static url = `https://${window.location.host}/WebPush/webpush/push`;
 
     async subscribe() {
         if (SWAC.config.progressive.supportpush) {
