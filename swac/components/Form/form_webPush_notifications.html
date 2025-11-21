@@ -8,7 +8,7 @@
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="message">Notification Message</label>
-            <input class="uk-input" name="body" id="body" type="text" placeholder="Enter notification message"></input>
+            <input class="uk-input" name="body" id="body" type="text" placeholder="Enter notification message" required></input>
         </div>
         <div class="uk-margin">
             <label class="uk-form-label" for="icon">Icon URL</label>
@@ -26,7 +26,7 @@
         <label class="uk-form-label">Trigger</label>
         <div class="uk-grid-collapse" uk-grid>
             <div class="uk-width-auto">
-                <input class="uk-input trigger-id-input" id="trigger_id" type="number" readonly placeholder="ID">
+                <input class="uk-input trigger-id-input" name="trigger_id" id="trigger_id" type="number" placeholder="ID" readonly required>
             </div>
             <div class="uk-width-expand">
                 <button class="uk-button uk-width-expand" id="open-trigger-btn" type="button">
