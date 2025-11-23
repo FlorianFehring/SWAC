@@ -86,16 +86,24 @@ export default class Form extends View {
 
         // Get any input field
         for (let curInput of formElem.elements) {
-            // use only those with name and value
-            if (curInput.name && curInput.value) {
-                if (curInput.type == 'checkbox') {
-                    dataset[curInput.name] = curInput.checked;
-                } else {
-                    dataset[curInput.name] = curInput.value;
-                }
+            if (!curInput.name) continue;
+            if (curInput.type === 'checkbox') {
+                dataset[curInput.name] = curInput.checked;
+                continue;
+            }
+            if (curInput.tagName === 'SELECT' && curInput.multiple) {
+                const selectedValues = Array.from(curInput.options)
+                    .filter(opt => opt.selected)
+                    .map(opt => opt.value);
+                dataset[curInput.name] = selectedValues;
+                continue;
+            }
+            if (curInput.value !== undefined && curInput.value !== '') {
+                dataset[curInput.name] = curInput.value;
             }
         }
         dataCapsule.data = [dataset];
+        console.log(dataCapsule.data)
         let thisRef = this;
         Model.save(dataCapsule).then(function (data) {
             thisRef.afterSave(dataCapsule);
