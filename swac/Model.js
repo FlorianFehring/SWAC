@@ -239,6 +239,10 @@ export default class Model {
 ////            dataRequest.fromWheres.filter = dataRequest.fromWheres.filter.replace(curRename+',',curRename+',');
 //        }
 
+        // Note highest new id
+        const maxId = Math.max(...data.map(obj => obj[idAttr]));
+        dataRequest.highestId = maxId;
+
         // Test and transform sets
         let genid = 0;
         let transdata = [];
@@ -359,6 +363,7 @@ export default class Model {
             } else {
                 wset = curSet;
             }
+            wset.swac_dataRequest = dataRequest;
             transdata[curSet[idAttr]] = wset;
 
             // Add Data to source

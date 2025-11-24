@@ -574,6 +574,11 @@ DEFINTION of SET:\n\
 
         // Documentation for events
         this.desc.events = [];
+        this.desc.events[1000] = {
+            name: 'swac_Component_REQUESTOR_ID_lastSetFromRequestAdded',
+            desc: 'Event is fired, when the last dataset from a request was added to the component. The event is fired on the document.',
+            data: 'Sends the last dataset as detail.'
+        };
 
         // Component data
         // key = fromName = Sooure of the data
@@ -1171,27 +1176,33 @@ DEFINTION of SET:\n\
      * Note that when you overwrite this method, also afterAddSet() on plugins is no longer executed.
      * 
      * @param {Object} set Object with attributes to add
-     * @param {Mixed} data Data elements that should be deliverd to the customAfterAddSet() and Plugin.afterAddSet() calls
+     * @param {Mixed} repeateds Data elements that should be deliverd to the customAfterAddSet() and Plugin.afterAddSet() calls
      * @returns {undefined}
      */
-    async afterAddSet(set, data) {
+    async afterAddSet(set, repeateds) {
         Msg.flow('Component', 'afterAddSet()', this.requestor);
-
         // Execute custom afterAddSet
         if (this.options.customAfterAddSet) {
             // Set method to this to use context of component in method
             this.customAfterAddSet = this.options.customAfterAddSet;
             try {
-                this.customAfterAddSet(set, data);
+                this.customAfterAddSet(set, repeateds);
             } catch (e) {
                 Msg.error('Component', 'Error while executeing >.customAfterAddSet(' + set.swac_fromName + '[' + set.id + ']: ' + e, this.requestor);
             }
         }
+        // Fire last set added event
+        if (set.swac_dataRequest && set.id === set.swac_dataRequest.highestId) {
+            document.dispatchEvent(new CustomEvent('swac_Component_' + this.requestor.id + '_lastSetFromRequestAdded', {
+                detail: {set: set}
+            }));
+        }
+
         // Inform plugins about added sets / Plugins from views are informed by view
         if (this.pluginsystem && !this.constructor.prototype instanceof View) {
             for (let curPlugin of this.getLoadedPlugins().values()) {
                 if (curPlugin.swac_comp.afterAddSet) {
-                    curPlugin.swac_comp.afterAddSet(set, data);
+                    curPlugin.swac_comp.afterAddSet(set, repeateds);
                 }
             }
         }
