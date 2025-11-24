@@ -908,6 +908,16 @@ export default class Worldmap2d extends View {
         this.overlayLayers[geoJSON.set.swac_fromName].addLayer(lines)
         return lines
     }
+
+    /**
+     * Draws line between passed points
+     * @param {Object} points List of points with Lat-Lon to be connected
+     */
+    drawPolyline(points) {
+        var polyline = L.polyline(points, {color: 'red'}).addTo(this.viewer);
+    }
+
+
     /**
      * Removes given marker from the map.
      * @param {Object} marker The marker that will be removed

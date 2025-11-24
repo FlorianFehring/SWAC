@@ -46,7 +46,12 @@ export default class NavigationSPL extends Plugin {
         }
         if (!options.searchurl)
             this.options.searchurl = 'http://localhost:8080/SmartData/smartdata/proxy/get?url=https://nominatim.openstreetmap.org/search';
-
+        
+        this.desc.opts[3] = {
+            name: "datapointDensity",
+            example: 0.5,
+            desc: "Configures what percentage of datapoint density should be displayed. Routes with many datapoints encounter problems with routing"
+        };
 
         // Attributes for internal usage
         this.map = null;
@@ -90,15 +95,15 @@ export default class NavigationSPL extends Plugin {
                     return;
                 }
                 this.name2Coordinates(e.target.value)
-                        .then((feature) => {
-                            this.navigationobj.start = {
-                                lat: feature.geometry.coordinates[1],
-                                lng: feature.geometry.coordinates[0]
-                            }
-                        })
-                        .catch((err) => {
-                            this.navigationobj.start = null;
-                        });
+                    .then((feature) => {
+                        this.navigationobj.start = {
+                            lat: feature.geometry.coordinates[1],
+                            lng: feature.geometry.coordinates[0]
+                        }
+                    })
+                    .catch((err) => {
+                        this.navigationobj.start = null;
+                    });
             });
 
             this.destinationInput.addEventListener('change', (e) => {
@@ -107,15 +112,15 @@ export default class NavigationSPL extends Plugin {
                     return;
                 }
                 this.name2Coordinates(e.target.value)
-                        .then((feature) => {
-                            this.navigationobj.destination = {
-                                lat: feature.geometry.coordinates[1],
-                                lng: feature.geometry.coordinates[0]
-                            }
-                        })
-                        .catch((err) => {
-                            this.navigationobj.destination = null;
-                        });
+                    .then((feature) => {
+                        this.navigationobj.destination = {
+                            lat: feature.geometry.coordinates[1],
+                            lng: feature.geometry.coordinates[0]
+                        }
+                    })
+                    .catch((err) => {
+                        this.navigationobj.destination = null;
+                    });
             });
 
             userLocationButton.addEventListener('click', (e) => {
@@ -146,12 +151,17 @@ export default class NavigationSPL extends Plugin {
                 userLocationButton.style.display = 'block';
             })
 
+            // ---------------------------------------------
+            // ORIGINAL ROUTING DISABLED
+            // ---------------------------------------------
+            /*
             startRoutingButton.addEventListener('click', (e) => {
                 this.startNavigation();
             });
             endRoutingButton.addEventListener('click', (e) => {
                 this.stopNavigation();
             });
+            */
 
             siwtchStartDestinationButton.addEventListener('click', (e) => {
                 let tmp = this.navigationobj.start;
@@ -179,28 +189,27 @@ export default class NavigationSPL extends Plugin {
                         this.navigationobj.start = e.latlng;
                         this.startInput.value = e.latlng.lat + ', ' + e.latlng.lat;
                         this.coordinates2Name(e.latlng.lat, e.latlng.lng)
-                                .then((name) => this.startInput.value = name);
+                            .then((name) => this.startInput.value = name);
                         return;
                     }
                     if (!this.navigationobj.start) {
                         this.navigationobj.start = e.latlng;
                         this.startInput.value = e.latlng.lat + ', ' + e.latlng.lat;
                         this.coordinates2Name(e.latlng.lat, e.latlng.lng)
-                                .then((name) => this.startInput.value = name);
+                            .then((name) => this.startInput.value = name);
                         return;
                     }
                     if (!this.navigationobj.destination) {
                         this.navigationobj.destination = e.latlng;
                         this.destinationInput.value = e.latlng.lat + ', ' + e.latlng.lat;
                         this.coordinates2Name(e.latlng.lat, e.latlng.lng)
-                                .then((name) => this.destinationInput.value = name);
+                            .then((name) => this.destinationInput.value = name);
                         return;
                     }
                 },
                 'markerclick': (e) => {
-                    // marker -> e.target
                     const name = e.target.feature.set?.name ? e.target.feature.set.name : 'Map Pin';
-                    const latlng = {lat: e.target.feature?.geometry?.coordinates[1], lng: e.target.feature?.geometry?.coordinates[0]};
+                    const latlng = { lat: e.target.feature?.geometry?.coordinates[1], lng: e.target.feature?.geometry?.coordinates[0] };
                     if (!this.navigationobj.start && !this.navigationobj.destination) {
                         this.navigationobj.start = latlng;
                         this.startInput.value = name;
@@ -219,31 +228,129 @@ export default class NavigationSPL extends Plugin {
                 },
             }
 
+            //ADDED - POLYLINE VERSION WITH DATAPOINT DENSITY
+            try {
+                const worldmap = this.requestor.parent.swac_comp;
+
+                const allSets = [];
+
+                // sammle alle Marker Sortiert nach ID
+                for (let from in worldmap.markers) {
+                    const arr = worldmap.markers[from];
+                    for (let marker of arr) {
+                        if (!marker) continue;
+                        const lat = marker.feature.geometry.coordinates[1];
+                        const lon = marker.feature.geometry.coordinates[0];
+                        const id = marker.feature.set.id;
+                        allSets.push([lat, lon, id]);
+                    }
+                }
+
+                // sortieren nach ID
+                allSets.sort((a, b) => a[2] - b[2]);
+
+                // -------------------------------
+                // DATAPOINT DENSITY ANWENDEN
+                // -------------------------------
+                let density = this.options.datapointDensity;
+
+                // Falls der User nichts gesetzt hat
+                if (density === undefined || density <= 0 || density > 1) {
+                    density = 1;
+                }
+
+                // Anzahl reduzieren
+                const total = allSets.length;
+                const keepCount = Math.max(2, Math.floor(total * density)); // min. 2 Punkte
+
+                const step = total / keepCount;
+
+                const reduced = [];
+                for (let i = 0; i < total; i += step) {
+                    reduced.push(allSets[Math.floor(i)]);
+                }
+
+                // letzer Punkt unbedingt behalten
+                if (reduced[reduced.length - 1][2] !== allSets[allSets.length - 1][2]) {
+                    reduced.push(allSets[allSets.length - 1]);
+                }
+
+                // -------------------------------
+                // POLYLINE ZEICHNEN
+                // -------------------------------
+                if (reduced.length > 1) {
+                    const polyPoints = reduced.map(p => [p[0], p[1]]);
+
+                    this.polylineRoute = L.polyline(polyPoints, {
+                        color: "red",
+                        weight: 4,
+                        opacity: 0.8
+                    }).addTo(worldmap.viewer);
+                }
+
+            } catch (e) {
+                console.error("Polyline Route Error:", e);
+            }
             resolve();
         });
-    }
+    } // end of init()
+
 
     afterAddSet(set, repeateds) {
-        if (this.options.createRouteFromData) {
-            if (!this.lastaddedset) {
-                // On first added set do not create route, notice only
-                this.lastaddedset = set;
-            } else {
-                let comp = this.requestor.parent.swac_comp;
-                let route = [];
-                route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
-                route.push(L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]))
-                L.Routing.control({
-                    waypoints: route,
-                    draggableWaypoints: false,
-                    addWaypoints: false,
-                    show: false,
-                    createMarker: () => {
-                        return null;
-                    }
-                }).addTo(comp.viewer);
-            }
+        if (!this.options.createRouteFromData) {
+            return;
         }
+
+        if (!this.lastaddedset) {
+            // No route on first set
+            this.lastaddedset = set;
+            return;
+        }
+
+        let comp = this.requestor.parent.swac_comp;
+
+        // read coordinates
+        var lat1 = this.lastaddedset[comp.options.latAttr];
+        var lon1 = this.lastaddedset[comp.options.lonAttr]
+        var lat2 = set[comp.options.latAttr];
+        var lon2 = set[comp.options.lonAttr];
+        if (!lat1 || !lon1 || !lat2 || !lon2) {     // validation
+            Msg.warn("Polyline skipped — invalid coordinates:", { lat1, lon1, lat2, lon2 });
+            this.lastaddedset = set;
+            return;
+        }
+
+        // reguläres Routing
+
+        // route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
+        // route.push(L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]))
+
+        // L.Routing.control({
+        //     waypoints: route,
+        //     draggableWaypoints: false,
+        //     addWaypoints: false,
+        //     show: false,
+        //     createMarker: () => {
+        //         return null;
+        //     }
+        // }).addTo(comp.viewer);
+
+        const poly = L.polyline(
+            [
+                [lat1, lon1],
+                [lat2, lon2]
+            ],
+            {
+                color: "sienna",
+                weight: 4,
+                opacity: 0.9
+            }
+        );
+        poly.addTo(comp.viewer)
+        this.lastaddedset = set;
+        
+        // pan to last location
+        comp.zoomToSet(set);
     }
 
     /**
