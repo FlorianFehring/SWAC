@@ -155,6 +155,7 @@ export default class Navigation extends View {
                 }
             }
         }
+        super.afterAddSet(set, repeateds);
     }
 
     /**

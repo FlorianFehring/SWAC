@@ -23,6 +23,10 @@ export default class Present extends View {
             name: 'table_for_all_datasets',
             desc: 'Creates a table which displays all datasets.'
         };
+        this.desc.templates[3] = {
+            name: 'hierarchical',
+            desc: 'Creates a presentation of hierarchical data.'
+        };
 
         this.desc.reqPerSet[0] = {
             name: '*',

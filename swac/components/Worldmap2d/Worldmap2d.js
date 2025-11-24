@@ -205,7 +205,7 @@ export default class Worldmap2d extends View {
             desc: "Id that identifies the dataset.",
             type: "long"
         };
-        
+
         this.desc.optPerSet[0] = {
             name: "name",
             alt: "title",
@@ -743,8 +743,13 @@ export default class Worldmap2d extends View {
         } else if (this.options.geoJSONAttr) {
             geoJSON.geometry.coordinates = set[this.options.geoJSONAttr].coordinates;
         } else {
+            if (!set[this.options.lonAttr] || !set[this.options.latAttr]) {
+                Msg.warn('Worldmap2d', 'Could not create marker for set >' + set.swac_fromName + '[' + set.id + ']<: Coordinate attribute >' + this.options.lonAttr + '< and / or >' + this.options.latAttr + '< is missing.', this.requestor);
+            }
+
             geoJSON.geometry.coordinates = [set[this.options.lonAttr], set[this.options.latAttr]]
         }
+        console.log('TEST afterAddSet', set);
         // Add complete dataset, important to keep data at marker up to date at external changes!
         geoJSON.set = set;
         // Zoom to a certain point
