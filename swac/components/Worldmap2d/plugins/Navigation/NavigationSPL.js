@@ -219,19 +219,84 @@ export default class NavigationSPL extends Plugin {
                 },
             }
 
+            /*
+            document.addEventListener(
+                `swac_Component_${this.requestor.parent.id}_lastSetFromRequestAdded`,
+                () => {
+
+                    // Wie viele Punkte überspringen?
+                    // Example: 5 = nur jeder 5. Marker wird gesendet
+                    const datapointDensity = 5;
+
+                    setTimeout(() => {
+
+                        console.warn("NavigationSPL — ALL DATA LOADED EVENT FIRED");
+
+                        const comp = this.requestor.parent.swac_comp;
+
+                        // Snapshot
+                        const markers = [...comp.markersArray];
+                        console.warn("Marker gesamt:", markers.length);
+
+                        const waypoints = [];
+
+                        for (let i = 0; i < markers.length; i++) {
+                            const marker = markers[i];
+
+                            // --- Dichtefilter ---
+                            if (i % datapointDensity !== 0) continue;
+
+                            if (!marker?._latlng) {
+                                console.warn("Marker ohne LatLng übersprungen:", marker);
+                                continue;
+                            }
+
+                            waypoints.push(
+                                L.latLng(marker._latlng.lat, marker._latlng.lng)
+                            );
+                        }
+
+                        console.warn(`Waypoints nach Dichtefilter (${datapointDensity}):`, waypoints.length);
+                        console.warn(waypoints);
+
+                        if (waypoints.length < 2) {
+                            console.error("Nicht genug Waypoints für Routing.");
+                            return;
+                        }
+
+                        L.Routing.control({
+                            waypoints,
+                            router: L.routing.osrmv1({
+                                serviceUrl: 'https://router.project-osrm.org/route/v1',
+                                profile: 'foot'   // 'car', 'bike', 'foot'
+                            }),
+                            draggableWaypoints: false,
+                            addWaypoints: false,
+                            show: false,
+                            createMarker: () => null
+                        }).addTo(comp.viewer);
+
+                    }, 2000);
+                }
+            );
+            */
             resolve();
         });
     }
 
     afterAddSet(set, repeateds) {
-        if (this.options.createRouteFromData) {
+        // 0 = Classic, 1 = Polyline, 2 = Fast Route
+        let routingMethod = 1;
+
+        // if routingMethod is classic use this
+        if (this.options.createRouteFromData && routingMethod === 0) {
             if (!this.lastaddedset) {
                 // On first added set do not create route, notice only
                 this.lastaddedset = set;
             } else {
                 let comp = this.requestor.parent.swac_comp;
                 let route = [];
-                route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
+                route.push(L.latLng(this.lastaddedset[comp.options.latAttr],this.lastaddedset[comp.options.lonAttr]))
                 route.push(L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]))
                 L.Routing.control({
                     waypoints: route,
@@ -244,6 +309,50 @@ export default class NavigationSPL extends Plugin {
                 }).addTo(comp.viewer);
             }
         }
+
+        // if routingMethod is polyline use this
+        if (!this.options.createRouteFromData || routingMethod !== 1)
+            return;
+
+        let comp = this.requestor.parent.swac_comp;
+
+        // Erste Punkt -> nur speichern
+        if (!this.lastaddedset) {
+            this.lastaddedset = set;
+            return;
+        }
+
+        // Koordinaten ermitteln
+        const lat1 = this.lastaddedset[comp.options.latAttr];
+        const lon1 = this.lastaddedset[comp.options.lonAttr];
+
+        const lat2 = set[comp.options.latAttr];
+        const lon2 = set[comp.options.lonAttr];
+
+        // Validierung
+        if (!lat1 || !lon1 || !lat2 || !lon2) {
+            console.warn("Polyline skipped — invalid coordinates:", { lat1, lon1, lat2, lon2 });
+            this.lastaddedset = set;
+            return;
+        }
+
+        // Polyline erstellen anstatt RoutingMachine
+        const poly = L.polyline(
+            [
+                [lat1, lon1],
+                [lat2, lon2]
+            ],
+            {
+                color: "red",
+                weight: 4,
+                opacity: 0.9
+            }
+        );
+
+        poly.addTo(comp.viewer);
+
+        // Letzten Punkt aktualisieren
+        this.lastaddedset = set;
     }
 
     /**

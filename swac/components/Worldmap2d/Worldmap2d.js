@@ -518,7 +518,8 @@ export default class Worldmap2d extends View {
         this.layerControl = null;
         this.baseLayers = {};
         this.overlayLayers = {};
-        this.markers = {};
+        this.markers = {}; // this is a sparse array
+        this.markersArray = []; // this is a normal array
 
         this.view = {};
         this.tile = null;
@@ -845,6 +846,7 @@ export default class Worldmap2d extends View {
         if (!this.markers[geoJSON.set.swac_fromName])
             this.markers[geoJSON.set.swac_fromName] = [];
         this.markers[geoJSON.set.swac_fromName][geoJSON.set.id] = marker;
+        this.markersArray.push(marker);
         // check if overlay layer already exists
         if (!this.overlayLayers[geoJSON.set.swac_fromName]) {
             // check if datasource should be displayed
@@ -920,6 +922,9 @@ export default class Worldmap2d extends View {
     removeMarker(marker) {
         this.overlayLayers[marker.feature.set.swac_fromName].removeLayer(marker);
         delete this.markers[marker.feature.set.swac_fromName][marker.feature.set.id];
+        // Remove marker from sequential list
+        let idx = this.markersArray.indexOf(marker);
+        if (idx !== -1) this.markersArray.splice(idx, 1);
     }
     /**
      * Removes given markers and Area from the map.
