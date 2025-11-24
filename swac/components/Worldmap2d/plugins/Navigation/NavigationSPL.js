@@ -228,69 +228,67 @@ export default class NavigationSPL extends Plugin {
                 },
             }
 
-            //ADDED - POLYLINE VERSION WITH DATAPOINT DENSITY
-            try {
-                const worldmap = this.requestor.parent.swac_comp;
+            /*
+            document.addEventListener(
+                `swac_Component_${this.requestor.parent.id}_lastSetFromRequestAdded`,
+                () => {
 
-                const allSets = [];
+                    // Wie viele Punkte überspringen?
+                    // Example: 5 = nur jeder 5. Marker wird gesendet
+                    const datapointDensity = 5;
 
-                // sammle alle Marker Sortiert nach ID
-                for (let from in worldmap.markers) {
-                    const arr = worldmap.markers[from];
-                    for (let marker of arr) {
-                        if (!marker) continue;
-                        const lat = marker.feature.geometry.coordinates[1];
-                        const lon = marker.feature.geometry.coordinates[0];
-                        const id = marker.feature.set.id;
-                        allSets.push([lat, lon, id]);
-                    }
+                    setTimeout(() => {
+
+                        console.warn("NavigationSPL — ALL DATA LOADED EVENT FIRED");
+
+                        const comp = this.requestor.parent.swac_comp;
+
+                        // Snapshot
+                        const markers = [...comp.markersArray];
+                        console.warn("Marker gesamt:", markers.length);
+
+                        const waypoints = [];
+
+                        for (let i = 0; i < markers.length; i++) {
+                            const marker = markers[i];
+
+                            // --- Dichtefilter ---
+                            if (i % datapointDensity !== 0) continue;
+
+                            if (!marker?._latlng) {
+                                console.warn("Marker ohne LatLng übersprungen:", marker);
+                                continue;
+                            }
+
+                            waypoints.push(
+                                L.latLng(marker._latlng.lat, marker._latlng.lng)
+                            );
+                        }
+
+                        console.warn(`Waypoints nach Dichtefilter (${datapointDensity}):`, waypoints.length);
+                        console.warn(waypoints);
+
+                        if (waypoints.length < 2) {
+                            console.error("Nicht genug Waypoints für Routing.");
+                            return;
+                        }
+
+                        L.Routing.control({
+                            waypoints,
+                            router: L.routing.osrmv1({
+                                serviceUrl: 'https://router.project-osrm.org/route/v1',
+                                profile: 'foot'   // 'car', 'bike', 'foot'
+                            }),
+                            draggableWaypoints: false,
+                            addWaypoints: false,
+                            show: false,
+                            createMarker: () => null
+                        }).addTo(comp.viewer);
+
+                    }, 2000);
                 }
-
-                // sortieren nach ID
-                allSets.sort((a, b) => a[2] - b[2]);
-
-                // -------------------------------
-                // DATAPOINT DENSITY ANWENDEN
-                // -------------------------------
-                let density = this.options.datapointDensity;
-
-                // Falls der User nichts gesetzt hat
-                if (density === undefined || density <= 0 || density > 1) {
-                    density = 1;
-                }
-
-                // Anzahl reduzieren
-                const total = allSets.length;
-                const keepCount = Math.max(2, Math.floor(total * density)); // min. 2 Punkte
-
-                const step = total / keepCount;
-
-                const reduced = [];
-                for (let i = 0; i < total; i += step) {
-                    reduced.push(allSets[Math.floor(i)]);
-                }
-
-                // letzer Punkt unbedingt behalten
-                if (reduced[reduced.length - 1][2] !== allSets[allSets.length - 1][2]) {
-                    reduced.push(allSets[allSets.length - 1]);
-                }
-
-                // -------------------------------
-                // POLYLINE ZEICHNEN
-                // -------------------------------
-                if (reduced.length > 1) {
-                    const polyPoints = reduced.map(p => [p[0], p[1]]);
-
-                    this.polylineRoute = L.polyline(polyPoints, {
-                        color: "red",
-                        weight: 4,
-                        opacity: 0.8
-                    }).addTo(worldmap.viewer);
-                }
-
-            } catch (e) {
-                console.error("Polyline Route Error:", e);
-            }
+            );
+            */
             resolve();
         });
     } // end of init()
@@ -307,6 +305,35 @@ export default class NavigationSPL extends Plugin {
             return;
         }
 
+        // 0 = Classic, 1 = Polyline, 2 = Fast Route
+        let routingMethod = 2;
+
+        // if routingMethod is classic use this
+        if (this.options.createRouteFromData && routingMethod === 0) {
+            if (!this.lastaddedset) {
+                // On first added set do not create route, notice only
+                this.lastaddedset = set;
+            } else {
+                let comp = this.requestor.parent.swac_comp;
+                let route = [];
+                route.push(L.latLng(this.lastaddedset[comp.options.latAttr],this.lastaddedset[comp.options.lonAttr]))
+                route.push(L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]))
+                L.Routing.control({
+                    waypoints: route,
+                    draggableWaypoints: false,
+                    addWaypoints: false,
+                    show: false,
+                    createMarker: () => {
+                        return null;
+                    }
+                }).addTo(comp.viewer);
+            }
+        }
+
+        // if routingMethod is polyline use this
+        if (!this.options.createRouteFromData || routingMethod !== 1)
+            return;
+
         let comp = this.requestor.parent.swac_comp;
 
         // read coordinates
@@ -319,21 +346,6 @@ export default class NavigationSPL extends Plugin {
             this.lastaddedset = set;
             return;
         }
-
-        // reguläres Routing
-
-        // route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
-        // route.push(L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]))
-
-        // L.Routing.control({
-        //     waypoints: route,
-        //     draggableWaypoints: false,
-        //     addWaypoints: false,
-        //     show: false,
-        //     createMarker: () => {
-        //         return null;
-        //     }
-        // }).addTo(comp.viewer);
 
         const poly = L.polyline(
             [
@@ -351,6 +363,9 @@ export default class NavigationSPL extends Plugin {
         
         // pan to last location
         comp.zoomToSet(set);
+
+        // update last point
+        this.lastaddedset = set;
     }
 
     /**
