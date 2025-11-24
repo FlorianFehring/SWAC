@@ -305,8 +305,10 @@ export default class NavigationSPL extends Plugin {
             return;
         }
 
+
+        //TODO: make this dynamic
         // 0 = Classic, 1 = Polyline, 2 = Fast Route
-        let routingMethod = 2;
+        let routingMethod = 1;
 
         // if routingMethod is classic use this
         if (this.options.createRouteFromData && routingMethod === 0) {
