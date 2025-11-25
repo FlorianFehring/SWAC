@@ -34,6 +34,11 @@ export default class Navigation extends View {
             style: 'nav_webPush',
             desc: 'Display for webPush application.'
         };
+        this.desc.templates[4] = {
+            name: 'nav_webPush_mobile',
+            style: 'nav_webPush_mobile',
+            desc: 'Display for webPush mobile application.'
+        };
         this.desc.styles[0] = {
             selc: ".swac_navigation_head",
             desc: "Makes the navigation a head navigation that stays sticky in its position on scrolling."
