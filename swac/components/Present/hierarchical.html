@@ -10,7 +10,7 @@
                 </div>
                 <div class="uk-width-expand@m">
                     <h3 class="uk-card-title" uk-tooltip="{id}">{name}</h3>
-                    <span>{description}</span>
+                    <span class="swac_repeatForValue"  uk-tooltip="title: {attrName}">{*}</span>
                 </div>
             </div>
 
@@ -26,7 +26,7 @@
                             </div>
                             <div class="uk-width-expand@m">
                                 <h3 class="uk-card-title">{name}</h3>
-                                <span>{description}</span>
+                                <span class="swac_repeatForValue"  uk-tooltip="title: {attrName}"><b>{attrName}</b>: {*} </span>
                             </div>
                         </div>
                     </div>
@@ -37,31 +37,3 @@
         </div>
     </li>
 </ul>
-
-
-<!--<ul>
-    <li class="swac_repeatForSet">
-        <div swac_id="{id}" swac_parent="{parent}">
-            <dl>
-                <dt>
-                    <span uk-tooltip="title: {attrName}">{name}</span>
-                </dt>
-                <dd>
-                    <span uk-tooltip="title: {attrName}">{description}</span>
-                </dd>
-            </dl>
-            <div class="swac_forChilds">
-                <div class="swac_child">
-                    <dl>
-                        <dt>
-                            <span uk-tooltip="title: {attrName}">{name}</span>
-                        </dt>
-                        <dd>
-                            <span uk-tooltip="title: {attrName}">{description}</span>
-                        </dd>
-                    </dl>
-                </div>
-            </div>
-        </div>
-    </li>
-</ul>-->

@@ -42,6 +42,14 @@ export default class Present extends View {
             name: 'parent',
             desc: 'Parent set id. Required for ordering.'
         };
+        this.desc.optPerSet[2] = {
+            name: 'name',
+            desc: 'Optional name of dataset, some templates show this.'
+        };
+        this.desc.optPerSet[3] = {
+            name: 'icon',
+            desc: 'When available icons are shown as picture.'
+        };
 
         this.desc.opts[0] = {
             name: 'arangeable',
