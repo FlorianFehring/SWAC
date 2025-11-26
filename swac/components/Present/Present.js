@@ -38,6 +38,11 @@ export default class Present extends View {
             style: 'present_webPush',
             desc: 'Display for triggers in webPush application.'
         };
+        this.desc.templates[6] = {
+            name: 'present_leaderboard',
+            style: 'present_leaderboard',
+            desc: 'Display for triggers in webPush application.'
+        };
         this.desc.reqPerSet[0] = {
             name: '*',
             desc: 'at least one value as an attribute (named whatever you want)'
