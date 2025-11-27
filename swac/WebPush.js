@@ -6,13 +6,16 @@ export default class WebPush {
 
     async subscribe() {
         if (SWAC.config.progressive.supportpush) {
-            const subscription = await navigator.serviceWorker.ready.then(async registration =>
-                registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: SWAC.urlBase64ToUint8Array(await this.getKey())
-                })
-            );
-
+            const subscription = await navigator.serviceWorker.ready.then(async registration => {
+                let subscription = await registration.pushManager.getSubscription();
+                if (subscription == null) {
+                    subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: SWAC.urlBase64ToUint8Array(await this.getKey())
+                    })
+                }
+                return subscription;
+            });
             var key = subscription.getKey ? subscription.getKey('p256dh') : '';
             var auth = subscription.getKey ? subscription.getKey('auth') : '';
 
@@ -41,7 +44,7 @@ export default class WebPush {
         return await fetch(`${WebPush.url}/send`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 title: "Test Message from PWA",
                 body: "This is a test notification sent from the SWAC WebPush module.",
                 icon: "https://localhost:8181/WebPush-PWA/img/logo.png"
