@@ -750,7 +750,7 @@ export default class Worldmap2d extends View {
 
             geoJSON.geometry.coordinates = [set[this.options.lonAttr], set[this.options.latAttr]]
         }
-        console.log('TEST afterAddSet', set);
+        // console.log('TEST afterAddSet', set);
         // Add complete dataset, important to keep data at marker up to date at external changes!
         geoJSON.set = set;
         // Zoom to a certain point

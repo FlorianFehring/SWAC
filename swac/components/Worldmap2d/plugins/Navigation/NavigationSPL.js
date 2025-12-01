@@ -52,6 +52,22 @@ export default class NavigationSPL extends Plugin {
             example: 0.5,
             desc: "Configures what percentage of datapoint density should be displayed. Routes with many datapoints encounter problems with routing"
         };
+        this.desc.opts[4] = {
+            name: "connectWithLine",
+            desc: "If true connects datapoints in linear lines and omits street routing",
+            example: true
+        }
+        if (typeof options.connectWithLine !== 'boolean')
+            this.options.connectWithLine = false;
+
+        this.desc.opts[5] ={
+            name: "travelmode",
+            example: "car",
+            desc: "Determine the travel mode for street routing. Possible modes include car, bike and foot."
+        }
+        if (!options.travelmode)
+            this.options.travelmode = "bike";
+
 
         // Attributes for internal usage
         this.map = null;
@@ -295,54 +311,50 @@ export default class NavigationSPL extends Plugin {
 
 
     afterAddSet(set, repeateds) {
-        if (!this.options.createRouteFromData) {
+        if (!this.options.createRouteFromData)
             return;
-        }
 
+        // No route on first set (datapoint)
         if (!this.lastaddedset) {
-            // No route on first set
             this.lastaddedset = set;
             return;
         }
 
-        // 0 = Classic, 1 = Polyline, 2 = Fast Route
-        let routingMethod = 2;
+        let comp = this.requestor.parent.swac_comp;
+        // console.log("Use Polyline?", this.options.connectWithLine);
 
-        // if routingMethod is classic use this
-        if (this.options.createRouteFromData && routingMethod === 0) {
-            if (!this.lastaddedset) {
-                // On first added set do not create route, notice only
-                this.lastaddedset = set;
-            } else {
-                let comp = this.requestor.parent.swac_comp;
-                let route = [];
-                route.push(L.latLng(this.lastaddedset[comp.options.latAttr],this.lastaddedset[comp.options.lonAttr]))
-                route.push(L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]))
-                L.Routing.control({
-                    waypoints: route,
-                    draggableWaypoints: false,
-                    addWaypoints: false,
-                    show: false,
-                    createMarker: () => {
-                        return null;
-                    }
-                }).addTo(comp.viewer);
-            }
+        // unused legacy routing method
+        // TODO merge with new routing method
+        if (!this.options.connectWithLine) {
+            let route = [];
+            route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
+            route.push(L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]))
+            L.Routing.control({
+                waypoints: route,
+                draggableWaypoints: false,
+                addWaypoints: false,
+                show: false,
+                createMarker: () => {
+                    return null;
+                }
+            }).addTo(comp.viewer);
+            return;
         }
 
         // if routingMethod is polyline use this
-        if (!this.options.createRouteFromData || routingMethod !== 1)
+        if (!this.options.connectWithLine) {
             return;
-
-        let comp = this.requestor.parent.swac_comp;
+        }
 
         // read coordinates
         var lat1 = this.lastaddedset[comp.options.latAttr];
         var lon1 = this.lastaddedset[comp.options.lonAttr]
         var lat2 = set[comp.options.latAttr];
         var lon2 = set[comp.options.lonAttr];
-        if (!lat1 || !lon1 || !lat2 || !lon2) {     // validation
-            Msg.warn("Polyline skipped — invalid coordinates:", { lat1, lon1, lat2, lon2 });
+
+        // validate coordinates
+        if (!lat1 || !lon1 || !lat2 || !lon2) {  
+            Msg.warn("Polyline skipped a point — invalid coordinates: ", { lat1, lon1, lat2, lon2 });
             this.lastaddedset = set;
             return;
         }
