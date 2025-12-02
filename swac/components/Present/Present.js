@@ -40,12 +40,18 @@ export default class Present extends View {
         };
         this.desc.templates[6] = {
             name: 'present_leaderboard',
-            style: 'present_leaderboard',
+            style: 'present_webPush_PWA',
             desc: 'Display for triggers in webPush application.'
         };
         this.desc.templates[7] = {
             name: 'present_webPush_images',
+            style: 'present_webPush_PWA',
             desc: 'Display for possible profile pictures in webPush PWA.'
+        };
+        this.desc.templates[8] = {
+            name: 'present_webPush_achievements',
+            style: 'present_webPush_PWA',
+            desc: 'Display for achievements in webPush PWA.'
         };
         this.desc.reqPerSet[0] = {
             name: '*',
