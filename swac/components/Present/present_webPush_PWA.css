@@ -16,11 +16,13 @@
 .achv-reward-value {
   font-size: 1.3em;
   font-weight: bold;
+  color: #0073e6;
 }
 
 .achv-title {
   line-height: 1.2em;
 }
+
 .uk-table {
   max-height: 250px;
   overflow-y: auto;
