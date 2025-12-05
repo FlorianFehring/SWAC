@@ -320,8 +320,7 @@ export default class NavigationSPL extends Plugin {
             return;
         }
 
-        let comp = this.requestor.parent.swac_comp;
-        // console.log("Use Polyline?", this.options.connectWithLine);
+        let comp = this.requestor.parent.swac_comp; // fetch map component
 
         // unused legacy routing method
         // TODO merge with new routing method
@@ -359,25 +358,19 @@ export default class NavigationSPL extends Plugin {
             return;
         }
 
+        // construct polyline in Leaflet
         const poly = L.polyline(
             [
                 [lat1, lon1],
                 [lat2, lon2]
             ],
-            {
-                color: "sienna",
-                weight: 4,
-                opacity: 0.9
-            }
+            {color: "sienna", weight: 4, opacity: 0.9}
         );
-        poly.addTo(comp.viewer)
-        this.lastaddedset = set;
+        poly.addTo(comp.viewer); // add polyline to map
         
-        // pan to last location
-        comp.zoomToSet(set);
+        comp.zoomToSet(set); // pan to last location
 
-        // update last point
-        this.lastaddedset = set;
+        this.lastaddedset = set; // update last point
     }
 
     /**
