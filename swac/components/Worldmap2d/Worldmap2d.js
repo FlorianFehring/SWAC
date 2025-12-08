@@ -809,7 +809,9 @@ export default class Worldmap2d extends View {
                 let col = this.datadescription.getValueColor(geoJSON.set);
                 // If color is hex value remove sharp because its not allowed in file URL
                 col = col.replace('#', '');
-                col = col.replace('GREY', '7B7B7B')
+                col = col.replace('GREY', '7B7B7B');
+                col = col.replace('808080', '7B7B7B');
+
                 icon = new L.Icon({
                     iconUrl: '/SWAC/swac/components/Icon/imgs/map/marker-icon-' + col + '.png',
                     shadowUrl: '/SWAC/swac/components/Icon/imgs/map/marker-shadow.png',
