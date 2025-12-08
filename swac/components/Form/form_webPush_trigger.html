@@ -6,8 +6,17 @@
             <input class="uk-input" name="description" id="description" type="text" placeholder="Short trigger description" required>
         </div>
         <label class="uk-form-label">Schedule</label>
-        <div class="uk-margin">
-            <input class="uk-input" name="schedule_cron" id="schedule_cron" type="text" placeholder="Cron (e.g. * * * * * *)">
+        <div class="uk-margin uk-flex uk-flex-middle uk-flex-nowrap uk-grid-small" uk-grid>
+            <div class="uk-width-expand">
+                <input class="uk-input" name="schedule_cron" id="schedule_cron" type="text"
+                    placeholder="Cron (e.g. * * * * * *)">
+            </div>
+            <div class="uk-width-auto">
+                <a href="https://www.freeformatter.com/cron-expression-generator-quartz.html" 
+                id="popup-reload"lass="uk-button uk-button-default uk-button-small"aria-label="Reload">
+                    <span uk-icon="question"></span>
+                </a>
+            </div>
         </div>
         <div class="uk-margin">
             <input class="uk-input" name="schedule_timestamp" id="schedule_timestamp" type="datetime-local">

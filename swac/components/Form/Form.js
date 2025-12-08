@@ -103,7 +103,6 @@ export default class Form extends View {
             }
         }
         dataCapsule.data = [dataset];
-        console.log(dataCapsule.data)
         let thisRef = this;
         Model.save(dataCapsule).then(function (data) {
             thisRef.afterSave(dataCapsule);
