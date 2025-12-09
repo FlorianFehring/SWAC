@@ -575,7 +575,7 @@ DEFINTION of SET:\n\
         // Documentation for events
         this.desc.events = [];
         this.desc.events[1000] = {
-            name: 'swac_Component_REQUESTOR_ID_lastSetFromRequestAdded',
+            name: 'swac_Component_REQUESTOR.ID_lastSetFromRequestAdded',
             desc: 'Event is fired, when the last dataset from a request was added to the component. The event is fired on the document.',
             data: 'Sends the last dataset as detail.'
         };
