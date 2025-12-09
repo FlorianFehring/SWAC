@@ -1954,7 +1954,7 @@ DEFINTION of SET:\n\
         for (let depNo in this.desc.depends) {
             let dependency = this.desc.depends[depNo];
             // Ignore if debugonly and no debugmode
-            if (dependency.debugonly && !this.config.debugmode)
+            if (dependency.debugonly && !SWAC_config.debugmode)
                 continue;
             if (typeof dependency.loaded === 'undefined' || dependency.loaded === false) {
                 return false;
