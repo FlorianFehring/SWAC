@@ -47,7 +47,7 @@ export default class WebPush {
             body: JSON.stringify({
                 title: "Test Message from PWA",
                 body: "This is a test notification sent from the SWAC WebPush module.",
-                icon: "https://localhost:8181/WebPush-PWA/img/logo.png"
+                icon_url: "/WebPush-PWA/files/icons/logo.png"
             })
         }).then(response => response.json());
     }
