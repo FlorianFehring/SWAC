@@ -1,5 +1,5 @@
 import Msg from '../../../Msg.js';
-import Worldmap from './../Worldmap.js';
+import Worldmap from './../Worldmap3d.js';
 import SEGLTF from './SEGLTF.js';
 import Tileset from './Tileset.js';
 import GeoJson from './GeoJson.js';
@@ -55,7 +55,7 @@ modelFactory.loadModel = function (url, requestor, visoptions) {
 /**
  * Loads the model with the highest level from the model given by url.
  * The level is calculated from priority pattern list.
- * Worldmap.options.model_priorities
+ * Worldmap3d.options.model_priorities
  * 
  * @param {String} url URL to the known modelfile
  * @param {SWACRequestor} requestor DOMElement requesting the globe
@@ -69,7 +69,7 @@ modelFactory.loadHighestLevelModel = function (url, requestor) {
         let priorityFileUrl = url;
         let priorityFound = false;
         // Look at each priority from top (0) to low (n)
-        for (let pattern of Worldmap.options.model_priorities) {
+        for (let pattern of Worldmap3d.options.model_priorities) {
             let searchFilePath = pattern.replace('{filepath}', filepath);
             // Look at SWAC storage if there is such a file (should be there once it was searched)
             for (let file in window.swac.storage.files) {

@@ -56,7 +56,7 @@ class SearchEntryMakerGLTF extends SearchEntryMaker {
             }
             var warningElem = document.createElement('span');
             warningElem.setAttribute('uk-icon', 'icon: warning');
-            warningElem.setAttribute('uk-tooltip', 'title: ' + SWAC.lang.dict.Worldmap.no_grounddata);
+            warningElem.setAttribute('uk-tooltip', 'title: ' + SWAC.lang.dict.Worldmap3d.no_grounddata);
             placeElement.appendChild(warningElem);
         }
     }

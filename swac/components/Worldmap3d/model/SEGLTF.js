@@ -132,7 +132,7 @@ export default class SEGLTF extends MapModel {
 //        // Get end position of json
 //        var jsonEndPos = segltfjson.lastIndexOf('}');
 //        segltfjson = segltfjson.substring(0, jsonEndPos + 1);
-//        Worldmap.models[hid] = {};
-//        Worldmap.models[hid].descriptor = JSON.parse(segltfjson);
+//        Worldmap3d.models[hid] = {};
+//        Worldmap3d.models[hid].descriptor = JSON.parse(segltfjson);
 //    }
 }

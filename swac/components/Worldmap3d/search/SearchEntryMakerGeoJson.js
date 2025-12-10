@@ -135,7 +135,7 @@ class SearchEntryMakerGeoJson extends SearchEntryMaker {
                 if (!modelFileAvailable) {
                     var warningElem = document.createElement('span');
                     warningElem.setAttribute('uk-icon', 'icon: warning');
-                    warningElem.setAttribute('uk-tooltip', 'title: ' + SWAC.lang.dict.Worldmap.no_model);
+                    warningElem.setAttribute('uk-tooltip', 'title: ' + SWAC.lang.dict.Worldmap3d.no_model);
                     placeElement.appendChild(warningElem);
                 }
             });
