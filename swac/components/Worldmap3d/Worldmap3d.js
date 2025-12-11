@@ -148,8 +148,8 @@ There are some optional attributes:\n\
             desc: "URL to map provider (currently only openstreetmap suported)"
         };
         if (!options.mapProviderURL)
-            //this.options.mapProviderURL = 'https://a.tile.openstreetmap.org/';
-            this.options.mapProviderURL = null
+            this.options.mapProviderURL = 'https://a.tile.openstreetmap.org/';
+            //this.options.mapProviderURL = null
         
         this.desc.opts[4] = {
             name: "enableTerrain",
@@ -388,7 +388,7 @@ displayed on the time. Otherwise all informations will displayed at once.'
                     viewerconf.terrainProvider = Cesium.createWorldTerrain();
                 }
             }
-
+            
             // Build up viewer
             this.viewer = new Cesium.Viewer('swac_worldmap3d_map', viewerconf);
 
@@ -403,6 +403,11 @@ displayed on the time. Otherwise all informations will displayed at once.'
             }
 
             Msg.warn('World3map', 'running on Cesium ' + Cesium.VERSION, this.requestor);
+            
+            let osmLayer = this.buildImageryProvider();
+            if (osmLayer) {
+                this.viewer.imageryLayers.addImageryProvider(osmLayer);
+            }
 
             // Adding attribution
             let credit = new Cesium.Credit('OpenSteetMap.org', '', 'http://www.openstreetmap.org');
