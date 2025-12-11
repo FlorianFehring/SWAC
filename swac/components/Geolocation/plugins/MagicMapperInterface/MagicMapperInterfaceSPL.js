@@ -244,11 +244,9 @@ export default class MagicMapperInterfaceSPL extends Plugin {
      */
     async fetchGetJSON(url) {
         try {
-            const data = await fetch(url).then((res) => res.json());
-            return data;
+            return await fetch(url).then((res) => res.json());
         } catch (err) {
             throw err;
         }
     }
-
 }
