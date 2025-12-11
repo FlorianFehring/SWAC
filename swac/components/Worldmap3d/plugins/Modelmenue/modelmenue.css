@@ -2,34 +2,34 @@
     Created on : 30.01.2019, 15:21:18
     Author     : ffehring
 */
-.swac_worldmap_modelmenue {
+.swac_worldmap3d_modelmenue {
     width: 60%;
     height: 205px;
     border-radius: 100px;
     z-index: 999;
 }
 
-.swac_worldmap_modelmenue div {
+.swac_worldmap3d_modelmenue div {
     height: 40px;
     border-radius: 10px;
 }
 
-.swac_worldmap_modelmenue_right {
+.swac_worldmap3d_modelmenue_right {
     z-index: 999;
     width: 50px;
 }
 
-.swac_worldmap_modelmenue_right a {
+.swac_worldmap3d_modelmenue_right a {
     color: white;
     background-color: black;
 }
 
-.swac_worldmap_modelmenue_left {
+.swac_worldmap3d_modelmenue_left {
     z-index: 999;
     width: 50px;
 }
 
-.swac_worldmap_modelmenue_left a {
+.swac_worldmap3d_modelmenue_left a {
     color: white;
     background-color: black;
 }
@@ -82,7 +82,7 @@
     float: left;
 }
 
-.swac_worldmap_modelmenue_showdetail {
+.swac_worldmap3d_modelmenue_showdetail {
     text-transform: uppercase;
     text-shadow: 1px 1px #333333;
     font-weight: bolder;

@@ -5,7 +5,7 @@ import Worldmap3dViewport from './Worldmap3dViewport.js';
 import Worldmap3dNavigation from './Worldmap3dNavigation.js';
 import ModelFactory from './model/ModelFactory.js';
 
-export default class Worldmap extends View {
+export default class Worldmap3d extends View {
 
     constructor(options = {}) {
         super(options);
@@ -59,11 +59,13 @@ export default class Worldmap extends View {
 
         this.desc.reqPerTpl[0] = {
             selc: '.swac_worldmap3d_tooltip',
-            desc: 'Area that contains the tooltip informations.'
+            desc: 'Area that contains the tooltip informations.',
+            depricated: true
         };
         this.desc.reqPerTpl[1] = {
             selc: '.swac_worldmap3d_tooltip_value',
-            desc: 'Element where to show the value for the position the tooltip belongs to.'
+            desc: 'Element where to show the value for the position the tooltip belongs to.',
+            depricated: true
         };
         this.desc.reqPerTpl[2] = {
             selc: '.swac_worldmap3d_valuename',
@@ -87,7 +89,8 @@ export default class Worldmap extends View {
         };
         this.desc.reqPerTpl[7] = {
             selc: '.swac_worldmap3d_tooltip_position',
-            desc: 'Element that contains the position of the dataset.'
+            desc: 'Element that contains the position of the dataset.',
+            depricated: true
         };
         this.desc.reqPerTpl[8] = {
             selc: '.swac_worldmap3d_latout',
@@ -145,8 +148,9 @@ There are some optional attributes:\n\
             desc: "URL to map provider (currently only openstreetmap suported)"
         };
         if (!options.mapProviderURL)
-              this.options.mapProviderURL = 'https://tile.openstreetmap.org/';
-
+            //this.options.mapProviderURL = 'https://a.tile.openstreetmap.org/';
+            this.options.mapProviderURL = null
+        
         this.desc.opts[4] = {
             name: "enableTerrain",
             desc: "Set true to enable terain display"
@@ -361,18 +365,18 @@ displayed on the time. Otherwise all informations will displayed at once.'
             // Set accessToken for ion
             Cesium.Ion.defaultAccessToken = this.options.ionAccessToken;
 
-            // Build viewer configuration WITHOUT Cesium Ion
-            let viewerconf = {
-                imageryProvider: this.buildImageryProvider(),
-                baseLayerPicker: false,
-                homeButton: false,
-                sceneModePicker: false,
-                navigationHelpButton: false,
-                animation: this.options.showTimedDataAnimation,
-                timeline: true,
-                geocoder: false,
-                shouldAnimate: this.options.showTimedDataAnimation
-            };
+            // Build viewer configuration
+            let viewerconf = {};
+            // Load imagery provider
+            viewerconf.imageryProvider = this.buildImageryProvider();
+            viewerconf.baseLayerPicker = false;
+            viewerconf.homeButton = false;
+            viewerconf.sceneModePicker = false;
+            viewerconf.navigationHelpButton = false;
+            viewerconf.animation = this.options.showTimedDataAnimation;
+            viewerconf.timeline = true;
+            viewerconf.geocoder = false;
+            viewerconf.shouldAnimate = this.options.showTimedDataAnimation;
 
             // Enable terrain
             if (this.options.enableTerrain) {
@@ -381,8 +385,7 @@ displayed on the time. Otherwise all informations will displayed at once.'
                         url: this.options.terrainURL
                     });
                 } else {
-                    //viewerconf.terrainProvider = Cesium.createWorldTerrain();
-                    viewerconf.terrainProvider = new Cesium.EllipsoidTerrainProvider();
+                    viewerconf.terrainProvider = Cesium.createWorldTerrain();
                 }
             }
 
@@ -399,10 +402,10 @@ displayed on the time. Otherwise all informations will displayed at once.'
                         );
             }
 
-            Msg.warn('Worldmap', 'running on Cesium ' + Cesium.VERSION, this.requestor);
+            Msg.warn('World3map', 'running on Cesium ' + Cesium.VERSION, this.requestor);
 
             // Adding attribution
-            let credit = new Cesium.Credit('OpenStreetMap.org', '', 'http://www.openstreetmap.org');
+            let credit = new Cesium.Credit('OpenSteetMap.org', '', 'http://www.openstreetmap.org');
             this.viewer.creditDisplay.addStaticCredit(credit);
 
             // Enable lighting
@@ -414,8 +417,6 @@ displayed on the time. Otherwise all informations will displayed at once.'
                         new Cesium.IonImageryProvider({assetId: 3})
                         );
             }
-            console.log("Photomap enabled:", this.options.enablePhotomap);
-            console.log("ION Token:", this.options.ionAccessToken);
 
             if (this.options.enableLookIntoEarth) {
                 //  Cut of top and buttom of world sphere, so we can look inside
@@ -507,25 +508,7 @@ displayed on the time. Otherwise all informations will displayed at once.'
      *
      * @returns {undefined}
      */
-    
-    buildImageryProvider() {
-    let imageryProvider;
 
-    // Standard OpenStreetMap
-    const osmUrl = this.options.mapProviderURL || 'https://tile.openstreetmap.org/';
-
-    imageryProvider = new Cesium.OpenStreetMapImageryProvider({
-        url: osmUrl,
-        credit: new Cesium.Credit("© OpenStreetMap contributors")
-    });
-
-    console.log("OpenStreetMap Provider initialized:", imageryProvider);
-
-    return imageryProvider;
-}
-
-    
-    /*
     buildImageryProvider() {
         var imageryProvider;
         // Automatic create image provider for openstreetmap
@@ -533,12 +516,24 @@ displayed on the time. Otherwise all informations will displayed at once.'
             imageryProvider = new Cesium.OpenStreetMapImageryProvider({
                 url: this.options.mapProviderURL
             });
-            console.log("provider: ")
-            console.log(imageryProvider)
         }
         return imageryProvider;
     }
-*/
+
+    /*
+     buildImageryProvider() {
+     var imageryProvider;
+     // Automatic create image provider for openstreetmap
+     if (this.options.mapProviderURL?.includes('openstreetmap.org')) {
+     imageryProvider = new Cesium.OpenStreetMapImageryProvider({
+     url: this.options.mapProviderURL
+     });
+     console.log("provider: ")
+     console.log(imageryProvider)
+     }
+     return imageryProvider;
+     }
+     */
 
     /**
      * Load the data from the datasources option.

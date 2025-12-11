@@ -4,7 +4,7 @@
 
 class Worldmap3dDebug {
     constructor(worldmap3d) {
-        this.worldmap3d = worldma3dp;
+        this.worldmap3d = worldmap3d;
         this.worldmap3d.viewer.extend(Cesium.viewerCesiumInspectorMixin);
 
         // Debug coordinate cross
