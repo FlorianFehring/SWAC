@@ -55,7 +55,7 @@ export default class ModelmenueSPL extends Plugin {
 
             window.addEventListener("resize", function (evt) {
                 // Get requestor for modelmenue
-                let cesiumRequestors = document.querySelectorAll('[swa|="swac_worldmap"]');
+                let cesiumRequestors = document.querySelectorAll('[swa|="swac_worldmap3d"]');
                 for (let curRequestor of cesiumRequestors) {
                     // Get modelmenue plugin
                     let curPlug = curRequestor.swac_comp.pluginHandler.plugins.get('modelmenue');
@@ -127,7 +127,7 @@ export default class ModelmenueSPL extends Plugin {
      */
     onPicked(movement) {
 //        // Get cesium requestor
-//        let requestor = document.querySelector('[swa|="swac_worldmap"]');
+//        let requestor = document.querySelector('[swa|="swac_worldmap3d"]');
 //        // Get modelmenue plugin
 //        let thisPlug = requestor.swac_comp.pluginHandler.plugins.get('modelmenue');
 

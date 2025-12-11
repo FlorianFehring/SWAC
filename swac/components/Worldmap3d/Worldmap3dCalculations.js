@@ -2,7 +2,7 @@
  * This class contains calculation methods for cesium
  */
 
-class WorldmapCalculations {
+class Worldmap3dCalculations {
 
     /**
      * Calculates ECEF coordinates from WGS84 coordinates. Uses a reimplementation

@@ -177,7 +177,7 @@ export default class GeneralDataJson extends MapModel {
                         thisRef._timedintervals = Cesium.TimeIntervalCollection.fromIso8601DateArray({
                             iso8601Dates: dates
                         });
-                        // Inform worldmap component of data available in interval
+                        // Inform worldmap3d component of data available in interval
                         var start = Cesium.JulianDate.fromIso8601(dates[0]);
                         var stop = Cesium.JulianDate.fromIso8601(dates[dates.length - 1]);
                         thisRef._requestor.swac_comp.setTimeddataFirstTime(start);

@@ -1,4 +1,4 @@
-var Worldmap_Modelmenue_de = {
+var Worldmap3d_Modelmenue_de = {
     southview: "Südansicht",
     westview: "Westansicht",
     northview: "Nordansicht",

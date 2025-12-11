@@ -1,5 +1,5 @@
 import Msg from '../../../Msg.js';
-import Worldmap from './../Worldmap3d.js';
+import Worldmap3d from './../Worldmap3d.js';
 import SEGLTF from './SEGLTF.js';
 import Tileset from './Tileset.js';
 import GeoJson from './GeoJson.js';
