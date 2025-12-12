@@ -53,6 +53,7 @@ export default class NavigationSPL extends Plugin {
             desc: "Configures what percentage of datapoint density should be displayed. Routes with many datapoints encounter problems with routing"
         };
 
+        // NEW
         this.desc.opts[4] = {
             name: "enableRouteSave",
             desc: "If true a button to save the current route is shown"
@@ -61,6 +62,22 @@ export default class NavigationSPL extends Plugin {
             this.options.enableRouteSave = false;
         }
 
+        this.desc.opts[5] = {
+            name: 'routeSaveTarget',
+            desc: 'Backend target where route points are saved',
+            example: 'routes_planed'
+        };
+        if (!options.routeSaveTarget) {
+            this.options.routeSaveTarget = null;
+        }
+
+        this.desc.opts[6] = {
+            name: 'routeIdGenerator',
+            desc: 'Function or string to generate route_id'
+        };
+        if (!options.routeIdGenerator) {
+            this.options.enableRouteSave = null;
+        }
 
         // Attributes for internal usage
         this.map = null;
@@ -108,7 +125,7 @@ export default class NavigationSPL extends Plugin {
                 this.saveRouteButton.style.display = 'block';
 
                 this.saveRouteButton.addEventListener('click', () => {
-                    this.saveCurrentRoute();
+                    this.saveRoute();
                 });
             }
 
@@ -716,6 +733,67 @@ export default class NavigationSPL extends Plugin {
         }
 
         return points;
+    }
+
+    saveRoute() {
+        if (!this.options.enableRouteSave || !this.options.routeSaveTarget) {
+            return;
+        }
+
+        const Model = window.swac.Model;
+
+        // Route-ID erzeugen
+        let routeId;
+        if (typeof this.options.routeIdGenerator === 'function') {
+            routeId = this.options.routeIdGenerator();
+        } else {
+            routeId = `route_${Date.now()}`;
+        }
+
+        const points = [];
+
+        // Start
+        points.push(this.navigationobj.start);
+
+        // Waypoints
+        this.navigationobj.waypoints.forEach(wp => {
+            if (wp.lat !== null && wp.lng !== null) {
+                points.push(wp);
+            }
+        });
+
+        // Destination
+        points.push(this.navigationobj.destination);
+
+        const dataCapsule = {
+            fromName: this.options.routeSaveTarget,
+            data: points.map((p, index) => ({
+                route_id: routeId,
+                step: index,
+                pos: `POINT(${p.lng} ${p.lat})`,
+                description:
+                    index === 0
+                        ? 'Startpunkt'
+                        : index === points.length - 1
+                            ? 'Zielpunkt'
+                            : `Zwischenstopp ${index}`
+            }))
+        };        
+
+        Model.save(dataCapsule)
+            .then(() => {
+                UIkit.notification({
+                    message: 'Route gespeichert',
+                    status: 'success'
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                UIkit.notification({
+                    message: 'Fehler beim Speichern der Route',
+                    status: 'danger'
+                });
+            });
     }
 
     /**
