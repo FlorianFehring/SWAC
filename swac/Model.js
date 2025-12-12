@@ -44,7 +44,7 @@ export default class Model {
                 }
             }
 
-            // Calculate sore and request id
+            // Calculate store and request id
             dataRequest.storeId = dataRequest.fromName;
             dataRequest.requestId = dataRequest.fromName;
             if (dataRequest.fromWheres) {
