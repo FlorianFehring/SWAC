@@ -15,6 +15,13 @@
                 <div class="uk-form-controls">
                     <input class="navigation-start-input uk-input" type="search" placeholder="Worldmap2d_Navigation.input_start_placeholder">
                 </div>
+                <div class="navigation-waypoints"></div>
+                <div class="uk-flex uk-margin">
+                    <a href="#" class="navigation-add-waypoint-button uk-icon-button"
+                       uk-tooltip="Zwischenstopp hinzufügen">
+                        <img src="/SWAC/swac/components/Icon/imgs/plus.svg" />
+                    </a>
+                </div>
                 <label class="uk-form-label" swac_lang="Worldmap2d_Navigation.input_destination_label">Ziel</label>
                 <div class="uk-form-controls">
                     <input class="navigation-destination-input uk-input" type="search" placeholder="Worldmap2d_Navigation.input_destination_placeholder">
@@ -29,6 +36,11 @@
                 <button class="navigation-user-location-button uk-button" swac_lang="Worldmap2d_Navigation.user_location_button">Mein Standort</button>
                 <button class="navigation-routing-start-button uk-button uk-button-default" swac_lang="Worldmap2d_Navigation.start_button">Start</button>
                 <button class="navigation-routing-end-button uk-button uk-button-default" swac_lang="Worldmap2d_Navigation.reset_button">Zurücksetzen</button>
+                <button
+                    class="navigation-route-save-button uk-button uk-button-primary uk-margin-small-top"
+                    style="display:none">
+                    Route speichern
+                </button>                
             </div>
         </div>
         <table class="uk-table uk-table-divider uk-table-small">
