@@ -1,57 +1,130 @@
-<div class="navigation">
+<div class="navigation outfit-font">
+
+    <!-- Sidebar Button -->
     <div class="sidebar-button">
         <img class="sidebar-icon"
              src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/search.svg" />
     </div>
+
+    <!-- Navigation Menu (Card Panel) -->
     <div class="navigation-menu uk-overflow-auto uk-padding-small">
+
+        <!-- Header -->
         <div class="titlecontainer">
-            <div class="title" swac_lang="Worldmap2d_Navigation.title">Navigation</div>
+            <div class="title black" swac_lang="Worldmap2d_Navigation.title">
+                Navigation
+            </div>
             <hr>
         </div>
-        <img id="navigation-button-close" class="navigation-button-close button-close" src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/x.svg">
-        <div class="uk-flex uk-flex-middle uk-flex-between">
+
+        <!-- Close Button -->
+        <img
+            id="navigation-button-close"
+            class="navigation-button-close button-close"
+            src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/x.svg"
+        >
+
+        <!-- Main Layout -->
+        <div class="uk-flex uk-flex-middle uk-flex-between uk-flex-wrap">
+
+            <!-- LEFT: Inputs -->
             <form class="uk-form-horizontal uk-width-2-5 uk-margin-left">
-                <label class="uk-form-label uk-margin-small uk-inline" swac_lang="Worldmap2d_Navigation.input_start_label">Start</label>
+
+                <!-- Start -->
+                <label class="uk-form-label uk-margin-small uk-inline"
+                       swac_lang="Worldmap2d_Navigation.input_start_label">
+                    Start
+                </label>
                 <div class="uk-form-controls">
-                    <input class="navigation-start-input uk-input" type="search" placeholder="Worldmap2d_Navigation.input_start_placeholder">
+                    <input
+                        class="navigation-start-input uk-input"
+                        type="search"
+                        placeholder="Startpunkt eingeben"
+                    >
                 </div>
+
+                <!-- Waypoints -->
                 <div class="navigation-waypoints"></div>
-                <div class="uk-flex uk-margin">
-                    <a href="#" class="navigation-add-waypoint-button uk-icon-button"
-                       uk-tooltip="Zwischenstopp hinzufügen">
-                        <img src="/SWAC/swac/components/Icon/imgs/plus.svg" />
-                    </a>
+
+                <!-- Add Waypoint -->
+                <div class="uk-form-controls uk-margin-small-top">
+                    <button
+                        type="button"
+                        class="navigation-add-waypoint-button nav-add-waypoint-icon-btn"
+                        uk-tooltip="Zwischenstopp hinzufügen">
+                        <img
+                            src="/SWAC/swac/components/Icon/imgs/plus.svg"
+                            alt="Zwischenstopp hinzufügen"
+                            class="nav-add-waypoint-icon" />
+                    </button>
                 </div>
-                <label class="uk-form-label" swac_lang="Worldmap2d_Navigation.input_destination_label">Ziel</label>
+
+                <!-- Destination -->
+                <label class="uk-form-label uk-margin-small-top"
+                       swac_lang="Worldmap2d_Navigation.input_destination_label">
+                    Ziel
+                </label>
                 <div class="uk-form-controls">
-                    <input class="navigation-destination-input uk-input" type="search" placeholder="Worldmap2d_Navigation.input_destination_placeholder">
+                    <input
+                        class="navigation-destination-input uk-input"
+                        type="search"
+                        placeholder="Ziel eingeben"
+                    >
                 </div>
+
             </form>
+
+            <!-- CENTER: Switch Start/Destination -->
             <div class="uk-flex uk-margin">
-                <a href="#" class="navigation-switch-button uk-icon-button">
+                <a href="#"
+                   class="navigation-switch-button uk-icon-button"
+                   uk-tooltip="Start und Ziel tauschen">
                     <img src="/SWAC/swac/components/Icon/imgs/map/worldmap2d/arrows-down-up.svg" />
                 </a>
             </div>
+
+            <!-- RIGHT: Actions -->
             <div class="uk-flex uk-flex-column uk-flex-center uk-width-2-5 uk-margin-right">
-                <button class="navigation-user-location-button uk-button" swac_lang="Worldmap2d_Navigation.user_location_button">Mein Standort</button>
-                <button class="navigation-routing-start-button uk-button uk-button-default" swac_lang="Worldmap2d_Navigation.start_button">Start</button>
-                <button class="navigation-routing-end-button uk-button uk-button-default" swac_lang="Worldmap2d_Navigation.reset_button">Zurücksetzen</button>
+
+                <button
+                    class="navigation-user-location-button uk-button uk-button-default uk-margin-small-bottom"
+                    swac_lang="Worldmap2d_Navigation.user_location_button">
+                    Mein Standort
+                </button>
+
+                <button
+                    class="navigation-routing-start-button uk-button uk-button-default uk-margin-small-bottom"
+                    swac_lang="Worldmap2d_Navigation.start_button">
+                    Start
+                </button>
+
+                <button
+                    class="navigation-routing-end-button uk-button uk-button-default uk-margin-small-bottom"
+                    swac_lang="Worldmap2d_Navigation.reset_button">
+                    Zurücksetzen
+                </button>
+
+                <!-- Conditional: Route speichern -->
                 <button
                     class="navigation-route-save-button uk-button uk-button-primary uk-margin-small-top"
                     style="display:none">
                     Route speichern
-                </button>                
+                </button>
+
             </div>
         </div>
+
+        <!-- Route Instructions -->
         <table class="uk-table uk-table-divider uk-table-small">
             <thead>
                 <tr>
-                    <th swac_lang="Worldmap2d_Navigation.route_instructions">Routenbeschreibung</th>
+                    <th swac_lang="Worldmap2d_Navigation.route_instructions">
+                        Routenbeschreibung
+                    </th>
                 </tr>
             </thead>
-            <tbody class="navigation-instructions">
-
-            </tbody>
+            <tbody class="navigation-instructions"></tbody>
         </table>
+
     </div>
 </div>
