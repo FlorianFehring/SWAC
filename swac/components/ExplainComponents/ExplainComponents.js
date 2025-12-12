@@ -1082,7 +1082,16 @@ export default class ExplainComponents extends View {
      */
     explainEvents(component) {
         let evtDivTpl = this.requestor.querySelector('.swac_expl_repForEvt');
-        for (let curEvt of component.desc.events) {
+        for (let curEvtId in component.desc.events) {
+            let curEvt = component.desc.events[curEvtId];
+            if (!curEvt) {
+                let deElem = this.requestor.querySelector('.swac_explain_forDocErr');
+                let ndeElem = deElem.cloneNode(true);
+                ndeElem.classList.remove('swac_explain_forDocErr');
+                ndeElem.innerHTML = 'Event >' + curEvtId + '< has no documentation on component >' + component.name + '<';
+                deElem.parentElement.appendChild(ndeElem);
+                continue;
+            }
             let evtDiv = evtDivTpl.cloneNode(true);
             evtDiv.classList.remove('swac_expl_repForEvt');
             evtDiv.querySelector('.swac_expl_name').innerHTML = curEvt.name;
