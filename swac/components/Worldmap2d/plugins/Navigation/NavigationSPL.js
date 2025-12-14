@@ -322,8 +322,7 @@ export default class NavigationSPL extends Plugin {
 
         let comp = this.requestor.parent.swac_comp; // fetch map component
 
-        // unused legacy routing method
-        // TODO merge with new routing method
+        // default routing method
         if (!this.options.connectWithLine) {
             let route = [];
             route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
@@ -340,37 +339,37 @@ export default class NavigationSPL extends Plugin {
             return;
         }
 
-        // if routingMethod is polyline use this
+        // if routingMethod is polyline use following method
         if (!this.options.connectWithLine) {
             return;
         }
 
         // read coordinates
-        var lat1 = this.lastaddedset[comp.options.latAttr];
-        var lon1 = this.lastaddedset[comp.options.lonAttr]
-        var lat2 = set[comp.options.latAttr];
-        var lon2 = set[comp.options.lonAttr];
-
+        var point1 = null;
+        var point2 = null;
+        if (comp.options.geoJSONAttr) {
+            let geoJSON = {type: "Feature", geometry: {type: 'Point'}};
+            geoJSON.geometry.coordinates = this.lastaddedset[comp.options.geoJSONAttr].coordinates;
+            point1 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
+            geoJSON.geometry.coordinates = set[comp.options.geoJSONAttr].coordinates;
+            point2 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
+        } else {
+            point1 = L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]);
+            point2 = L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]);
+        }
+        this.lastaddedset = set; // update last point
+        
         // validate coordinates
-        if (!lat1 || !lon1 || !lat2 || !lon2) {  
-            Msg.warn("Polyline skipped a point — invalid coordinates: ", { lat1, lon1, lat2, lon2 });
+        if (!point1 || !point2) {  
+            Msg.warn("Polyline skipped a point — invalid coordinates: ", set.measurement_process);
             this.lastaddedset = set;
             return;
         }
 
         // construct polyline in Leaflet
-        const poly = L.polyline(
-            [
-                [lat1, lon1],
-                [lat2, lon2]
-            ],
-            {color: "sienna", weight: 4, opacity: 0.9}
-        );
+        const poly = L.polyline([point1, point2], {color: "sienna", weight: 4, opacity: 0.9});
         poly.addTo(comp.viewer); // add polyline to map
-        
         comp.zoomToSet(set); // pan to last location
-
-        this.lastaddedset = set; // update last point
     }
 
     /**

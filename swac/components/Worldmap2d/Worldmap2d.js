@@ -747,10 +747,9 @@ export default class Worldmap2d extends View {
             if (!set[this.options.lonAttr] || !set[this.options.latAttr]) {
                 Msg.warn('Worldmap2d', 'Could not create marker for set >' + set.swac_fromName + '[' + set.id + ']<: Coordinate attribute >' + this.options.lonAttr + '< and / or >' + this.options.latAttr + '< is missing.', this.requestor);
             }
-
             geoJSON.geometry.coordinates = [set[this.options.lonAttr], set[this.options.latAttr]]
         }
-        // console.log('TEST afterAddSet', set);
+
         // Add complete dataset, important to keep data at marker up to date at external changes!
         geoJSON.set = set;
         // Zoom to a certain point
@@ -810,7 +809,7 @@ export default class Worldmap2d extends View {
                 // If color is hex value remove sharp because its not allowed in file URL
                 col = col.replace('#', '');
                 col = col.replace('GREY', '7B7B7B');
-                col = col.replace('808080', '7B7B7B');
+                col = col.replace('808080', '7B7B7B'); // replace grey hex with existing grey icon
 
                 icon = new L.Icon({
                     iconUrl: '/SWAC/swac/components/Icon/imgs/map/marker-icon-' + col + '.png',
