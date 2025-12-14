@@ -310,13 +310,13 @@ export default class NavigationSPL extends Plugin {
     } // end of init()
 
 
-    afterAddSet(set, repeateds) {
+    afterAddSet(currentset, repeateds) {
         if (!this.options.createRouteFromData)
             return;
 
         // No route on first set (datapoint)
         if (!this.lastaddedset) {
-            this.lastaddedset = set;
+            this.lastaddedset = currentset;
             return;
         }
 
@@ -326,7 +326,7 @@ export default class NavigationSPL extends Plugin {
         if (!this.options.connectWithLine) {
             let route = [];
             route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
-            route.push(L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]))
+            route.push(L.latLng(currentset[comp.options.latAttr], currentset[comp.options.lonAttr]))
             L.Routing.control({
                 waypoints: route,
                 draggableWaypoints: false,
@@ -340,7 +340,12 @@ export default class NavigationSPL extends Plugin {
         }
 
         // if routingMethod is polyline use following method
-        if (!this.options.connectWithLine) {
+        if (!this.options.connectWithLine)
+            return;
+
+        // check route affiliation
+        if (this.lastaddedset.measurement_process != currentset.measurement_process) {
+            this.lastaddedset = currentset;
             return;
         }
 
@@ -351,25 +356,24 @@ export default class NavigationSPL extends Plugin {
             let geoJSON = {type: "Feature", geometry: {type: 'Point'}};
             geoJSON.geometry.coordinates = this.lastaddedset[comp.options.geoJSONAttr].coordinates;
             point1 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
-            geoJSON.geometry.coordinates = set[comp.options.geoJSONAttr].coordinates;
+            geoJSON.geometry.coordinates = currentset[comp.options.geoJSONAttr].coordinates;
             point2 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
         } else {
             point1 = L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]);
-            point2 = L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]);
+            point2 = L.latLng(currentset[comp.options.latAttr], currentset[comp.options.lonAttr]);
         }
-        this.lastaddedset = set; // update last point
+        this.lastaddedset = currentset; // update last point
         
         // validate coordinates
         if (!point1 || !point2) {  
-            Msg.warn("Polyline skipped a point — invalid coordinates: ", set.measurement_process);
-            this.lastaddedset = set;
+            Msg.warn("Polyline skipped a point — invalid coordinates: ", currentset.measurement_process);
             return;
         }
 
         // construct polyline in Leaflet
         const poly = L.polyline([point1, point2], {color: "sienna", weight: 4, opacity: 0.9});
         poly.addTo(comp.viewer); // add polyline to map
-        comp.zoomToSet(set); // pan to last location
+        comp.zoomToSet(currentset); // pan to last location
     }
 
     /**
