@@ -1240,8 +1240,8 @@ export default class Worldmap2d extends View {
     zoomToSet(set) {
         if (this.options.geoJSONAttr) {
             const geoJSON = {type: "Feature", geometry: {type: 'Point'}};
-            geoJSON.geometry.coordinates = set[comp.options.geoJSONAttr].coordinates;
-            this.viewer.panTo({lat: geoJSON.geometry.coordinates[1], lng: geoJSON.geometry.coordinates[0]});
+            geoJSON.geometry.coordinates = set[this.options.geoJSONAttr].coordinates;
+            this.viewer.panTo(L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]));
             return;
         }
         this.viewer.panTo({lat: set[this.options.latAttr], lng: set[this.options.lonAttr]});
