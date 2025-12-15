@@ -343,7 +343,7 @@ export default class NavigationSPL extends Plugin {
         if (!this.options.connectWithLine)
             return;
 
-        // check route affiliation
+        // check route affiliation, skip polyline connection if from another route
         if (this.lastaddedset.measurement_process != currentset.measurement_process) {
             this.lastaddedset = currentset;
             return;
@@ -362,7 +362,8 @@ export default class NavigationSPL extends Plugin {
             point1 = L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]);
             point2 = L.latLng(currentset[comp.options.latAttr], currentset[comp.options.lonAttr]);
         }
-        this.lastaddedset = currentset; // update last point
+        // update last point
+        this.lastaddedset = currentset;
         
         // validate coordinates
         if (!point1 || !point2) {  
@@ -370,8 +371,15 @@ export default class NavigationSPL extends Plugin {
             return;
         }
 
+        // color polyline segment with datadescription
+        let col = 'sienna'; // default color
+        if (comp.options.datadescription) {
+            col = comp.datadescription.getValueColor(currentset);
+        }
+
         // construct polyline in Leaflet
-        const poly = L.polyline([point1, point2], {color: "sienna", weight: 4, opacity: 0.9});
+        const poly = L.polyline([point1, point2], {color: col, weight: 4, opacity: 0.9});
+
         poly.addTo(comp.viewer); // add polyline to map
         comp.zoomToSet(currentset); // pan to last location
     }
