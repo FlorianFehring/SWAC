@@ -1238,7 +1238,6 @@ export default class Worldmap2d extends View {
      * @param {WatchableSet} set Set to show in the center of the map 
      */
     zoomToSet(set) {
-        console.log("zooming: ", set);
         if (this.options.geoJSONAttr) {
             const geoJSON = {type: "Feature", geometry: {type: 'Point'}};
             geoJSON.geometry.coordinates = set[this.options.geoJSONAttr].coordinates;
