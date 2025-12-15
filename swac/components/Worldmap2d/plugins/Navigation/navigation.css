@@ -1,3 +1,4 @@
+/*
 .navigation-menu {
     position: absolute;
     bottom: 0;
@@ -28,3 +29,141 @@
 .navigation-menu:hover hr {
     width: 100%;
 }
+*/
+
+/* Optional Additional Styling */
+
+.navigation-menu {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+
+    height: auto;
+    max-height: 380px;
+    overflow: auto;
+
+    z-index: 1003;
+
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.10);
+
+    padding: 14px 14px;
+}
+
+.leaflet-control-container .leaflet-routing-container-hide {
+    display: none;
+}
+
+.pulse {
+    border: 4px solid #f34d4d;
+    border-radius: 999px;
+
+    height: 22px;
+    width: 22px;
+
+    animation: pulsate 1.2s ease-out infinite;
+    box-sizing: border-box;
+}
+
+@keyframes pulsate {
+    0%   { transform: scale(0.75); opacity: 0.9; }
+    70%  { transform: scale(1.6);  opacity: 0.15; }
+    100% { transform: scale(1.8);  opacity: 0; }
+}
+
+.navigation-menu .uk-table {
+    margin-top: 10px;
+    background: transparent;
+}
+
+.navigation-menu .uk-table thead th {
+    font-weight: 700;
+    color: #333;
+    padding: 10px 10px;
+    background: #fff;
+}
+
+.navigation-menu .uk-table-small td {
+    padding: 10px 10px;
+    line-height: 1.35;
+    color: #555;
+    border-top: 1px solid #eee;
+}
+
+.navigation-menu .uk-table tbody tr:hover {
+    background: #fafbff;
+}
+
+.navigation-menu hr {
+    width: 100%;
+    margin: 10px 0 14px 0;
+    border: 0;
+    border-top: 1px solid #eee;
+}
+
+.navigation-menu .uk-input {
+    border-radius: 8px;
+    border: 1.5px solid #ddd;
+    background: #fff;
+    transition: 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.navigation-menu .uk-input:focus {
+    border-color: #3754FA;
+    box-shadow: 0 0 0 3px rgba(55, 84, 250, 0.10);
+    outline: none;
+}
+
+.navigation-menu .uk-button {
+    border-radius: 8px;
+}
+
+.navigation-menu .uk-icon-button {
+    border-radius: 8px;
+}
+
+/* Plus-Button im Input-Stil */
+.nav-add-waypoint-icon-btn {
+    width: 100%;
+    height: 30px; /* entspricht UKit/Input-Höhe */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #fff;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    margin-bottom: 10px;
+}
+
+/* Icon selbst */
+.nav-add-waypoint-icon {
+    width: 18px;
+    height: 18px;
+}
+
+/* Hover */
+.nav-add-waypoint-icon-btn:hover {
+    background-color: #2f46d8;
+}
+
+/* Active */
+.nav-add-waypoint-icon-btn:active {
+    transform: translateY(1px);
+}
+
+/* Focus */
+.nav-add-waypoint-icon-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(55, 84, 250, 0.25);
+}
+
