@@ -52,7 +52,7 @@
 }
 
 .lb-rank-cell {
-  width: 5vh;
+  width: 6vh;
   vertical-align: middle;
   padding-right: 0 !important;
   padding-bottom: 8px !important;
@@ -63,7 +63,7 @@
   position: relative;
   display: grid;
   place-items: center;
-  height: 5vh;
+  height: 6vh;
   font-weight: 800;
   font-size: 1.1rem;
   line-height: 1;
@@ -87,7 +87,7 @@
 }
 
 .lb-body {
-  height: 5vh;
+  height: 6vh;
   display: flex;
   align-items: center;
   gap: 14px;
