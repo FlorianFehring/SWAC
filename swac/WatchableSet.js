@@ -1,4 +1,5 @@
 import Msg from './Msg.js';
+import SWAC from './swac.js';
 /* 
  * Makes data watchable for changes
  */
@@ -229,7 +230,7 @@ export default class WatchableSet {
             if (set.swac_attrobservers)
                 attrobservers = attrobservers.concat(set.swac_attrobservers);
             for (let curObserver of attrobservers) {
-                if(!curObserver)
+                if (!curObserver)
                     continue;
                 Msg.flow('WatchableSet', 'Notify >' + curObserver.requestor.id + '< about new attribute >' + set.swac_fromName + '[' + set.id + '].' + name + '< =' + value);
                 if (curObserver.notifyAddedValue)
@@ -241,9 +242,9 @@ export default class WatchableSet {
                 valobservers = valobservers.concat(set.swac_observers.get(name));
             let informed = [];
             for (let curObserver of valobservers) {
-                if(!curObserver)
+                if (!curObserver)
                     continue;
-                if(curObserver.nodeType === 1 && !curObserver.parentNode) {
+                if (curObserver.nodeType === 1 && !curObserver.parentNode) {
                     this.delObserver(curObserver);
                     continue;
                 }
@@ -277,5 +278,21 @@ export default class WatchableSet {
         }
         setstr += '}';
         return setstr;
+    }
+
+     /**
+     * Build WatchableSet to object
+     * (SWAC.convertSetToBestFitDatatypes) transform data type to best fit
+     * 
+     * @return (object) dataSet
+     */
+    toObject() {
+        let dataSet = {};
+        for (let curAttr in this) {
+            if (!curAttr.startsWith('swac_')) {
+                dataSet[curAttr] = this[curAttr];
+            }
+        }
+        return SWAC.convertSetToBestFitDatatypes(dataSet);
     }
 }

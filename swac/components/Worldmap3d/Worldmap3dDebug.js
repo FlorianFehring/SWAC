@@ -2,13 +2,13 @@
  * Class with functions for debugging
  */
 
-class WorldmapDebug {
-    constructor(worldmap) {
-        this.worldmap = worldmap;
-        this.worldmap.viewer.extend(Cesium.viewerCesiumInspectorMixin);
+class Worldmap3dDebug {
+    constructor(worldmap3d) {
+        this.worldmap3d = worldmap3d;
+        this.worldmap3d.viewer.extend(Cesium.viewerCesiumInspectorMixin);
 
         // Debug coordinate cross
-        this.worldmap.viewer.scene.primitives.add(new Cesium.DebugModelMatrixPrimitive({
+        this.worldmap3d.viewer.scene.primitives.add(new Cesium.DebugModelMatrixPrimitive({
             modelMatrix: Cesium.Matrix4.IDENTITY,
             length: 30000000.0,
             width: 5.0
@@ -21,7 +21,7 @@ class WorldmapDebug {
      * @returns {undefined}
      */
     togglePositionLabel() {
-        let handler = new Cesium.ScreenSpaceEventHandler(this.worldmap.viewer.scene.canvas);
+        let handler = new Cesium.ScreenSpaceEventHandler(this.worldmap3d.viewer.scene.canvas);
         handler.setInputAction(this.showPositionLabel.bind(this), Cesium.ScreenSpaceEventType.MOUSE_MOVE);
     }
     /**
@@ -34,7 +34,7 @@ class WorldmapDebug {
         // Get the tooltip box
         let tooltipbox = document.querySelector('.swac_worldmap3d_tooltip');
 
-        let cartesian = this.worldmap.viewer.camera.pickEllipsoid(movement.endPosition, this.worldmap.viewer.scene.globe.ellipsoid);
+        let cartesian = this.worldmap3d.viewer.camera.pickEllipsoid(movement.endPosition, this.worldmap3d.viewer.scene.globe.ellipsoid);
         if (cartesian) {
             let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
             let longitudeString = Cesium.Math.toDegrees(cartographic.longitude).toFixed(8);
@@ -43,11 +43,11 @@ class WorldmapDebug {
 
             // Display tooltipbox
             tooltipbox.classList.remove('swac_dontdisplay');
-            tooltipbox.style.bottom = this.worldmap.viewer.canvas.clientHeight - (movement.endPosition.y + 5) + 'px';
+            tooltipbox.style.bottom = this.worldmap3d.viewer.canvas.clientHeight - (movement.endPosition.y + 5) + 'px';
             tooltipbox.style.left = (movement.endPosition.x + 5) + 'px';
 
             // Pick a new feature
-            let pickedFeature = this.worldmap.viewer.scene.pick(movement.endPosition);
+            let pickedFeature = this.worldmap3d.viewer.scene.pick(movement.endPosition);
             if (!pickedFeature) {
                 let tooltipValElem = tooltipbox.querySelector('.swac_worldmap3d_tooltip_value');
                 tooltipValElem.classList.add('swac_dontdisplay');

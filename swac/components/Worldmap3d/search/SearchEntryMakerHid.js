@@ -139,7 +139,7 @@ class SearchEntryMakerHid extends SearchEntryMaker {
         if (!this.modelfound) {
             var warningElem = document.createElement('span');
             warningElem.setAttribute('uk-icon', 'icon: warning');
-            warningElem.setAttribute('uk-tooltip', 'title: ' + SWAC.lang.dict.Worldmap.no_model);
+            warningElem.setAttribute('uk-tooltip', 'title: ' + SWAC.lang.dict.Worldmap3d.no_model);
             this.placeElement.appendChild(warningElem);
         }
         // Add list of adresses

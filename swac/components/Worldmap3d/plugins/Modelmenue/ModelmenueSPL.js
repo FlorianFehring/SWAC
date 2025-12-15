@@ -55,7 +55,7 @@ export default class ModelmenueSPL extends Plugin {
 
             window.addEventListener("resize", function (evt) {
                 // Get requestor for modelmenue
-                let cesiumRequestors = document.querySelectorAll('[swa|="swac_worldmap"]');
+                let cesiumRequestors = document.querySelectorAll('[swa|="swac_worldmap3d"]');
                 for (let curRequestor of cesiumRequestors) {
                     // Get modelmenue plugin
                     let curPlug = curRequestor.swac_comp.pluginHandler.plugins.get('modelmenue');
@@ -78,19 +78,19 @@ export default class ModelmenueSPL extends Plugin {
         let contWidth = rect.right - rect.left;
 
         // Get modelmenue element
-        let modelElem = requestor.querySelector('.swac_worldmap_modelmenue');
+        let modelElem = requestor.querySelector('.swac_worldmap3d_modelmenue');
         modelElem.style.position = "absolute";
         modelElem.style.top = rect.top + contHeight - 100 + "px";
         let modelRect = modelElem.getBoundingClientRect();
         let modelWidth = modelRect.right - modelRect.left;
         modelElem.style.left = rect.left + (contWidth / 2) - (modelWidth / 2) + "px";
 
-        let modelRightElem = requestor.querySelector('.swac_worldmap_modelmenue_right');
+        let modelRightElem = requestor.querySelector('.swac_worldmap3d_modelmenue_right');
         modelRightElem.style.position = "absolute";
         modelRightElem.style.left = rect.right - 10 - 50 + "px";
         modelRightElem.style.top = rect.top + (contHeight / 2) + "px";
 
-        let modelLeftElem = requestor.querySelector('.swac_worldmap_modelmenue_left');
+        let modelLeftElem = requestor.querySelector('.swac_worldmap3d_modelmenue_left');
         modelLeftElem.style.position = "absolute";
         modelLeftElem.style.left = rect.left + 10 + "px";
         modelLeftElem.style.top = rect.top + (contHeight / 2) + "px";
@@ -127,7 +127,7 @@ export default class ModelmenueSPL extends Plugin {
      */
     onPicked(movement) {
 //        // Get cesium requestor
-//        let requestor = document.querySelector('[swa|="swac_worldmap"]');
+//        let requestor = document.querySelector('[swa|="swac_worldmap3d"]');
 //        // Get modelmenue plugin
 //        let thisPlug = requestor.swac_comp.pluginHandler.plugins.get('modelmenue');
 
@@ -160,7 +160,7 @@ export default class ModelmenueSPL extends Plugin {
         }
 
         // Check if menue is allready shown
-        let navElem = document.querySelector('.swac_worldmap_modelmenue');
+        let navElem = document.querySelector('.swac_worldmap3d_modelmenue');
         // Check if model menue is shown for the picked model or for another or no one
         if (!navElem.model || pickedSwacModel !== navElem.model) {
             this.requestor.parent.swac_comp.cesiumnavigation.gotoModel(pickedSwacModel);
@@ -187,7 +187,7 @@ export default class ModelmenueSPL extends Plugin {
     show(model, loc) {
         // Get menue area
         let menueArea = document.querySelector('[id*="_modelmenue_cont"]');
-        let navElem = menueArea.querySelector('.swac_worldmap_modelmenue');
+        let navElem = menueArea.querySelector('.swac_worldmap3d_modelmenue');
         let thisPlug = menueArea.swac_comp;
 
         navElem.classList.remove('swac_dontdisplay');
@@ -196,14 +196,14 @@ export default class ModelmenueSPL extends Plugin {
             navElem.setAttribute('loc', loc);
         }
 
-        var rightNavElem = document.querySelector('.swac_worldmap_modelmenue_right');
+        var rightNavElem = document.querySelector('.swac_worldmap3d_modelmenue_right');
         rightNavElem.classList.remove('swac_dontdisplay');
 
-        var leftNavElem = document.querySelector('.swac_worldmap_modelmenue_left');
+        var leftNavElem = document.querySelector('.swac_worldmap3d_modelmenue_left');
         leftNavElem.classList.remove('swac_dontdisplay');
 
         // Show up model menue
-        let menElem = document.querySelector('.swac_worldmap_modelmenue');
+        let menElem = document.querySelector('.swac_worldmap3d_modelmenue');
         menElem.classList.remove('swac_dontdisplay');
 
         // Place the gui elements with respect to swac_component element
@@ -212,19 +212,19 @@ export default class ModelmenueSPL extends Plugin {
         this.requestor.parent.swac_comp.view.heading = 0;
         thisPlug.moveCam();
 
-        document.querySelector('.swac_worldmap_modelmenue_addtofavs').addEventListener('click', thisPlug.onClickAddToFavs);
-        document.querySelector('.swac_worldmap_modelmenue_close').addEventListener('click', thisPlug.hide);
-        document.querySelector('.swac_worldmap_modelmenue_right').addEventListener('click', thisPlug.moveStepRight);
-        document.querySelector('.swac_worldmap_modelmenue_left').addEventListener('click', thisPlug.moveStepLeft);
-        document.querySelector('.swac_worldmap_modelmenue_heading').addEventListener('change', thisPlug.moveToHeading);
-        document.querySelector('.swac_worldmap_modelmenue_tostartview').addEventListener('click', thisPlug.moveToStartView);
-        document.querySelector('.swac_worldmap_modelmenue_anicontrol').addEventListener('click', thisPlug.startMoveAround);
+        document.querySelector('.swac_worldmap3d_modelmenue_addtofavs').addEventListener('click', thisPlug.onClickAddToFavs);
+        document.querySelector('.swac_worldmap3d_modelmenue_close').addEventListener('click', thisPlug.hide);
+        document.querySelector('.swac_worldmap3d_modelmenue_right').addEventListener('click', thisPlug.moveStepRight);
+        document.querySelector('.swac_worldmap3d_modelmenue_left').addEventListener('click', thisPlug.moveStepLeft);
+        document.querySelector('.swac_worldmap3d_modelmenue_heading').addEventListener('change', thisPlug.moveToHeading);
+        document.querySelector('.swac_worldmap3d_modelmenue_tostartview').addEventListener('click', thisPlug.moveToStartView);
+        document.querySelector('.swac_worldmap3d_modelmenue_anicontrol').addEventListener('click', thisPlug.startMoveAround);
 
         // Detail model button
         if (thisPlug.options.onShowDetail != null) {
-            document.querySelector('.swac_worldmap_modelmenue_showdetail').addEventListener('click', thisPlug.onClickShowDetail);
+            document.querySelector('.swac_worldmap3d_modelmenue_showdetail').addEventListener('click', thisPlug.onClickShowDetail);
         } else {
-            document.querySelector('.swac_worldmap_modelmenue_showdetail').classList.add('swac_dontdisplay');
+            document.querySelector('.swac_worldmap3d_modelmenue_showdetail').classList.add('swac_dontdisplay');
         }
     }
 
@@ -239,7 +239,7 @@ export default class ModelmenueSPL extends Plugin {
 //    console.log('Pitch:', deg);
 
         // Update information about orientation
-        let selectElem = document.querySelector('.swac_worldmap_modelmenue_heading');
+        let selectElem = document.querySelector('.swac_worldmap3d_modelmenue_heading');
         if ((this.requestor.parent.swac_comp.view.heading >= 337.5 && this.requestor.parent.swac_comp.view.heading <= 360)
                 || (this.requestor.parent.swac_comp.view.heading >= 0 && this.requestor.parent.swac_comp.view.heading < 22.5)) {
             selectElem.value = 0;
@@ -267,18 +267,18 @@ export default class ModelmenueSPL extends Plugin {
      * @returns {undefined}
      */
     hide(evt) {
-        var navElem = document.querySelector('.swac_worldmap_modelmenue');
+        var navElem = document.querySelector('.swac_worldmap3d_modelmenue');
         navElem.classList.add('swac_dontdisplay');
         navElem.removeAttribute('hid');
         navElem.removeAttribute('loc');
 
-        var rightNavElem = document.querySelector('.swac_worldmap_modelmenue_right');
+        var rightNavElem = document.querySelector('.swac_worldmap3d_modelmenue_right');
         rightNavElem.classList.add('swac_dontdisplay');
 
-        var leftNavElem = document.querySelector('.swac_worldmap_modelmenue_left');
+        var leftNavElem = document.querySelector('.swac_worldmap3d_modelmenue_left');
         leftNavElem.classList.add('swac_dontdisplay');
 
-        let menElem = document.querySelector('.swac_worldmap_modelmenue');
+        let menElem = document.querySelector('.swac_worldmap3d_modelmenue');
         menElem.classList.add('swac_dontdisplay');
 
         var canvas = this.requestor.parent.swac_comp.viewer.canvas;
@@ -299,7 +299,7 @@ export default class ModelmenueSPL extends Plugin {
      */
     onClickAddToFavs(evt) {
         // Get hid and loc
-        let navElem = document.querySelector('.swac_worldmap_modelmenue');
+        let navElem = document.querySelector('.swac_worldmap3d_modelmenue');
         let hid = navElem.getAttribute('hid');
         let loc = navElem.getAttribute('loc');
 
@@ -341,7 +341,7 @@ export default class ModelmenueSPL extends Plugin {
      */
     onClickShowDetail(evt) {
         let menueArea = document.querySelector('[id*="_modelmenue_cont"]');
-        let navElem = menueArea.querySelector('.swac_worldmap_modelmenue');
+        let navElem = menueArea.querySelector('.swac_worldmap3d_modelmenue');
         let thisPlug = menueArea.swac_comp;
         let loc = navElem.getAttribute('loc');
 
@@ -379,7 +379,7 @@ export default class ModelmenueSPL extends Plugin {
         let thisPlug = menueArea.swac_comp;
 
         thisPlug.moveAroundIntv = setInterval(thisPlug.moveLittleStepRight, thisPlug.options.annimationspeed);
-        let moveButton = document.querySelector('.swac_worldmap_modelmenue_anicontrol');
+        let moveButton = document.querySelector('.swac_worldmap3d_modelmenue_anicontrol');
         moveButton.setAttribute('uk-icon', 'ban');
         moveButton.setAttribute('uk-tooltip', 'title: ' + SWAC.lang.dict.cesium.modelmenue.stopanimation);
         moveButton.removeEventListener('click', thisPlug.startMoveAround);
@@ -397,7 +397,7 @@ export default class ModelmenueSPL extends Plugin {
         let thisPlug = menueArea.swac_comp;
 
         clearInterval(thisPlug.moveAroundIntv);
-        let moveButton = document.querySelector('.swac_worldmap_modelmenue_anicontrol');
+        let moveButton = document.querySelector('.swac_worldmap3d_modelmenue_anicontrol');
         moveButton.setAttribute('uk-icon', 'play');
         moveButton.setAttribute('uk-tooltip', 'title: ' + SWAC.lang.dict.cesium.modelmenue.startanimation);
         moveButton.removeEventListener('click', thisPlug.stopMoveAround);
@@ -499,7 +499,7 @@ export default class ModelmenueSPL extends Plugin {
     moveCam() {
         // Get menue area
         let menueArea = document.querySelector('[id*="_modelmenue_cont"]');
-        let navElem = menueArea.querySelector('.swac_worldmap_modelmenue');
+        let navElem = menueArea.querySelector('.swac_worldmap3d_modelmenue');
         let thisPlug = menueArea.swac_comp;
         // Get hid
         let loc = navElem.getAttribute('loc');

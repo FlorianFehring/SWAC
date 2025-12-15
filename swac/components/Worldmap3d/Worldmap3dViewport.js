@@ -1,10 +1,10 @@
 /* 
  * Class with functions for easy access of viewport parameters
  */
-export default class WorldmapViewport {
+export default class Worldmap3dViewport {
 
-    constructor(worldmap) {
-        this.worldmap = worldmap;
+    constructor(worldmap3d) {
+        this.worldmap3d = worldmap3d;
     }
 
     /**
@@ -13,8 +13,8 @@ export default class WorldmapViewport {
      * @returns {Double} Distance to the ground in meters
      */
     getDistanceToGround() {
-        let cameraPosition = this.worldmap.viewer.scene.camera.positionWC;
-        let ellipsoidPosition = this.worldmap.viewer.scene.globe.ellipsoid.scaleToGeodeticSurface(cameraPosition);
+        let cameraPosition = this.worldmap3d.viewer.scene.camera.positionWC;
+        let ellipsoidPosition = this.worldmap3d.viewer.scene.globe.ellipsoid.scaleToGeodeticSurface(cameraPosition);
         return Cesium.Cartesian3.magnitude(Cesium.Cartesian3.subtract(cameraPosition, ellipsoidPosition, new Cesium.Cartesian3()));
     }
 
@@ -28,19 +28,19 @@ export default class WorldmapViewport {
      * - center_lat Latitude of the center point
      * - center_lon Longitude of the center point
      *
-     * @returns {Worldmap.getViewport.viewport}
+     * @returns {Worldmap3d.getViewport.viewport}
      */
     getViewport() {
         var result = {};
-        var rect = this.worldmap.viewer.camera.computeViewRectangle(this.worldmap.viewer.scene.globe.ellipsoid, result);
+        var rect = this.worldmap3d.viewer.camera.computeViewRectangle(this.worldmap3d.viewer.scene.globe.ellipsoid, result);
         var viewport = {};
         viewport.north = Cesium.Math.toDegrees(rect.north).toFixed(4);
         viewport.south = Cesium.Math.toDegrees(rect.south).toFixed(4);
         viewport.west = Cesium.Math.toDegrees(rect.west).toFixed(4);
         viewport.east = Cesium.Math.toDegrees(rect.east).toFixed(4);
-        viewport.height = this.worldmap.viewer.camera.positionCartographic.height;
-        viewport.center_lat = Cesium.Math.toDegrees(this.worldmap.viewer.camera.positionCartographic.latitude);
-        viewport.center_lon = Cesium.Math.toDegrees(this.worldmap.viewer.camera.positionCartographic.longitude);
+        viewport.height = this.worldmap3d.viewer.camera.positionCartographic.height;
+        viewport.center_lat = Cesium.Math.toDegrees(this.worldmap3d.viewer.camera.positionCartographic.latitude);
+        viewport.center_lon = Cesium.Math.toDegrees(this.worldmap3d.viewer.camera.positionCartographic.longitude);
         return viewport;
     }
 }

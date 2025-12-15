@@ -1,0 +1,27 @@
+<ul uk-accordion>
+    <li class="swac_repeatForSet">
+        <a class="uk-accordion-title" href="#">
+            <svg class="swac_apitest_urlstate" height="30" width="30">
+            <circle r="10" cx="10" cy="15" 
+                    fill="rgba(220,220,220,0.5)" stroke="#fff" stroke-width="2" />
+            </svg>
+            {url}
+        </a>
+        <div class="uk-accordion-content">
+            <span swac_lang="APITests.url">URL</span> <input class="swac_apitests_url uk-input uk-form-width-large" type="url" placeholder="URL" value="{url}">
+            <button class="swac_apitests_start uk-button uk-button-primary">APITests.start</button>
+            <ul uk-accordion>
+                <li class="swac_apitests_repeatForTest">
+                    <a class="uk-accordion-title" href="#">
+                        <svg class="swac_apitest_teststate" height="30" width="30">
+                        <circle r="10" cx="10" cy="15" 
+                                fill="rgba(220,220,220,0.5)" stroke="#fff" stroke-width="2" />
+                        </svg>
+                        <span class="swac_apitests_testname"></span>
+                    </a>
+                    <div class="swac_apitests_testresult uk-accordion-content"></div>
+                </li>
+            </ul>
+        </div>
+    </li>
+</ul>

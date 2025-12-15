@@ -13,7 +13,7 @@ export default class Edit extends View {
         super(options);
         this.name = 'Edit';
         this.desc.text = "Edit any contents of any javascript object";
-        this.desc.developers = 'Florian Fehring (FH Bielefeld), Timon Buschendorf';
+        this.desc.developers = 'Florian Fehring (HSBI), Timon Buschendorf';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {
@@ -242,15 +242,6 @@ The function gets the droped dataset and the dropzone element.'
         };
         if (!options.thirdButtonCaption)
             this.options.thirdButtonCaption = null;
-        this.desc.opts[15] = {
-            name: 'notShownAttrs',
-            desc: 'List of attribute names that should not be shown. Note in form of data {[fromName]: [attr1Name, attr2Name]',
-            example: {
-                ['../../data/exampledata_list.json']: ['id', 'dateval']
-            }
-        };
-        if (!options.notShownAttrs)
-            this.options.notShownAttrs = [];
         this.desc.opts[16] = {
             name: 'customDefaultSet',
             desc: 'Default dataset to add when clicking add-Button',
@@ -286,19 +277,7 @@ The function gets the droped dataset and the dropzone element.'
         };
         if (!options.childSourceSelectExclude)
             this.options.childSourceSelectExclude = [];
-        this.desc.opts[21] = {
-            name: 'inputsVisibility',
-            desc: 'Definition of input fields that should be shown or hidden depending on a certain value. Use attributes: applyOnAttr, aplyOnValue and hide: [Names of input elements]',
-            example: [
-                {
-                    applyOnAttr: 'stringval',
-                    applyOnVal: 'string',
-                    hide: ['id']
-                }
-            ]
-        };
-        if (!options.inputsVisibility)
-            this.options.inputsVisibility = [];
+        
         this.desc.opts[22] = {
             name: 'customAfterInput',
             desc: 'Function that should be executed, after input was done.',
@@ -492,7 +471,6 @@ The function gets the droped dataset and the dropzone element.'
                     if (thisRef.options.completeDefinitionsFromHTML === true)
                         thisRef.completeDefinitionsFromHTML(set.swac_fromName, curRepeatedElem);
                     thisRef.transformRepForSet(curRepeatedElem);
-                    thisRef.removeNotShownAttrs(set.swac_fromName, curRepeatedElem);
                 }
                 // Hide input fields
                 thisRef.modifyInputVisability(set.swac_fromName, set);
@@ -507,7 +485,6 @@ The function gets the droped dataset and the dropzone element.'
             // For every repeatableArea
             for (let curRepeatedElem of repeatedForSets) {
                 this.transformRepForSet(curRepeatedElem);
-                this.removeNotShownAttrs(set.swac_fromName, curRepeatedElem);
             }
             // Hide input fields
             this.modifyInputVisability(set.swac_fromName, set);
@@ -540,34 +517,6 @@ The function gets the droped dataset and the dropzone element.'
                     // Create and fire custom event
                     document.dispatchEvent(new CustomEvent('swac_' + thisRef.requestor.id + '_name_click', {detail: e}))
                 });
-            }
-        }
-    }
-
-    /**
-     * Remove input areas that should not be shown (not editable data)
-     * 
-     * @param {String} fromName Name of the datasource
-     * @param {DOMElement} setElem repeatedForSet where to remove the input
-     */
-    removeNotShownAttrs(fromName, setElem) {
-        // Hide input fields as requested
-        if (this.options.notShownAttrs[fromName]) {
-            for (let curAttr of this.options.notShownAttrs[fromName]) {
-                // Find and remove input field
-                let attrElem = setElem.querySelector('[swac_fromname="' + fromName + '"] [swac_attrname="' + curAttr + '"]');
-                if (attrElem) {
-                    attrElem.remove();
-                    if (!this.inputremoveds.includes(curAttr)) {
-                        Msg.info('Edit', 'Removed input fields for >' + curAttr + '<. Change notShownAttrs option to modify this.', this.requestor);
-                        this.inputremoveds.push(curAttr);
-                    }
-                }
-                // If there is a default value, set it to the dataset
-                let defs = this.options.definitions.get(fromName);
-                if (!setElem.swac_dataset[curAttr] && defs && defs[curAttr] && defs[curAttr].defaultvalue) {
-                    setElem.swac_dataset[curAttr] = defs[curAttr].defaultvalue;
-                }
             }
         }
     }
@@ -810,7 +759,7 @@ The function gets the droped dataset and the dropzone element.'
             // No defaltvalue here
         } else if (attrDef.type === 'int8' || attrDef.type === 'int4' || attrDef.type === 'float8') {
             inElem.classList.add('uk-input');
-            inElem.classList.add('uk-form-width-small');
+//            inElem.classList.add('uk-form-width-small');
             inElem.setAttribute('type', 'number');
             if (attrDef.type === 'float8') {
                 inElem.setAttribute('step', 'any');
@@ -1073,7 +1022,7 @@ The function gets the droped dataset and the dropzone element.'
      * options.inputsVisibilty
      */
     modifyInputVisability(fromName, set) {
-        if (!this.options.inputsVisibility || this.options.inputsVisibility.length === 0)
+        if (!this.options.attrVisibility || this.options.attrVisibility.length === 0)
             return;
 
         let named = [];
@@ -1085,7 +1034,7 @@ The function gets the droped dataset and the dropzone element.'
         }
 
         let toHide = [];
-        for (let curDef of this.options.inputsVisibility) {
+        for (let curDef of this.options.attrVisibility) {
             if (typeof set[curDef.applyOnAttr] !== 'undefined' && set[curDef.applyOnAttr] === curDef.applyOnVal) {
                 toHide = toHide.concat(curDef.hide);
             } else if (!curDef.applyOnAttr) {

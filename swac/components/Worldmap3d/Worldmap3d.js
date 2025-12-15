@@ -1,15 +1,15 @@
 import SWAC from '../../swac.js';
 import View from '../../View.js';
 import Msg from '../../Msg.js';
-import WorldmapViewport from './WorldmapViewport.js';
-import WorldmapNavigation from './WorldmapNavigation.js';
+import Worldmap3dViewport from './Worldmap3dViewport.js';
+import Worldmap3dNavigation from './Worldmap3dNavigation.js';
 import ModelFactory from './model/ModelFactory.js';
 
-export default class Worldmap extends View {
+export default class Worldmap3d extends View {
 
     constructor(options = {}) {
         super(options);
-        this.name = 'Worldmap';
+        this.name = 'Worldmap3d';
         this.desc.text = '3D Worldmap component for displaying data on a globe. Useable for geojson data, gltf 3D models and plain datasets as well.';
         this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
@@ -26,44 +26,46 @@ export default class Worldmap extends View {
         };
         this.desc.depends[2] = {
             debugonly: true,
-            name: 'WorldmapDebug Class',
-            path: SWAC.config.swac_root + 'components/Worldmap/WorldmapDebug.js',
+            name: 'Worldmap3dDebug Class',
+            path: SWAC.config.swac_root + 'components/Worldmap3d/Worldmap3dDebug.js',
             desc: 'Class containing methods for debugging'
         };
-//        this.desc.depends[10] = {
-//            name: 'SearchEntryMaker Class',
-//            path: SWAC.config.swac_root + 'components/Search/SearchEntryMaker.js',
-//            desc: 'Class for creating own SearchEntryMakers'
-//        };
-//        this.desc.depends[11] = {
-//            name: 'SearchEntryMakerGeoJson Class',
-//            path: SWAC.config.swac_root + 'components/Worldmap/search/SearchEntryMakerGeoJson.js',
-//            desc: 'Class for creating SearchResultEntries from a geojson model'
-//        };
-//        this.desc.depends[12] = {
-//            name: 'SearchEntryMakerGLTF Class',
-//            path: SWAC.config.swac_root + 'components/Worldmap/search/SearchEntryMakerGLTF.js',
-//            desc: 'Class for creating SearchResultEntries from GLTF models.'
-//        };
-//        this.desc.depends[13] = {
-//            name: 'SearchEntryMakerHid Class',
-//            path: SWAC.config.swac_root + 'components/Worldmap/search/SearchEntryMakerHid.js',
-//            desc: 'Class for creating SearchResultEntries from hid of buildings.'
-//        };
+        this.desc.depends[10] = {
+            name: 'SearchEntryMaker Class',
+            path: SWAC.config.swac_root + 'components/Search/SearchEntryMaker.js',
+            desc: 'Class for creating own SearchEntryMakers'
+        };
+        this.desc.depends[11] = {
+            name: 'SearchEntryMakerGeoJson Class',
+            path: SWAC.config.swac_root + 'components/Worldmap3d/search/SearchEntryMakerGeoJson.js',
+            desc: 'Class for creating SearchResultEntries from a geojson model'
+        };
+        this.desc.depends[12] = {
+            name: 'SearchEntryMakerGLTF Class',
+            path: SWAC.config.swac_root + 'components/Worldmap3d/search/SearchEntryMakerGLTF.js',
+            desc: 'Class for creating SearchResultEntries from GLTF models.'
+        };
+        this.desc.depends[13] = {
+            name: 'SearchEntryMakerHid Class',
+            path: SWAC.config.swac_root + 'components/Worldmap3d/search/SearchEntryMakerHid.js',
+            desc: 'Class for creating SearchResultEntries from hid of buildings.'
+        };
 
         this.desc.templates[0] = {
-            name: 'Worldmap',
-            style: 'Worldmap',
+            name: 'Worldmap3d',
+            style: 'Worldmap3d',
             desc: 'Template with area for plugins'
         };
 
         this.desc.reqPerTpl[0] = {
             selc: '.swac_worldmap3d_tooltip',
-            desc: 'Area that contains the tooltip informations.'
+            desc: 'Area that contains the tooltip informations.',
+            depricated: true
         };
         this.desc.reqPerTpl[1] = {
             selc: '.swac_worldmap3d_tooltip_value',
-            desc: 'Element where to show the value for the position the tooltip belongs to.'
+            desc: 'Element where to show the value for the position the tooltip belongs to.',
+            depricated: true
         };
         this.desc.reqPerTpl[2] = {
             selc: '.swac_worldmap3d_valuename',
@@ -87,7 +89,8 @@ export default class Worldmap extends View {
         };
         this.desc.reqPerTpl[7] = {
             selc: '.swac_worldmap3d_tooltip_position',
-            desc: 'Element that contains the position of the dataset.'
+            desc: 'Element that contains the position of the dataset.',
+            depricated: true
         };
         this.desc.reqPerTpl[8] = {
             selc: '.swac_worldmap3d_latout',
@@ -101,7 +104,7 @@ export default class Worldmap extends View {
             selc: '.swac_worldmap3d_heightout',
             desc: 'Element where to show the height.'
         };
-        
+
 
         this.options.showWhenNoData = true;
         //*************
@@ -112,7 +115,7 @@ export default class Worldmap extends View {
             desc: "Access token to cesium ION tile service"
         };
         if (!options.ionAccessToken)
-            this.options.ionAccessToken;
+            this.options.ionAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJhMzJiZjEzOS05ZWI0LTRhMzEtOGQyZC05ZGQzYzIwY2EzMDIiLCJpZCI6MTUxNSwiaWF0IjoxNTI4ODA0Mzg1fQ.xHuoWaJsRIuvXJ7_-bxVoGVxDgilCddv0jz8ajltRNI';
 
         // IDs for assets stroed at cesium ion
         this.desc.opts[1] = {
@@ -146,6 +149,8 @@ There are some optional attributes:\n\
         };
         if (!options.mapProviderURL)
             this.options.mapProviderURL = 'https://a.tile.openstreetmap.org/';
+            //this.options.mapProviderURL = null
+        
         this.desc.opts[4] = {
             name: "enableTerrain",
             desc: "Set true to enable terain display"
@@ -280,7 +285,7 @@ below: Height in meter below wich those models should be loaded.\n\
 hidurl: url under wich the hids can be recived. With placeholders {northlat},\n\
 {southlat},{eastlon},{westlon}.\n\
 modelurl: url where to find the models. With {hid} as placeholder.",
-                example: [{below: 100, hidurl: 'myurl', modelurl: 'path/to/modelfile'}]
+            example: [{below: 100, hidurl: 'myurl', modelurl: 'path/to/modelfile'}]
         };
         if (!options.model_zoomlevels)
             this.options.model_zoomlevels = [];
@@ -289,7 +294,7 @@ modelurl: url where to find the models. With {hid} as placeholder.",
         this.desc.opts[22] = {
             name: "onGoToModelFunctions",
             desc: "Array of custom functions to execute, when the viewer goes to a model.",
-            example: [function() {}]
+            example: [function () {}]
         };
         if (!options.onGoToModelFunctions)
             this.options.onGoToModelFunctions = [];
@@ -351,8 +356,8 @@ displayed on the time. Otherwise all informations will displayed at once.'
     init() {
         return new Promise((resolve, reject) => {
             // Init dependend classes
-            this.cesiumviewport = new WorldmapViewport(this);
-            this.cesiumnavigation = new WorldmapNavigation(this);
+            this.cesiumviewport = new Worldmap3dViewport(this);
+            this.cesiumnavigation = new Worldmap3dNavigation(this);
 
             // For fitting to the available space height between header and footer
             document.getElementById(this.requestor.id).style.height = '80vh';
@@ -383,13 +388,13 @@ displayed on the time. Otherwise all informations will displayed at once.'
                     viewerconf.terrainProvider = Cesium.createWorldTerrain();
                 }
             }
-
+            
             // Build up viewer
-            this.viewer = new Cesium.Viewer('swac_worldmap_map', viewerconf);
+            this.viewer = new Cesium.Viewer('swac_worldmap3d_map', viewerconf);
 
             // Include ion assets
             for (let assetid of this.options.ionassets) {
-                Msg.warn('Worldmap', 'Loading CesiumIon asset >' + assetid + '<', this.requestor);
+                Msg.warn('Worldmap3d', 'Loading CesiumIon asset >' + assetid + '<', this.requestor);
                 this.viewer.scene.primitives.add(
                         new Cesium.Cesium3DTileset({
                             url: Cesium.IonResource.fromAssetId(assetid)
@@ -397,11 +402,16 @@ displayed on the time. Otherwise all informations will displayed at once.'
                         );
             }
 
-            Msg.warn('Worldmap', 'running on Cesium ' + Cesium.VERSION, this.requestor);
+            Msg.warn('World3map', 'running on Cesium ' + Cesium.VERSION, this.requestor);
+            
+            let osmLayer = this.buildImageryProvider();
+            if (osmLayer) {
+                this.viewer.imageryLayers.addImageryProvider(osmLayer);
+            }
 
             // Adding attribution
             let credit = new Cesium.Credit('OpenSteetMap.org', '', 'http://www.openstreetmap.org');
-            this.viewer.scene.frameState.creditDisplay.addDefaultCredit(credit);
+            this.viewer.creditDisplay.addStaticCredit(credit);
 
             // Enable lighting
             this.viewer.scene.globe.enableLighting = true;
@@ -431,8 +441,8 @@ displayed on the time. Otherwise all informations will displayed at once.'
 
             // Enable debug tool
             if (SWAC.config.debugmode) {
-                let worldmapDebug = new WorldmapDebug(this);
-                worldmapDebug.togglePositionLabel();
+                let worldmap3dDebug = new Worldmap3dDebug(this);
+                worldmap3dDebug.togglePositionLabel();
             }
 
             // Startanimation or start view
@@ -503,16 +513,32 @@ displayed on the time. Otherwise all informations will displayed at once.'
      *
      * @returns {undefined}
      */
+
     buildImageryProvider() {
         var imageryProvider;
         // Automatic create image provider for openstreetmap
-        if (this.options.mapProviderURL.includes('openstreetmap.org')) {
+        if (this.options.mapProviderURL?.includes('openstreetmap.org')) {
             imageryProvider = new Cesium.OpenStreetMapImageryProvider({
                 url: this.options.mapProviderURL
             });
         }
         return imageryProvider;
     }
+
+    /*
+     buildImageryProvider() {
+     var imageryProvider;
+     // Automatic create image provider for openstreetmap
+     if (this.options.mapProviderURL?.includes('openstreetmap.org')) {
+     imageryProvider = new Cesium.OpenStreetMapImageryProvider({
+     url: this.options.mapProviderURL
+     });
+     console.log("provider: ")
+     console.log(imageryProvider)
+     }
+     return imageryProvider;
+     }
+     */
 
     /**
      * Load the data from the datasources option.

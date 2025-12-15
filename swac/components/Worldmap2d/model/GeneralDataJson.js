@@ -593,7 +593,7 @@ export default class GeneralDataJson extends MapModel {
             // Add time information if available
             if (this.options.tsattr && dataset[this.options.tsattr]) {
                 let tsElem = tooltipbox.querySelector('.swac_worldmap_ts');
-                tsElem.innerHTML = SWAC.lang.dict.Worldmap.datafrom + ' '
+                tsElem.innerHTML = SWAC.lang.dict.Worldmap3d.datafrom + ' '
                         + dataset[this.options.tsattr];
             }
             let setidElem = tooltipbox.querySelector('.swac_worldmap_setid');

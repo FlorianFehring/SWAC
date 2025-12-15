@@ -8,7 +8,7 @@ export default class Favourites extends View {
         super(options);
         this.name = 'Favourites';
         this.desc.text = 'Create and manage favourites and app useage history.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.templates[0] = {

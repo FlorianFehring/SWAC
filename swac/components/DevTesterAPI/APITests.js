@@ -8,7 +8,7 @@ export default class APITests extends View {
         super(options);
         this.name = 'APITests';
         this.desc.text = 'This component gives the possibility to simply check if a REST-API ist compatible to SWAC.';
-        this.desc.developers = 'Florian Fehring (FH Bielefeld)';
+        this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
         this.desc.text = 'Component for testing data APIs';
