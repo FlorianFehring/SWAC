@@ -78,6 +78,22 @@ export default class NavigationSPL extends Plugin {
         if (!options.routeIdGenerator) {
             this.options.enableRouteSave = null;
         }
+        this.desc.opts[7] = {
+            name: "connectWithLine",
+            desc: "If true connects datapoints in linear lines and omits street routing",
+            example: true
+        }
+        if (typeof options.connectWithLine !== 'boolean')
+            this.options.connectWithLine = false;
+
+        this.desc.opts[8] ={
+            name: "travelmode",
+            example: "car",
+            desc: "Determine the travel mode for street routing. Possible modes include car, bike and foot."
+        }
+        if (!options.travelmode)
+            this.options.travelmode = "bike";
+
 
         // Attributes for internal usage
         this.map = null;
@@ -426,80 +442,78 @@ export default class NavigationSPL extends Plugin {
         input.focus();
     }
 
-    afterAddSet(set, repeateds) {
-        if (!this.options.createRouteFromData) {
+    afterAddSet(currentset, repeateds) {
+        if (!this.options.createRouteFromData)
             return;
-        }
 
+        // No route on first set (datapoint)
         if (!this.lastaddedset) {
-            // No route on first set
-            this.lastaddedset = set;
+            this.lastaddedset = currentset;
             return;
         }
 
+        let comp = this.requestor.parent.swac_comp; // fetch map component
 
-        //TODO: make this dynamic
-        // 0 = Classic, 1 = Polyline, 2 = Fast Route
-        let routingMethod = 1;
-
-        // if routingMethod is classic use this
-        if (this.options.createRouteFromData && routingMethod === 0) {
-            if (!this.lastaddedset) {
-                // On first added set do not create route, notice only
-                this.lastaddedset = set;
-            } else {
-                let comp = this.requestor.parent.swac_comp;
-                let route = [];
-                route.push(L.latLng(this.lastaddedset[comp.options.latAttr],this.lastaddedset[comp.options.lonAttr]))
-                route.push(L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]))
-                L.Routing.control({
-                    waypoints: route,
-                    draggableWaypoints: false,
-                    addWaypoints: false,
-                    show: false,
-                    createMarker: () => {
-                        return null;
-                    }
-                }).addTo(comp.viewer);
-            }
+        // default routing method
+        if (!this.options.connectWithLine) {
+            let route = [];
+            route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
+            route.push(L.latLng(currentset[comp.options.latAttr], currentset[comp.options.lonAttr]))
+            L.Routing.control({
+                waypoints: route,
+                draggableWaypoints: false,
+                addWaypoints: false,
+                show: false,
+                createMarker: () => {
+                    return null;
+                }
+            }).addTo(comp.viewer);
+            return;
         }
 
-        // if routingMethod is polyline use this
-        if (!this.options.createRouteFromData || routingMethod !== 1)
+        // if routingMethod is polyline use following method
+        if (!this.options.connectWithLine)
             return;
 
-        let comp = this.requestor.parent.swac_comp;
+        // check route affiliation, skip polyline connection if from another route
+        if (this.lastaddedset.measurement_process != currentset.measurement_process) {
+            this.lastaddedset = currentset;
+            return;
+        }
 
         // read coordinates
-        var lat1 = this.lastaddedset[comp.options.latAttr];
-        var lon1 = this.lastaddedset[comp.options.lonAttr]
-        var lat2 = set[comp.options.latAttr];
-        var lon2 = set[comp.options.lonAttr];
-        if (!lat1 || !lon1 || !lat2 || !lon2) {     // validation
-            Msg.warn("Polyline skipped — invalid coordinates:", { lat1, lon1, lat2, lon2 });
-            this.lastaddedset = set;
+        var point1 = null;
+        var point2 = null;
+        if (comp.options.geoJSONAttr) {
+            let geoJSON = {type: "Feature", geometry: {type: 'Point'}};
+            geoJSON.geometry.coordinates = this.lastaddedset[comp.options.geoJSONAttr].coordinates;
+            point1 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
+            geoJSON.geometry.coordinates = currentset[comp.options.geoJSONAttr].coordinates;
+            point2 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
+        } else {
+            point1 = L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]);
+            point2 = L.latLng(currentset[comp.options.latAttr], currentset[comp.options.lonAttr]);
+        }
+        // update last point
+        this.lastaddedset = currentset;
+        
+        // validate coordinates
+        if (!point1 || !point2) {  
+            Msg.warn("Polyline skipped a point — invalid coordinates: ", currentset.measurement_process);
             return;
         }
 
-        const poly = L.polyline(
-            [
-                [lat1, lon1],
-                [lat2, lon2]
-            ],
-            {
-                color: "sienna",
-                weight: 4,
-                opacity: 0.9
-            }
-        );
-        poly.addTo(comp.viewer)
-        this.lastaddedset = set;
-        
-        // pan to last location
-        comp.zoomToSet(set);
+        // color polyline segment with datadescription
+        let col = 'sienna'; // default color
+        if (comp.options.datadescription) {
+            col = comp.datadescription.getValueColor(currentset);
+        }
 
-        // update last point
-        this.lastaddedset = set;
+        // construct polyline in Leaflet
+        const poly = L.polyline([point1, point2], {color: col, weight: 4, opacity: 0.9});
+
+        poly.addTo(comp.viewer); // add polyline to map
+        comp.zoomToSet(currentset); // pan to last location
     }
 
     /**

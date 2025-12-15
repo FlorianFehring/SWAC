@@ -747,10 +747,9 @@ export default class Worldmap2d extends View {
             if (!set[this.options.lonAttr] || !set[this.options.latAttr]) {
                 Msg.warn('Worldmap2d', 'Could not create marker for set >' + set.swac_fromName + '[' + set.id + ']<: Coordinate attribute >' + this.options.lonAttr + '< and / or >' + this.options.latAttr + '< is missing.', this.requestor);
             }
-
             geoJSON.geometry.coordinates = [set[this.options.lonAttr], set[this.options.latAttr]]
         }
-        console.log('TEST afterAddSet', set);
+
         // Add complete dataset, important to keep data at marker up to date at external changes!
         geoJSON.set = set;
         // Zoom to a certain point
@@ -809,7 +808,9 @@ export default class Worldmap2d extends View {
                 let col = this.datadescription.getValueColor(geoJSON.set);
                 // If color is hex value remove sharp because its not allowed in file URL
                 col = col.replace('#', '');
-                col = col.replace('GREY', '7B7B7B')
+                col = col.replace('GREY', '7B7B7B');
+                col = col.replace('808080', '7B7B7B'); // replace grey hex with existing grey icon
+
                 icon = new L.Icon({
                     iconUrl: '/SWAC/swac/components/Icon/imgs/map/marker-icon-' + col + '.png',
                     shadowUrl: '/SWAC/swac/components/Icon/imgs/map/marker-shadow.png',
@@ -1237,6 +1238,12 @@ export default class Worldmap2d extends View {
      * @param {WatchableSet} set Set to show in the center of the map 
      */
     zoomToSet(set) {
+        if (this.options.geoJSONAttr) {
+            const geoJSON = {type: "Feature", geometry: {type: 'Point'}};
+            geoJSON.geometry.coordinates = set[comp.options.geoJSONAttr].coordinates;
+            this.viewer.panTo({lat: geoJSON.geometry.coordinates[1], lng: geoJSON.geometry.coordinates[0]});
+            return;
+        }
         this.viewer.panTo({lat: set[this.options.latAttr], lng: set[this.options.lonAttr]});
     }
 
