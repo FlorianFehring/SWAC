@@ -25,7 +25,7 @@ export default class WatchableSource {
             msg += ' for requestor >' + comp.requestor.id + '<';
         }
         Msg.flow('WatchableSource', msg);
-        if(!storeId)
+        if (!storeId)
             storeId = 'std';
         // Create store Source
         if (!Model.store[storeId]) {
@@ -173,5 +173,20 @@ export default class WatchableSource {
 
     toString() {
         return 'WatchableSource(' + this.swac_fromName + ')';
+    }
+
+     /**
+     * Build watchableSource to objectList
+     * 
+     * @return (Array) dataList
+     */
+    toObject() {
+        let dataList = [];
+        for (let curSet of this.getSets()) {
+            if (!curSet)
+                continue;
+            dataList.push(curSet.toObject());
+        }
+        return dataList;
     }
 }

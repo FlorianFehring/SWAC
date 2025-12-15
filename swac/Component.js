@@ -1626,39 +1626,55 @@ DEFINTION of SET:\n\
                 UIkit.modal.alert(SWAC.lang.dict.core.savetofileerr);
                 continue;
             }
-            // Build datacapsle
-            let dataCapsle = {
-                fromName: curFromName
-            };
-            // Add saveAlongData to every dataset if defined
-            if (this.options.saveAlongData) {
-                dataCapsle.data = [];
-                for (let curSet of this.data[curFromName].getSets()) {
-                    let saveset = curSet.copy();
-                    for (let curAttr in this.options.saveAlongData) {
-                        saveset[curAttr] = this.options.saveAlongData[curAttr];
+
+            // check if data is a global variable
+            if (window[curFromName] !== undefined) {
+                window[curFromName] = this.data[curFromName].toObject()
+                if (this.options.saveAlongData) {
+                    for (let curSet of window[curFromName]) {
+                        if(!curSet){
+                            continue;
+                        }
+                        for (let curAttr in this.options.saveAlongData) {
+                            curSet[curAttr] = this.options.saveAlongData[curAttr];
+                        }
                     }
-                    dataCapsle.data.push(saveset);
                 }
             } else {
-                dataCapsle.data = this.data[curFromName].getSets();
-            }
-
-            // Save data
-            Model.save(dataCapsle).then(function (data) {
-                thisRef.afterSave(dataCapsle);
-                if (thisRef.options.customAfterSave) {
-                    thisRef.options.customAfterSave.bind(thisRef);
-                    try {
-                        thisRef.options.customAfterSave(data);
-                    } catch (e) {
-                        Msg.error('Component', 'Error execution options.customAfterSave(): ' + e, this.requestor);
+                // Build datacapsle
+                let dataCapsle = {
+                    fromName: curFromName
+                };
+                // Add saveAlongData to every dataset if defined
+                if (this.options.saveAlongData) {
+                    dataCapsle.data = [];
+                    for (let curSet of this.data[curFromName].getSets()) {
+                        let saveset = curSet.copy();
+                        for (let curAttr in this.options.saveAlongData) {
+                            saveset[curAttr] = this.options.saveAlongData[curAttr];
+                        }
+                        dataCapsle.data.push(saveset);
                     }
+                } else {
+                    dataCapsle.data = this.data[curFromName].getSets();
                 }
-            }).catch(function (error) {
-                UIkit.modal.alert(SWAC.lang.dict.core.model_saveerror);
-                Msg.error('Component', 'Could not save because of: ' + error);
-            });
+
+                // else Save data into reference
+                Model.save(dataCapsle).then(function (data) {
+                    thisRef.afterSave(dataCapsle);
+                    if (thisRef.options.customAfterSave) {
+                        thisRef.options.customAfterSave.bind(thisRef);
+                        try {
+                            thisRef.options.customAfterSave(data);
+                        } catch (e) {
+                            Msg.error('Component', 'Error execution options.customAfterSave(): ' + e, this.requestor);
+                        }
+                    }
+                }).catch(function (error) {
+                    UIkit.modal.alert(SWAC.lang.dict.core.model_saveerror);
+                    Msg.error('Component', 'Could not save because of: ' + error);
+                });
+            }
         }
     }
 
