@@ -240,7 +240,9 @@ export default class Model {
 //        }
 
         // Note highest new id
-        const maxId = Math.max(...data.map(obj => obj[idAttr]));
+        let maxId = Math.max(...data.map(obj => obj[idAttr]));
+        if(isNaN(maxId))
+            maxId = 0;
         dataRequest.highestId = maxId;
 
         // Test and transform sets
@@ -356,6 +358,7 @@ export default class Model {
                 // Auto generate id
                 if (isNaN(curSet[idAttr])) {
                     curSet[idAttr] = ++genid;
+                    dataRequest.highestId = curSet[idAttr];
                 }
                 curSet.swac_fromName = dataRequest.fromName;
                 // Transform set
