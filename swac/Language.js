@@ -83,7 +83,7 @@ export default class Language {
             objectname = objectname.replace('/plugins/', '/');
             objectname = objectname.replace('/', '_');
 
-            if(langfile_url.startsWith('app_')){
+            if (langfile_url.startsWith('app_')) {
                 langfile_url = window.location.href + langfile_url;
             }
 
@@ -301,9 +301,12 @@ export default class Language {
                 let translation = this.getTranslationForId(ids[1]);
                 if (typeof translation !== 'undefined') {
                     attrdefelem.setAttribute(ids[0], translation);
+                    if (ids[0] in attrdefelem) {
+                        attrdefelem[ids[0]] = translation;
+                    }
                 }
             }
-    }
+        }
     }
 
     /**
@@ -377,10 +380,10 @@ export default class Language {
         let dayElems = elem.querySelectorAll('[swac_lang_format="day"]');
         for (let curElem of dayElems) {
             if (curElem.children.length === 0) {
-                this.localiseDate(curElem, 'toLocaleDateString', { weekday: 'short'});
+                this.localiseDate(curElem, 'toLocaleDateString', {weekday: 'short'});
             } else {
                 for (let curChild of curElem.children) {
-                    this.localiseDate(curChild, 'toLocaleDateString', { weekday: 'short'});
+                    this.localiseDate(curChild, 'toLocaleDateString', {weekday: 'short'});
                 }
             }
     }
@@ -391,7 +394,7 @@ export default class Language {
      */
     localiseDecimal(elem) {
         // Do not parse placeholders
-        if(elem.innerHTML.startsWith('{'))
+        if (elem.innerHTML.startsWith('{'))
             return;
         let value = elem.getAttribute('swac_lang_localeorig');
         if (!value) {
@@ -417,7 +420,7 @@ export default class Language {
      */
     localiseDate(elem, func, params) {
         // Do not parse placeholders
-        if(elem.innerHTML.startsWith('{'))
+        if (elem.innerHTML.startsWith('{'))
             return;
         let value = elem.getAttribute('swac_lang_localeorig');
         if (!value) {
