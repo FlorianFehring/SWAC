@@ -701,7 +701,8 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         // Title Element
         const titleElem = attributeElem.querySelector('.swac_datadescription_datatitle');
         titleElem.value = desc.txt_title;
-        titleElem.placeholder = SWAC.lang.dict.Datadescription.txt_titlePlaceholder;
+        titleElem.setAttribute('swac_langattr','value:'+desc.txt_title);
+        titleElem.placeholder = 'Datadescription.txt_titlePlaceholder';
         titleElem.style.width = titleElem.value.length > 0 ? titleElem.value.length + 'ch' : titleElem.placeholder.length + 'ch';
         titleElem.addEventListener('input', () => {
             if (titleElem.value.length < 1) {
@@ -723,9 +724,9 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         //Title Wrapper and settings
         const wrapperTitleElem = attributeElem.querySelector('.swac_datadescription_wrapper_title');
         const borderColorAttributeElem = attributeElem.querySelector('.swac_datadescription_attribute_border_color');
-        borderColorAttributeElem.setAttribute('uk-tooltip', SWAC.lang.dict.Datadescription.borderColorTooltip);
+        borderColorAttributeElem.setAttribute('uk-tooltip', 'Datadescription.borderColorTooltip');
         const deleteAttributeElem = attributeElem.querySelector('.swac_datadescription_attribute_delete');
-        deleteAttributeElem.setAttribute('uk-tooltip', SWAC.lang.dict.Datadescription.attributeDeleteTooltip);
+        deleteAttributeElem.setAttribute('uk-tooltip', 'Datadescription.attributeDeleteTooltip');
         if (desc.col) {
             desc.col = Colorcalculations.stringToHex(desc.col);
             borderColorAttributeElem.value = desc.col;
@@ -758,7 +759,8 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         // Description Element
         const descElem = attributeElem.querySelector('.swac_datadescription_datadesc');
         descElem.value = desc.txt_desc;
-        descElem.placeholder = SWAC.lang.dict.Datadescription.txt_descPlaceholder;
+        descElem.setAttribute('swac_langattr','value:'+desc.txt_desc);
+        descElem.placeholder = 'Datadescription.txt_descPlaceholder';
         descElem.style.width = descElem.value.length > 0 ? descElem.value.length + 'ch' : descElem.placeholder.length + 'ch';
         descElem.addEventListener('input', () => {
             if (descElem.value.length < 1) {
@@ -938,8 +940,9 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         valueTxt.classList.add('input_nostyle')
         valueTxt.classList.add('swac_datadescription_value_txt')
         valueTxt.setAttribute('value', txt);
+        valueTxt.setAttribute('swac_langattr','value:'+txt);
         valueTxt.style.marginLeft = '10px';
-        valueTxt.placeholder = SWAC.lang.dict.Datadescription.valueTxtPlaceholder;
+        valueTxt.placeholder = 'Datadescription.valueTxtPlaceholder';
         valueTxt.style.width = valueTxt.value.length > 0 ? valueTxt.value.length + 'ch' : valueTxt.placeholder.length + 'ch';
         valueElem.appendChild(valueTxt);
 
@@ -948,7 +951,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         valueData.value = i;
         valueData.classList.add('input_nostyle');
         valueData.classList.add('swac_datadescription_value_value');
-        valueData.placeholder = SWAC.lang.dict.Datadescription.valuePlaceholder;
+        valueData.placeholder = 'Datadescription.valuePlaceholder';
         valueData.style.width = valueData.value.length > 0 ? valueData.value.length + 'ch' : valueData.placeholder.length + 'ch';
         valueData.style.display = 'none';
         valueElem.appendChild(valueData);
