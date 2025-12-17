@@ -220,7 +220,9 @@ SWAC.loadGlobalComponents = function () {
     SWAC.loadDependenciesStack(dependencyStack, {name: 'SWAC_core'}).then(
             function () {
                 // Load core language
+                console.log('TEST before loadTranslationFile()');
                 SWAC.lang.loadTranslationFile('./langs/', 'core').then(function () {
+                    console.log('TEST after loadTranslationFile');
                     // Inform about finished loading
                     let completeEvent = new CustomEvent('uiComplete', {});
                     document.dispatchEvent(completeEvent);
@@ -290,19 +292,15 @@ SWAC.waitForStartup = function () {
  * 
  * @returns {undefined}
  */
-SWAC.detectRequestors = function (elem = document) {
+SWAC.detectRequestors = async function (elem = document) {
     let requestors = elem.querySelectorAll("[swa]");
-    // ng
     let viewHandler = new ViewHandler();
-    let compproms = [];
     for (let requestor of requestors) {
-        // load component
+        // load component if not a template
         if (!requestor.id.includes('{id}') && !requestor.getAttribute('swa').startsWith('{'))
-            compproms.push(viewHandler.load(requestor));
+            await viewHandler.load(requestor);
     }
-    Promise.allSettled(compproms).then(function () {
-        document.dispatchEvent(new CustomEvent('swac_components_complete'));
-    });
+    document.dispatchEvent(new CustomEvent('swac_components_complete'));
 };
 
 /**
