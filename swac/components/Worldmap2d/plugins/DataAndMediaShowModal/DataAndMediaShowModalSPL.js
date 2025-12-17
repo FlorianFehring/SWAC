@@ -51,11 +51,11 @@ export default class DataAndMediaShowModalSPL extends Plugin {
             this.options.longitude_attr = 'longitude';
 
         this.desc.opts[2] = {
-            name: 'lattitude_attr',
+            name: 'latitude_attr',
             desc: 'Source where to find the available labels. This can be any SWAC compatible datasource.',
             example: 'locations[0].coordinates.latitude'
         };
-        if (!options.lattitude_attr)
+        if (!options.latitude_attr)
             this.options.latitude_attr = 'latitude';
 
         this.desc.opts[3] = {

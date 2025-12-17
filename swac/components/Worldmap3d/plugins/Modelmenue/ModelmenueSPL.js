@@ -4,8 +4,8 @@ import Plugin from '../../../../Plugin.js'
 
 export default class ModelmenueSPL extends Plugin {
 
-    constructor(pluginconf) {
-        super(pluginconf);
+    constructor(options = {}) {
+        super(options);
         this.name = 'cesium/plugins/Modelmenue';
 
         this.desc.templates[0] = {
@@ -26,6 +26,7 @@ export default class ModelmenueSPL extends Plugin {
         this.options.annimationstepsize = 2;
         this.desc.opts[2] = {
             name: 'onShowDetail',
+            type: 'function',
             desc: 'Definition for action when loading a detail model.\n\
                     Must contain attribute url, maybe with placeholder {filename} which will be replaces by the filename (without ending) of the not detailed model.\n\
                     Also can contain visoptions.'

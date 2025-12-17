@@ -30,22 +30,22 @@ export default class Worldmap3d extends View {
             path: SWAC.config.swac_root + 'components/Worldmap3d/Worldmap3dDebug.js',
             desc: 'Class containing methods for debugging'
         };
-        this.desc.depends[10] = {
+        this.desc.depends[3] = {
             name: 'SearchEntryMaker Class',
             path: SWAC.config.swac_root + 'components/Search/SearchEntryMaker.js',
             desc: 'Class for creating own SearchEntryMakers'
         };
-        this.desc.depends[11] = {
+        this.desc.depends[4] = {
             name: 'SearchEntryMakerGeoJson Class',
             path: SWAC.config.swac_root + 'components/Worldmap3d/search/SearchEntryMakerGeoJson.js',
             desc: 'Class for creating SearchResultEntries from a geojson model'
         };
-        this.desc.depends[12] = {
+        this.desc.depends[5] = {
             name: 'SearchEntryMakerGLTF Class',
             path: SWAC.config.swac_root + 'components/Worldmap3d/search/SearchEntryMakerGLTF.js',
             desc: 'Class for creating SearchResultEntries from GLTF models.'
         };
-        this.desc.depends[13] = {
+        this.desc.depends[6] = {
             name: 'SearchEntryMakerHid Class',
             path: SWAC.config.swac_root + 'components/Worldmap3d/search/SearchEntryMakerHid.js',
             desc: 'Class for creating SearchResultEntries from hid of buildings.'
@@ -321,8 +321,8 @@ displayed on the time. Otherwise all informations will displayed at once.'
         // Plugin for barcharts
         if (!options.plugins) {
             this.options.plugins = new Map();
-            this.options.plugins.set('modelmenue', {
-                id: 'modelmenue',
+            this.options.plugins.set('Modelmenue', {
+                id: 'Modelmenue',
                 active: false
             });
         }
@@ -595,7 +595,7 @@ displayed on the time. Otherwise all informations will displayed at once.'
                                 zoomRes.then(function (res) {
                                     console.log('zoom done');
                                     console.log(res);
-                                }).otherwise(function (err) {
+                                }).catch(function (err) {
                                     console.log('zoom err');
                                     console.log(err);
                                 });
