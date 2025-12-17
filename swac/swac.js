@@ -220,9 +220,7 @@ SWAC.loadGlobalComponents = function () {
     SWAC.loadDependenciesStack(dependencyStack, {name: 'SWAC_core'}).then(
             function () {
                 // Load core language
-                console.log('TEST before loadTranslationFile()');
                 SWAC.lang.loadTranslationFile('./langs/', 'core').then(function () {
-                    console.log('TEST after loadTranslationFile');
                     // Inform about finished loading
                     let completeEvent = new CustomEvent('uiComplete', {});
                     document.dispatchEvent(completeEvent);
