@@ -306,7 +306,37 @@ export default class Language {
                     }
                 }
             }
-        }
+            // Add change content to placeholder on input-elements
+            if (attrdefelem.tagName === "INPUT" || attrdefelem.tagName === "TEXTAREA") {
+                // Sprach-Schlüssel aus swac_langattr extrahieren
+                let attrdef = attrdefelem.getAttribute("swac_langattr");
+                let key = null;
+                if (attrdef) {
+                    let defs = attrdef.split(' ');
+                    for (let def of defs) {
+                        let ids = def.split(':');
+                        if (ids[0] === "value") {
+                            key = ids[1]; // z.B. "doubleval_value_low"
+                        }
+                    }
+                }
+
+                if (key) {
+                    // Focus-Event: Wert durch Sprach-Schlüssel ersetzen
+                    attrdefelem.addEventListener("focus", (evt) => {
+                        evt.target.value = key;
+                    });
+
+                    // Blur-Event: Wert zurück auf Übersetzung, falls leer oder Schlüssel
+                    attrdefelem.addEventListener("blur", (evt) => {
+                        let translation = this.getTranslationForId(evt.target.value);
+                        if (translation) {
+                            evt.target.value = translation;
+                        }
+                    });
+                }
+            }
+    }
     }
 
     /**
