@@ -595,7 +595,7 @@ displayed on the time. Otherwise all informations will displayed at once.'
                                 zoomRes.then(function (res) {
                                     console.log('zoom done');
                                     console.log(res);
-                                }).otherwise(function (err) {
+                                }).catch(function (err) {
                                     console.log('zoom err');
                                     console.log(err);
                                 });
