@@ -70,6 +70,7 @@ export default class Labeling extends View {
 
         this.desc.opts[3] = {
             name: 'sendAlongData',
+            type: 'function',
             desc: 'Object with attributes that should be send everytime when saveing a label'
         };
         if (!options.sendAlongData)
