@@ -299,7 +299,7 @@ export default class Language {
             for (let curAttrdef of attrdefs) {
                 let ids = curAttrdef.split(':');
                 let translation = this.getTranslationForId(ids[1]);
-                if (typeof translation !== 'undefined') {
+                if (translation) {
                     attrdefelem.setAttribute(ids[0], translation);
                     if (ids[0] in attrdefelem) {
                         attrdefelem[ids[0]] = translation;
