@@ -79,19 +79,19 @@ export default class Devhelper extends View {
             let pinBtn = document.createElement('a');
             pinBtn.classList.add('devhelper_pin');
             pinBtn.setAttribute('href', '#');
-            let statustxt = SWAC.lang.dict.Devhelper.status_ok;
+            let statustxt = 'Devhelper.status_ok';
             let statuscls = 'devhelper_ok';
             let statushide = true;
             if (msgs.errors.length > 0) {
                 statuscls = 'devhelper_error';
-                statustxt = SWAC.lang.dict.Devhelper.status_error;
+                statustxt = 'Devhelper.status_error';
                 statushide = false;
             } else if (msgs.warnings.length > 0) {
                 statuscls = 'devhelper_warn';
-                statustxt = SWAC.lang.dict.Devhelper.status_warn;
+                statustxt = 'Devhelper.status_warn';
             } else if (msgs.hints.length > 0) {
                 statuscls = 'devhelper_hints';
-                statustxt = SWAC.lang.dict.Devhelper.status_hint;
+                statustxt = 'Devhelper.status_hint';
             }
             pinBtn.setAttribute('uk-tooltip', statustxt);
             pinBtn.classList.add(statuscls);
