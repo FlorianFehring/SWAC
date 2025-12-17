@@ -53,6 +53,11 @@ export default class Present extends View {
             style: 'present_webPush_PWA',
             desc: 'Display for achievements in webPush PWA.'
         };
+        this.desc.templates[9] = {
+            name: 'present_webPush_admin_achievements',
+            style: 'present_webPush',
+            desc: 'Display for achievements in webPush PWA.'
+        };
         this.desc.reqPerSet[0] = {
             name: '*',
             desc: 'at least one value as an attribute (named whatever you want)'

@@ -116,3 +116,97 @@
 .header button {
     margin-bottom: 0;
 }
+
+.uk-accordion>li {
+    margin: 0 0 10px 0;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #fff;
+}
+
+.uk-accordion-title {
+    text-decoration: none;
+}
+
+.uk-accordion-title::before {
+    display: none;
+}
+
+.notif-header {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+.notif-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex: 0 0 auto;
+}
+
+.notif-title {
+    font-weight: 600;
+}
+
+.notif-desc {
+    font-size: 0.9rem;
+}
+
+.notif-body {
+    margin-top: 0;
+}
+
+.tier-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.75;
+    margin-bottom: 4px;
+}
+
+.tier-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex: 0 0 auto;
+}
+
+.tier-row-items {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.tier-item {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 999px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.02);
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tier-item-add {
+    flex: 1 1 0;
+    min-width: 0;
+    border: 2px dashed rgba(0, 0, 0, 0.35);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.tier-item-add:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
