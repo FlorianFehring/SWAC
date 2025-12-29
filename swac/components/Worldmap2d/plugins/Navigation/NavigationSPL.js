@@ -752,6 +752,22 @@ export default class NavigationSPL extends Plugin {
         }
 
         // -----------------------------
+        // Alle Marker entfernen
+        // -----------------------------
+        if (this.startMarker) {
+            this.startMarker.remove();
+            this.startMarker = null;
+        }
+        if (this.endMarker) {
+            this.endMarker.remove();
+            this.endMarker = null;
+        }
+        if (this.waypointMarkers) {
+            this.waypointMarkers.forEach(m => m.remove());
+            this.waypointMarkers = [];
+        }
+
+        // -----------------------------
         // Routenbeschreibung leeren
         // -----------------------------
         if (this.instructionsElem) {
