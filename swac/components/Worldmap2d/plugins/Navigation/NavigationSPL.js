@@ -114,6 +114,9 @@ export default class NavigationSPL extends Plugin {
         //NEW
         this.activeInputType = null;
         this.activeWaypointIndex = null;
+        this.waypointMarkers = [];
+        this.startMarker = null;
+        this.endMarker = null;
     }
 
     init() {
@@ -264,6 +267,16 @@ export default class NavigationSPL extends Plugin {
                         this.coordinates2Name(lat, lng)
                             .then(name => this.startInput.value = name);
 
+                        // -----------------------------
+                        // Marker setzen / ersetzen
+                        // -----------------------------
+                        if (this.startMarker) {
+                            this.map.removeLayer(this.startMarker);
+                        }
+
+                        this.startMarker =
+                            L.marker([lat, lng]).addTo(this.map);
+
                         // Reset UI state
                         this.activeInputType = null;
                         this.activeWaypointIndex = null;
@@ -278,19 +291,31 @@ export default class NavigationSPL extends Plugin {
                         this.activeWaypointIndex !== null &&
                         this.navigationobj.waypoints[this.activeWaypointIndex]
                     ) {
-                        const wp = this.navigationobj.waypoints[this.activeWaypointIndex];
+                        const wpIndex = this.activeWaypointIndex;
+                        const wp = this.navigationobj.waypoints[wpIndex];
+
                         wp.lat = lat;
                         wp.lng = lng;
 
                         const inputs =
                             this.waypointsContainer.querySelectorAll('.navigation-waypoint-input');
-                        const input = inputs[this.activeWaypointIndex];
+                        const input = inputs[wpIndex];
 
                         if (input) {
                             input.value = `${lat}, ${lng}`;
                             this.coordinates2Name(lat, lng)
                                 .then(name => input.value = name);
                         }
+
+                        // -----------------------------
+                        // Marker setzen / ersetzen
+                        // -----------------------------
+                        if (this.waypointMarkers[wpIndex]) {
+                            this.map.removeLayer(this.waypointMarkers[wpIndex]);
+                        }
+
+                        this.waypointMarkers[wpIndex] =
+                            L.marker([lat, lng]).addTo(this.map);
 
                         // Reset UI state
                         this.activeInputType = null;
@@ -307,6 +332,16 @@ export default class NavigationSPL extends Plugin {
                         this.destinationInput.value = `${lat}, ${lng}`;
                         this.coordinates2Name(lat, lng)
                             .then(name => this.destinationInput.value = name);
+
+                        // -----------------------------
+                        // Marker setzen / ersetzen
+                        // -----------------------------
+                        if (this.endMarker) {
+                            this.map.removeLayer(this.endMarker);
+                        }
+
+                        this.endMarker =
+                            L.marker([lat, lng]).addTo(this.map);
 
                         // Reset UI state
                         this.activeInputType = null;
@@ -425,13 +460,21 @@ export default class NavigationSPL extends Plugin {
         input.addEventListener('change', () => {
             this.name2Coordinates(input.value)
                 .then(feature => {
-                    this.navigationobj.waypoints[index] = {
-                        lat: feature.geometry.coordinates[1],
-                        lng: feature.geometry.coordinates[0]
-                    };
+                    const lat = feature.geometry.coordinates[1];
+                    const lng = feature.geometry.coordinates[0]
+                    this.navigationobj.waypoints[index] = { lat: lat, lng: lng };
+
+                    if (this.waypointMarkers[input]) {
+                        this.map.removeLayer(this.waypointMarkers[index]);
+                    }
+                    this.waypointMarkers[index] = L.marker([lat, lng]).addTo(this.map);
                 })
                 .catch(() => {
                     this.navigationobj.waypoints[index] = { lat: null, lng: null };
+                    if (this.waypointMarkers[index]) {
+                        this.map.removeLayer(this.waypointMarkers[index]);
+                        this.waypointMarkers[index] = null;
+                    }
                 });
         });
 
