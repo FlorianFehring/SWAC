@@ -53,7 +53,6 @@ export default class NavigationSPL extends Plugin {
             desc: "Configures what percentage of datapoint density should be displayed. Routes with many datapoints encounter problems with routing"
         };
 
-        // NEW
         this.desc.opts[4] = {
             name: "enableRouteSave",
             desc: "If true a button to save the current route is shown"
@@ -111,7 +110,6 @@ export default class NavigationSPL extends Plugin {
         this.destinationIcon = null;
         this.navigation_click_evts = null;
         this.instructionsElem = null;
-        //NEW
         this.activeInputType = null;
         this.activeWaypointIndex = null;
     }
@@ -131,8 +129,6 @@ export default class NavigationSPL extends Plugin {
             let endRoutingButton = this.navigationMenu.querySelector('.navigation-routing-end-button');
             let siwtchStartDestinationButton = this.navigationMenu.querySelector('.navigation-switch-button');
             this.instructionsElem = this.navigationMenu.querySelector('.navigation-instructions');
-
-            // NEW
             this.waypointsContainer = this.navigationMenu.querySelector('.navigation-waypoints');
             this.addWaypointButton = this.navigationMenu.querySelector('.navigation-add-waypoint-button');
             this.saveRouteButton = this.navigationMenu.querySelector('.navigation-route-save-button');
@@ -144,7 +140,7 @@ export default class NavigationSPL extends Plugin {
                     this.saveRoute();
                 });
             }
-
+            // On map click -> Add Coordiantes into Text input field
             this.addWaypointButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.addWaypointInput();
@@ -334,68 +330,6 @@ export default class NavigationSPL extends Plugin {
                     }
                 },
             }
-
-            /*
-            document.addEventListener(
-                `swac_Component_${this.requestor.parent.id}_lastSetFromRequestAdded`,
-                () => {
-
-                    // Wie viele Punkte überspringen?
-                    // Example: 5 = nur jeder 5. Marker wird gesendet
-                    const datapointDensity = 5;
-
-                    setTimeout(() => {
-
-                        console.warn("NavigationSPL — ALL DATA LOADED EVENT FIRED");
-
-                        const comp = this.requestor.parent.swac_comp;
-
-                        // Snapshot
-                        const markers = [...comp.markersArray];
-                        console.warn("Marker gesamt:", markers.length);
-
-                        const waypoints = [];
-
-                        for (let i = 0; i < markers.length; i++) {
-                            const marker = markers[i];
-
-                            // --- Dichtefilter ---
-                            if (i % datapointDensity !== 0) continue;
-
-                            if (!marker?._latlng) {
-                                console.warn("Marker ohne LatLng übersprungen:", marker);
-                                continue;
-                            }
-
-                            waypoints.push(
-                                L.latLng(marker._latlng.lat, marker._latlng.lng)
-                            );
-                        }
-
-                        console.warn(`Waypoints nach Dichtefilter (${datapointDensity}):`, waypoints.length);
-                        console.warn(waypoints);
-
-                        if (waypoints.length < 2) {
-                            console.error("Nicht genug Waypoints für Routing.");
-                            return;
-                        }
-
-                        L.Routing.control({
-                            waypoints,
-                            router: L.routing.osrmv1({
-                                serviceUrl: 'https://router.project-osrm.org/route/v1',
-                                profile: 'foot'   // 'car', 'bike', 'foot'
-                            }),
-                            draggableWaypoints: false,
-                            addWaypoints: false,
-                            show: false,
-                            createMarker: () => null
-                        }).addTo(comp.viewer);
-
-                    }, 2000);
-                }
-            );
-            */
             resolve();
         });
     } // end of init()
