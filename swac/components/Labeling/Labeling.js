@@ -219,8 +219,17 @@ export default class Labeling extends View {
             let nameElem = curRepeated.querySelector('.uk-label');
             nameElem.innerHTML = this.usableLabels[labelid].name;
             nameElem.setAttribute('swac_lang', this.usableLabels[labelid].name);
+
+            // Add color if present
             if (this.usableLabels[labelid].color) {
                 nameElem.style.background = this.usableLabels[labelid].color;
+            }
+
+            // Apply class if present
+            if (this.usableLabels[labelid].class) {
+                curRepeated.classList.add(this.usableLabels[labelid].class);
+                labelElem.classList.add(this.usableLabels[labelid].class);
+                nameElem.classList.add(this.usableLabels[labelid].class);
             }
 
             // Add remove function
