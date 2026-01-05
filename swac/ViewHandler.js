@@ -32,6 +32,7 @@ export default class ViewHandler extends ComponentHandler {
             let thisRef = this;
             // Parse the declaration and make attributes on the element out of it
             domrequestor = this.parseDeclaration(domrequestor);
+
             // Create component path
             domrequestor.componentPath = './components/' + domrequestor.componentname + '/' + domrequestor.componentname + '.js'
             super.load(domrequestor, false).then(function (requestor) {
