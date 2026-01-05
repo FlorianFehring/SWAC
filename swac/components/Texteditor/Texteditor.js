@@ -86,6 +86,7 @@ Can be used as texteditor with formating and lots of other enhanced functions.';
             this.options.sendAlongData = null;
 
         if (!options.plugins) {
+            this.options.plugins = new Map();
             this.options.plugins.set('languagecheck', {
                 id: 'languagecheck',
                 active: true
