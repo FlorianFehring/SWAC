@@ -123,9 +123,12 @@ export default class Labeling extends View {
             selc: '.label-remove-btn',
             desc: 'Button that removes the selected label from the active labels.'
         };
-
     }
 
+    /**
+     * Initializes the component by selecting DOM elements, setting up event listeners, 
+     * and loading available labels from the model.
+     */
     init() {
         return new Promise((resolve, reject) => {
 
@@ -133,7 +136,7 @@ export default class Labeling extends View {
             this.datalistElem = this.requestor.querySelector('#label-datalist');
             this.addInputElem = this.requestor.querySelector('.label-add-input');
             this.addBtnElem = this.requestor.querySelector('.label-add-btn');
-//            this.removeSelectElem = this.requestor.querySelector('.label-remove-select');
+            // this.removeSelectElem = this.requestor.querySelector('.label-remove-select');
             this.removeInputElem = this.requestor.querySelector('.label-remove-input');
             this.removeBtnElem = this.requestor.querySelector('.label-remove-btn');
             this.labelContainer = this.requestor.querySelector('.label-container');
@@ -179,6 +182,7 @@ export default class Labeling extends View {
 
     /**
      * Ensures that the label set has the required 'label.name' attribute for SWAC.
+     * 
      * @param {Object} set Label set to be added
      * @returns {Object} The updated label set
      */
@@ -201,12 +205,8 @@ export default class Labeling extends View {
      */
 
     afterAddSet(set, repeateds) {
-        // Remove added active label from list of chooseable labels
         let repForElem = this.requestor.querySelector('.swac_repeatForAddLabel');
         let labelElem = repForElem.parentElement.querySelector('[swac_setid="' + set[this.options.labelidAttr] + '"]');
-//        if (labelElem) {
-//            labelElem.remove();
-//        }
 
         let labelid = set[this.options.labelidAttr];
         if (!this.usableLabels[labelid]) {
@@ -224,11 +224,16 @@ export default class Labeling extends View {
             }
 
             // Add remove function
-            //curRepeated.addEventListener('click', this.onClickDelLabel.bind(this));
+            curRepeated.addEventListener('click', this.onClickDelLabel.bind(this));
             this.removeLabelFromAddDatalist(labelid);
         }
     }
 
+    /**
+     * Adds a new label to the dataset and updates the display.
+     * 
+     * @param {number|string} labelid ID of the label to add
+     */
     addLabel(labelid) {
         // Get the model
         let Model = window.swac.Model;
@@ -262,15 +267,16 @@ export default class Labeling extends View {
                 newset.id = newId;
             }
             thisRef.addSet(thisRef.getMainSourceName(), newset);
-
-            // Remove label from chooseable label list
-            //thisRef.removeLabelFromAddDatalist(labelid);
-            //labelElem.remove();
         }).catch(function (e) {
             UIkit.modal.alert(window.swac.lang.dict.Labeling.addfailed);
         });
     }
 
+    /**
+     * Deletes a label from the dataset and updates the display.
+     * 
+     * @param {number} conid ID of the label dataset to delete
+     */
     delLabel(conid) {
         let Model = window.swac.Model;
         let dataCapsule = {
@@ -293,8 +299,10 @@ export default class Labeling extends View {
         }).catch();
     }
 
+    // *** Dropdown functions ***
+
     /**
-     * Executed when an label entry is clicked for add label
+     * Handles a click event on a label in the dropdown template and adds the label to the dataset.
      */
     onClickAddLabel(evt) {
         let labelElem = evt.target;
@@ -304,42 +312,38 @@ export default class Labeling extends View {
         let labelid = labelElem.getAttribute('swac_setid');
         labelid = parseInt(labelid);
 
-//        // Get id of the object to label
-//        let labeledId;
-//
-//        // Get set information in case Labeling is used as subrequestor
-//        let setElem = this.requestor;
-//        while (!setElem.hasAttribute('swac_setid') && setElem.parentElement) {
-//            setElem = setElem.parentElement;
-//        }
-//        if (setElem.hasAttribute('swac_setid')) {
-//            labeledId = setElem.getAttribute('swac_setid');
-//        } else {
-//            labeledId = window.swac.getParameterFromURL('id');
-//        }
-//        labeledId = parseInt(labeledId);
-
         this.addLabel(labelid);
     }
 
     /**
-     * Executed when an label entry is clicked for removeing label
+     * Handles a click event on a label in the dropdown template and deletes the label only if it belongs to the dropdown container.
      */
     onClickDelLabel(evt) {
-        let conElem = evt.target;
-        while (!conElem.hasAttribute('swac_setid') && conElem.parentNode) {
-            conElem = conElem.parentNode;
-        }
-        let conid = conElem.getAttribute('swac_setid');
-        conid = parseInt(conid);
+        let labelElem = evt.target;
 
+        while (labelElem && !labelElem.classList.contains('swac_repeatedForSet')) {
+            labelElem = labelElem.parentNode;
+        }
+
+        // check if dropdown template
+        const dropdownContainer = this.requestor.querySelector('[uk-dropdown]');
+        if (!dropdownContainer) {
+            return;
+        }
+
+        // get swac_setid
+        const conidAttr = labelElem.getAttribute('swac_setid');
+        if (!conidAttr)
+            return;
+
+        const conid = parseInt(conidAttr);
         this.delLabel(conid);
     }
 
     // *** Datalist functions ***
 
     /**
-     * Handles input from the add label text field and triggers saving the label.
+     * Handles input from the add label text field in the datalist template and triggers saving the label.
      */
     onAddFromInput() {
         let labelId = this.addInputElem.value.trim();
@@ -348,7 +352,7 @@ export default class Labeling extends View {
     }
 
     /**
-     * Handles the removal of a label from the dropdown and updates the UI accordingly.
+     * Handles input from the remove label text field in the datalist template and triggers deletion of the label.
      */
     onRemoveFromInput() {
         let labelId = this.removeInputElem.value.trim();
@@ -366,9 +370,9 @@ export default class Labeling extends View {
     }
 
     /**
-     * Adds an entry for the given label dataset to the list of selectable labels.
+     * Adds an entry for the given label dataset to the list of selectable labels in the add dropdown.
      * 
-     * @param {WatchableSet} labelSet Set with label information
+     * @param {Object} labelSet Set with label information
      */
     addLabelToAddDatalist(labelSet) {
         let tplElem = this.requestor.querySelector('.swac_repeatForAddLabel');
@@ -383,6 +387,11 @@ export default class Labeling extends View {
         labelElem.addEventListener('click', this.onClickAddLabel.bind(this));
     }
 
+    /**
+     * Adds an entry for the given label dataset to the list of selectable labels in the remove datalist.
+     * 
+     * @param {Object} labelSet Set with label information
+     */
     addLabelToDetelteDatalist(labelSet) {
         let tplElem = this.requestor.querySelector('.swac_repeatForDelLabel');
         if (tplElem) {
@@ -398,9 +407,13 @@ export default class Labeling extends View {
         }
     }
 
+    /**
+     * Removes a label from the add datalist and updates the remove datalist accordingly.
+     * 
+     * @param {number} labelid ID of the label to remove from add datalist
+     */
     removeLabelFromAddDatalist(labelid) {
         let repForElem = this.requestor.querySelector('.swac_repeatForAddLabel');
-        // swac_setid="2"
         let labelElem = repForElem.parentElement.querySelector('[swac_setid="' + labelid + '"]');
         labelElem.remove();
         if (this.usableLabels[labelid]) {
@@ -408,6 +421,10 @@ export default class Labeling extends View {
         }
     }
 
+    /**
+     * Removes a label from the remove datalist and updates the add datalist accordingly.
+     * @param {number} labelid ID of the label to remove from delete datalist
+     */
     removeLabelFromDeleteDatalist(labelid) {
         let repForElem = this.requestor.querySelector('.swac_repeatForDelLabel');
         let labelElem = repForElem.parentElement.querySelector('[swac_setid="' + labelid + '"]');
