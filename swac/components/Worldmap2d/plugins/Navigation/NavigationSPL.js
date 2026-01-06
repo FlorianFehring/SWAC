@@ -53,7 +53,6 @@ export default class NavigationSPL extends Plugin {
             desc: "Configures what percentage of datapoint density should be displayed. Routes with many datapoints encounter problems with routing"
         };
 
-        // NEW
         this.desc.opts[4] = {
             name: "enableRouteSave",
             desc: "If true a button to save the current route is shown"
@@ -111,9 +110,11 @@ export default class NavigationSPL extends Plugin {
         this.destinationIcon = null;
         this.navigation_click_evts = null;
         this.instructionsElem = null;
-        //NEW
         this.activeInputType = null;
         this.activeWaypointIndex = null;
+        this.waypointMarkers = [];
+        this.startMarker = null;
+        this.endMarker = null;
     }
 
     init() {
@@ -131,8 +132,6 @@ export default class NavigationSPL extends Plugin {
             let endRoutingButton = this.navigationMenu.querySelector('.navigation-routing-end-button');
             let siwtchStartDestinationButton = this.navigationMenu.querySelector('.navigation-switch-button');
             this.instructionsElem = this.navigationMenu.querySelector('.navigation-instructions');
-
-            // NEW
             this.waypointsContainer = this.navigationMenu.querySelector('.navigation-waypoints');
             this.addWaypointButton = this.navigationMenu.querySelector('.navigation-add-waypoint-button');
             this.saveRouteButton = this.navigationMenu.querySelector('.navigation-route-save-button');
@@ -144,7 +143,7 @@ export default class NavigationSPL extends Plugin {
                     this.saveRoute();
                 });
             }
-
+            // On map click -> Add Coordiantes into Text input field
             this.addWaypointButton.addEventListener('click', (e) => {
                 e.preventDefault();
                 this.addWaypointInput();
@@ -264,6 +263,16 @@ export default class NavigationSPL extends Plugin {
                         this.coordinates2Name(lat, lng)
                             .then(name => this.startInput.value = name);
 
+                        // -----------------------------
+                        // Marker setzen / ersetzen
+                        // -----------------------------
+                        if (this.startMarker) {
+                            this.map.removeLayer(this.startMarker);
+                        }
+
+                        this.startMarker =
+                            L.marker([lat, lng]).addTo(this.map);
+
                         // Reset UI state
                         this.activeInputType = null;
                         this.activeWaypointIndex = null;
@@ -278,19 +287,31 @@ export default class NavigationSPL extends Plugin {
                         this.activeWaypointIndex !== null &&
                         this.navigationobj.waypoints[this.activeWaypointIndex]
                     ) {
-                        const wp = this.navigationobj.waypoints[this.activeWaypointIndex];
+                        const wpIndex = this.activeWaypointIndex;
+                        const wp = this.navigationobj.waypoints[wpIndex];
+
                         wp.lat = lat;
                         wp.lng = lng;
 
                         const inputs =
                             this.waypointsContainer.querySelectorAll('.navigation-waypoint-input');
-                        const input = inputs[this.activeWaypointIndex];
+                        const input = inputs[wpIndex];
 
                         if (input) {
                             input.value = `${lat}, ${lng}`;
                             this.coordinates2Name(lat, lng)
                                 .then(name => input.value = name);
                         }
+
+                        // -----------------------------
+                        // Marker setzen / ersetzen
+                        // -----------------------------
+                        if (this.waypointMarkers[wpIndex]) {
+                            this.map.removeLayer(this.waypointMarkers[wpIndex]);
+                        }
+
+                        this.waypointMarkers[wpIndex] =
+                            L.marker([lat, lng]).addTo(this.map);
 
                         // Reset UI state
                         this.activeInputType = null;
@@ -307,6 +328,16 @@ export default class NavigationSPL extends Plugin {
                         this.destinationInput.value = `${lat}, ${lng}`;
                         this.coordinates2Name(lat, lng)
                             .then(name => this.destinationInput.value = name);
+
+                        // -----------------------------
+                        // Marker setzen / ersetzen
+                        // -----------------------------
+                        if (this.endMarker) {
+                            this.map.removeLayer(this.endMarker);
+                        }
+
+                        this.endMarker =
+                            L.marker([lat, lng]).addTo(this.map);
 
                         // Reset UI state
                         this.activeInputType = null;
@@ -334,68 +365,6 @@ export default class NavigationSPL extends Plugin {
                     }
                 },
             }
-
-            /*
-            document.addEventListener(
-                `swac_Component_${this.requestor.parent.id}_lastSetFromRequestAdded`,
-                () => {
-
-                    // Wie viele Punkte überspringen?
-                    // Example: 5 = nur jeder 5. Marker wird gesendet
-                    const datapointDensity = 5;
-
-                    setTimeout(() => {
-
-                        console.warn("NavigationSPL — ALL DATA LOADED EVENT FIRED");
-
-                        const comp = this.requestor.parent.swac_comp;
-
-                        // Snapshot
-                        const markers = [...comp.markersArray];
-                        console.warn("Marker gesamt:", markers.length);
-
-                        const waypoints = [];
-
-                        for (let i = 0; i < markers.length; i++) {
-                            const marker = markers[i];
-
-                            // --- Dichtefilter ---
-                            if (i % datapointDensity !== 0) continue;
-
-                            if (!marker?._latlng) {
-                                console.warn("Marker ohne LatLng übersprungen:", marker);
-                                continue;
-                            }
-
-                            waypoints.push(
-                                L.latLng(marker._latlng.lat, marker._latlng.lng)
-                            );
-                        }
-
-                        console.warn(`Waypoints nach Dichtefilter (${datapointDensity}):`, waypoints.length);
-                        console.warn(waypoints);
-
-                        if (waypoints.length < 2) {
-                            console.error("Nicht genug Waypoints für Routing.");
-                            return;
-                        }
-
-                        L.Routing.control({
-                            waypoints,
-                            router: L.routing.osrmv1({
-                                serviceUrl: 'https://router.project-osrm.org/route/v1',
-                                profile: 'foot'   // 'car', 'bike', 'foot'
-                            }),
-                            draggableWaypoints: false,
-                            addWaypoints: false,
-                            show: false,
-                            createMarker: () => null
-                        }).addTo(comp.viewer);
-
-                    }, 2000);
-                }
-            );
-            */
             resolve();
         });
     } // end of init()
@@ -425,13 +394,21 @@ export default class NavigationSPL extends Plugin {
         input.addEventListener('change', () => {
             this.name2Coordinates(input.value)
                 .then(feature => {
-                    this.navigationobj.waypoints[index] = {
-                        lat: feature.geometry.coordinates[1],
-                        lng: feature.geometry.coordinates[0]
-                    };
+                    const lat = feature.geometry.coordinates[1];
+                    const lng = feature.geometry.coordinates[0]
+                    this.navigationobj.waypoints[index] = { lat: lat, lng: lng };
+
+                    if (this.waypointMarkers[input]) {
+                        this.map.removeLayer(this.waypointMarkers[index]);
+                    }
+                    this.waypointMarkers[index] = L.marker([lat, lng]).addTo(this.map);
                 })
                 .catch(() => {
                     this.navigationobj.waypoints[index] = { lat: null, lng: null };
+                    if (this.waypointMarkers[index]) {
+                        this.map.removeLayer(this.waypointMarkers[index]);
+                        this.waypointMarkers[index] = null;
+                    }
                 });
         });
 
@@ -706,6 +683,22 @@ export default class NavigationSPL extends Plugin {
         if (this.destinationIcon) {
             this.destinationIcon.remove();
             this.destinationIcon = null;
+        }
+
+        // -----------------------------
+        // Alle Marker entfernen
+        // -----------------------------
+        if (this.startMarker) {
+            this.startMarker.remove();
+            this.startMarker = null;
+        }
+        if (this.endMarker) {
+            this.endMarker.remove();
+            this.endMarker = null;
+        }
+        if (this.waypointMarkers) {
+            this.waypointMarkers.forEach(m => m.remove());
+            this.waypointMarkers = [];
         }
 
         // -----------------------------
