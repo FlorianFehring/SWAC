@@ -50,7 +50,10 @@ export default class Navigation extends View {
             selc: '.swac_navigation_sitemapsave',
             desc: 'Button to save the sitemap.'
         }
-
+        this.desc.optPerTpl[3] = {
+            selc: '.swac_nav_addons_mob',
+            desc: 'Description'
+        }
         this.desc.reqPerSet[0] = {
             name: 'id',
             desc: 'Id of the navigation dataset used for building hierarchies'
