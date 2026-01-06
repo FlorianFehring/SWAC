@@ -1,0 +1,39 @@
+<ul class="uk-list">
+    <li class="swac_repeatForSet" swac_parent="{parent}">
+        <div class="uk-card uk-card-default uk-card-small uk-card-body">
+            <div uk-grid>
+<!--                <div class="uk-width-small" swac_hideOnEmpty="{icon}">
+                    <picture>
+                        <source srcset="../../files/objecticons/{icon}.avif" type="image/avif">
+                        <img src="../../files/objecticons/{icon}.png" alt="object icon" width="100" height="100" style="float: left;">
+                    </picture> 
+                </div>-->
+                <div class="uk-width-expand@m">
+                    <h3 class="uk-card-title" uk-tooltip="{id}">{name}</h3>
+                    <span class="swac_repeatForValue"  uk-tooltip="title: {attrName}"><b>{attrName}</b>: {*} </span>
+                </div>
+            </div>
+
+            <ul class="swac_forChilds uk-list">
+                <li class="swac_child">
+                    <div class="uk-card uk-card-default uk-card-small uk-card-body">
+                        <div uk-grid>
+<!--                            <div class="uk-width-small" swac_hideOnEmpty="{icon}">
+                                <picture>
+                                    <source srcset="../../files/objecticons/{icon}.avif" type="image/avif">
+                                    <img src="../../files/objecticons/{icon}.png" alt="object icon" width="100" height="100" style="float: left;">
+                                </picture> 
+                            </div>-->
+                            <div class="uk-width-expand@m">
+                                <h3 class="uk-card-title">{name}</h3>
+                                <span class="swac_repeatForValue"  uk-tooltip="title: {attrName}"><b>{attrName}</b>: {*} </span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="swac_forChilds uk-list uk-list-decimal"></ul>
+                    <hr>
+                </li>
+            </ul>
+        </div>
+    </li>
+</ul>

@@ -574,6 +574,11 @@ DEFINTION of SET:\n\
 
         // Documentation for events
         this.desc.events = [];
+        this.desc.events[1000] = {
+            name: 'swac_Component_REQUESTOR.ID_lastSetFromRequestAdded',
+            desc: 'Event is fired, when the last dataset from a request was added to the component. The event is fired on the document.',
+            data: 'Sends the last dataset as detail.'
+        };
 
         // Component data
         // key = fromName = Sooure of the data
@@ -1171,27 +1176,33 @@ DEFINTION of SET:\n\
      * Note that when you overwrite this method, also afterAddSet() on plugins is no longer executed.
      * 
      * @param {Object} set Object with attributes to add
-     * @param {Mixed} data Data elements that should be deliverd to the customAfterAddSet() and Plugin.afterAddSet() calls
+     * @param {Mixed} repeateds Data elements that should be deliverd to the customAfterAddSet() and Plugin.afterAddSet() calls
      * @returns {undefined}
      */
-    async afterAddSet(set, data) {
+    async afterAddSet(set, repeateds) {
         Msg.flow('Component', 'afterAddSet()', this.requestor);
-
         // Execute custom afterAddSet
         if (this.options.customAfterAddSet) {
             // Set method to this to use context of component in method
             this.customAfterAddSet = this.options.customAfterAddSet;
             try {
-                this.customAfterAddSet(set, data);
+                this.customAfterAddSet(set, repeateds);
             } catch (e) {
                 Msg.error('Component', 'Error while executeing >.customAfterAddSet(' + set.swac_fromName + '[' + set.id + ']: ' + e, this.requestor);
             }
         }
+        // Fire last set added event
+        if (set.swac_dataRequest && set.id === set.swac_dataRequest.highestId) {
+            document.dispatchEvent(new CustomEvent('swac_Component_' + this.requestor.id + '_lastSetFromRequestAdded', {
+                detail: {set: set}
+            }));
+        }
+
         // Inform plugins about added sets / Plugins from views are informed by view
         if (this.pluginsystem && !this.constructor.prototype instanceof View) {
             for (let curPlugin of this.getLoadedPlugins().values()) {
                 if (curPlugin.swac_comp.afterAddSet) {
-                    curPlugin.swac_comp.afterAddSet(set, data);
+                    curPlugin.swac_comp.afterAddSet(set, repeateds);
                 }
             }
         }
@@ -1615,39 +1626,55 @@ DEFINTION of SET:\n\
                 UIkit.modal.alert(SWAC.lang.dict.core.savetofileerr);
                 continue;
             }
-            // Build datacapsle
-            let dataCapsle = {
-                fromName: curFromName
-            };
-            // Add saveAlongData to every dataset if defined
-            if (this.options.saveAlongData) {
-                dataCapsle.data = [];
-                for (let curSet of this.data[curFromName].getSets()) {
-                    let saveset = curSet.copy();
-                    for (let curAttr in this.options.saveAlongData) {
-                        saveset[curAttr] = this.options.saveAlongData[curAttr];
+
+            // check if data is a global variable
+            if (window[curFromName] !== undefined) {
+                window[curFromName] = this.data[curFromName].toObject()
+                if (this.options.saveAlongData) {
+                    for (let curSet of window[curFromName]) {
+                        if(!curSet){
+                            continue;
+                        }
+                        for (let curAttr in this.options.saveAlongData) {
+                            curSet[curAttr] = this.options.saveAlongData[curAttr];
+                        }
                     }
-                    dataCapsle.data.push(saveset);
                 }
             } else {
-                dataCapsle.data = this.data[curFromName].getSets();
-            }
-
-            // Save data
-            Model.save(dataCapsle).then(function (data) {
-                thisRef.afterSave(dataCapsle);
-                if (thisRef.options.customAfterSave) {
-                    thisRef.options.customAfterSave.bind(thisRef);
-                    try {
-                        thisRef.options.customAfterSave(data);
-                    } catch (e) {
-                        Msg.error('Component', 'Error execution options.customAfterSave(): ' + e, this.requestor);
+                // Build datacapsle
+                let dataCapsle = {
+                    fromName: curFromName
+                };
+                // Add saveAlongData to every dataset if defined
+                if (this.options.saveAlongData) {
+                    dataCapsle.data = [];
+                    for (let curSet of this.data[curFromName].getSets()) {
+                        let saveset = curSet.copy();
+                        for (let curAttr in this.options.saveAlongData) {
+                            saveset[curAttr] = this.options.saveAlongData[curAttr];
+                        }
+                        dataCapsle.data.push(saveset);
                     }
+                } else {
+                    dataCapsle.data = this.data[curFromName].getSets();
                 }
-            }).catch(function (error) {
-                UIkit.modal.alert(SWAC.lang.dict.core.model_saveerror);
-                Msg.error('Component', 'Could not save because of: ' + error);
-            });
+
+                // else Save data into reference
+                Model.save(dataCapsle).then(function (data) {
+                    thisRef.afterSave(dataCapsle);
+                    if (thisRef.options.customAfterSave) {
+                        thisRef.options.customAfterSave.bind(thisRef);
+                        try {
+                            thisRef.options.customAfterSave(data);
+                        } catch (e) {
+                            Msg.error('Component', 'Error execution options.customAfterSave(): ' + e, this.requestor);
+                        }
+                    }
+                }).catch(function (error) {
+                    UIkit.modal.alert(SWAC.lang.dict.core.model_saveerror);
+                    Msg.error('Component', 'Could not save because of: ' + error);
+                });
+            }
         }
     }
 
@@ -1943,7 +1970,7 @@ DEFINTION of SET:\n\
         for (let depNo in this.desc.depends) {
             let dependency = this.desc.depends[depNo];
             // Ignore if debugonly and no debugmode
-            if (dependency.debugonly && !this.config.debugmode)
+            if (dependency.debugonly && !SWAC_config.debugmode)
                 continue;
             if (typeof dependency.loaded === 'undefined' || dependency.loaded === false) {
                 return false;

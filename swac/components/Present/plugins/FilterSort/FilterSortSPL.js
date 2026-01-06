@@ -162,7 +162,7 @@ export default class FilterSortSPL extends Plugin {
         evt.preventDefault();
         let sortParts = evt.target.value.split('.');
 
-        var wrapper = document.querySelector('.present-filter');
+        var wrapper = this.requestor.parent;
         var elements = wrapper.querySelectorAll('.swac_repeatedForSet');
         var sortedElements;
         if (sortParts[1] === 'asc') {

@@ -47,10 +47,7 @@ export default class Datadescription extends View {
             selc: '.swac_datadescription_attribution',
             desc: 'Element where to insert the attribution.'
         };
-        this.desc.reqPerSet[0] = {
-            name: 'txt_title',
-            desc: 'Legends title.'
-        };
+
         this.desc.optPerSet[0] = {
             name: 'sourcename',
             desc: 'Name to display below the legend as attribution.'
@@ -60,50 +57,46 @@ export default class Datadescription extends View {
             desc: 'Link to show in the attribution.'
         };
         this.desc.optPerSet[2] = {
-            name: 'txt_desc',
-            desc: 'Description of the legend.'
-        };
-        this.desc.optPerSet[3] = {
             name: 'ATTRIBUTENAME.txt_title',
             desc: 'Title of the attribute as shown in the legend.'
         };
-        this.desc.optPerSet[4] = {
+        this.desc.optPerSet[3] = {
             name: 'ATTRIBUTENAME.txt_desc',
             desc: 'Description of the attribute.'
         };
-        this.desc.optPerSet[5] = {
+        this.desc.optPerSet[4] = {
             name: 'ATTRIBUTENAME.txt_uknw',
             desc: 'Default text for display, when no value is presend.'
         };
-        this.desc.optPerSet[6] = {
+        this.desc.optPerSet[5] = {
             name: 'ATTRIBUTENAME.col',
             desc: 'Color to use for visualising the attribute. (Supports css color names, css hex codes and RGBA values)'
         };
-        this.desc.optPerSet[7] = {
+        this.desc.optPerSet[6] = {
             name: 'ATTRIBUTENAME.minValue',
             desc: 'Estimated minimum value for this attribute. Used for normalizing the data.'
         };
-        this.desc.optPerSet[8] = {
+        this.desc.optPerSet[7] = {
             name: 'ATTRIBUTENAME.maxValue',
             desc: 'Estimated maximum value for this attribute. Used for normalizing the data.'
         };
-        this.desc.optPerSet[9] = {
+        this.desc.optPerSet[8] = {
             name: 'ATTRIBUTENAME.calcmode',
             desc: 'Mode the values (like color, text) will be calculated. Default is = (equality check on the values under ATTRIBUTENAME.values[VALUE]. Other supported: <'
         };
-        this.desc.optPerSet[10] = {
+        this.desc.optPerSet[9] = {
             name: 'ATTRIBUTENAME.values',
             desc: 'Object containing the values that should be visualized as attributes with objects holding visualisation information, as described below.'
         };
-        this.desc.optPerSet[11] = {
+        this.desc.optPerSet[10] = {
             name: 'ATTRIBUTENAME.scale',
             desc: 'Factor with wich the value should be scaled for presentation.'
         };
-        this.desc.optPerSet[12] = {
+        this.desc.optPerSet[11] = {
             name: 'ATTRIBUTENAME.values[VALUE].col',
             desc: 'Color that should be used to visualise this value. (Supports css color names, css hex codes and RGBA values)'
         };
-        this.desc.optPerSet[13] = {
+        this.desc.optPerSet[12] = {
             name: 'ATTRIBUTENAME.values[VALUE].txt',
             desc: 'Text describing this value. Used in legend and as vocable in description texts.'
         };
@@ -218,6 +211,19 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
                     thisRef.requestor.classList.add('swac_dontdisplay');
                 }
             });
+
+            // Get all available requestors
+            let requestorList = [this.requestor.id];
+            let requestors = document.querySelectorAll('[swa]');
+            for (let curRequestor of requestors) {
+                requestorList.push(curRequestor.id);
+            }
+            // When loaded use datadescription on all requestors
+            window.swac.reactions.addReaction(function (requestors) {
+                // Format all data
+                thisRef.formatAll();
+            }, ...requestorList);
+
             resolve();
         });
     }
@@ -231,6 +237,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
                 this.options.activeSet = set.id;
             }
         }
+        super.afterAddSet(set, repeateds);
     }
 
     /**
@@ -392,11 +399,6 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
      * @returns {Number} Normed value between 0-100%, of original value, if no normation information is given
      */
     getNormedValue(data, visuDataset = null, visuAttribute = null) {
-//        let dataset = this.getDescribedDataset(data, visuDataset);
-//        if (visuAttribute === null
-//                && typeof this.options.visuAttribute !== 'undefined') {
-//            visuAttribute = this.options.visuAttribute;
-//        }
         // Get value
         let value = this.getScaledValue(data, visuDataset, visuAttribute);
         let legenddate = this.data[this.options.activeSource].getSet(this.options.activeSet);
@@ -616,6 +618,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
      * @returns {DOMElement} HTML DIV Element containing the legend
      */
     getLegend() {
+        Msg.flow('Datadescription','getLegend()',this.requestor);
         let requestor = this.requestor;
 
         // setup border Color input in modal
@@ -699,7 +702,8 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         // Title Element
         const titleElem = attributeElem.querySelector('.swac_datadescription_datatitle');
         titleElem.value = desc.txt_title;
-        titleElem.placeholder = SWAC.lang.dict.Datadescription.txt_titlePlaceholder;
+        titleElem.setAttribute('swac_langattr','value:'+desc.txt_title);
+        titleElem.placeholder = 'Datadescription.txt_titlePlaceholder';
         titleElem.style.width = titleElem.value.length > 0 ? titleElem.value.length + 'ch' : titleElem.placeholder.length + 'ch';
         titleElem.addEventListener('input', () => {
             if (titleElem.value.length < 1) {
@@ -721,9 +725,9 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         //Title Wrapper and settings
         const wrapperTitleElem = attributeElem.querySelector('.swac_datadescription_wrapper_title');
         const borderColorAttributeElem = attributeElem.querySelector('.swac_datadescription_attribute_border_color');
-        borderColorAttributeElem.setAttribute('uk-tooltip', SWAC.lang.dict.Datadescription.borderColorTooltip);
+        borderColorAttributeElem.setAttribute('uk-tooltip', 'Datadescription.borderColorTooltip');
         const deleteAttributeElem = attributeElem.querySelector('.swac_datadescription_attribute_delete');
-        deleteAttributeElem.setAttribute('uk-tooltip', SWAC.lang.dict.Datadescription.attributeDeleteTooltip);
+        deleteAttributeElem.setAttribute('uk-tooltip', 'Datadescription.attributeDeleteTooltip');
         if (desc.col) {
             desc.col = Colorcalculations.stringToHex(desc.col);
             borderColorAttributeElem.value = desc.col;
@@ -756,7 +760,8 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         // Description Element
         const descElem = attributeElem.querySelector('.swac_datadescription_datadesc');
         descElem.value = desc.txt_desc;
-        descElem.placeholder = SWAC.lang.dict.Datadescription.txt_descPlaceholder;
+        descElem.setAttribute('swac_langattr','value:'+desc.txt_desc);
+        descElem.placeholder = 'Datadescription.txt_descPlaceholder';
         descElem.style.width = descElem.value.length > 0 ? descElem.value.length + 'ch' : descElem.placeholder.length + 'ch';
         descElem.addEventListener('input', () => {
             if (descElem.value.length < 1) {
@@ -777,29 +782,21 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
 
         // Visualise Check Element
         const checkElem = attributeElem.querySelector('.swac_datadescription_datacheck');
-        if (this.options.visuAttribute) {
-            checkElem.name = 'visuAttribute'
-            checkElem.type = 'radio'
-            if (this.options.visuAttribute === attribute) {
-                checkElem.setAttribute('checked', '');
-            }
-            checkElem.addEventListener('change', () => {
-                if (checkElem.checked) {
-                    this.options.visuAttribute = attribute;
-                } else {
-                    this.options.visuAttribute = null;
-                }
-                this.renderFormatedDataElements();
-            })
-        } else {
-            if (desc.visualise) {
-                checkElem.setAttribute('checked', '');
-            }
-            checkElem.addEventListener('change', () => {
-                legenddata[attribute].visualise = checkElem.checked;
-                this.renderFormatedDataElements();
-            })
+        // Activate visualising when attribute for visualising is set
+        //TODO replace visuAttribute with an array of names of attributes that should be visualised
+        if (this.options.visuAttribute && this.options.visuAttribute === attribute) {
+            checkElem.setAttribute('checked', 'checked');
+            legenddata[attribute].visualise = true;
+        } else if (!this.options.visuAttribute) {
+            checkElem.setAttribute('checked', 'checked');
+            legenddata[attribute].visualise = true;
         }
+        // Add eventlistener for visualisation changes
+        checkElem.addEventListener('change', () => {
+            legenddata[attribute].visualise = checkElem.checked;
+            this.renderFormatedDataElements();
+        })
+
         if (this.options.onLegendEntryClick !== null) {
             titleElem.addEventListener('click', this.options.onLegendEntryClick);
         }
@@ -851,6 +848,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
             });
         }
         attributeTemplate.parentNode.appendChild(attributeElem);
+        this.formatAll();
     }
 
     newGradientElement(legenddata, attribute) {
@@ -943,8 +941,9 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         valueTxt.classList.add('input_nostyle')
         valueTxt.classList.add('swac_datadescription_value_txt')
         valueTxt.setAttribute('value', txt);
+        valueTxt.setAttribute('swac_langattr','value:'+txt);
         valueTxt.style.marginLeft = '10px';
-        valueTxt.placeholder = SWAC.lang.dict.Datadescription.valueTxtPlaceholder;
+        valueTxt.placeholder = 'Datadescription.valueTxtPlaceholder';
         valueTxt.style.width = valueTxt.value.length > 0 ? valueTxt.value.length + 'ch' : valueTxt.placeholder.length + 'ch';
         valueElem.appendChild(valueTxt);
 
@@ -953,7 +952,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         valueData.value = i;
         valueData.classList.add('input_nostyle');
         valueData.classList.add('swac_datadescription_value_value');
-        valueData.placeholder = SWAC.lang.dict.Datadescription.valuePlaceholder;
+        valueData.placeholder = 'Datadescription.valuePlaceholder';
         valueData.style.width = valueData.value.length > 0 ? valueData.value.length + 'ch' : valueData.placeholder.length + 'ch';
         valueData.style.display = 'none';
         valueElem.appendChild(valueData);
@@ -1054,6 +1053,17 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         return valueElem;
     }
 
+    formatAll() {
+        Msg.flow('Datadescription', 'formatAll()', this.requestor);
+        let thisRef = this;
+        // Find requestors on page and wait for them to load, than format
+        let requestors = document.querySelectorAll('[swa]');
+        for (let curRequestor of requestors) {
+            // Direclty format if possible
+            thisRef.formatDataElement(curRequestor);
+        }
+    }
+
     /**
      * Format all contents of an element by the datadescription.
      * This searches for elements with the class swac_attrname (that is automaticaly
@@ -1063,6 +1073,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
      * @returns {undefined}
      */
     formatDataElement(element) {
+        Msg.flow('Datadescription', 'formatDataElement(' + element.id + ')', this.requestor);
         // store formated elements
         let elementInStorage = false;
         for (let curElem of this.formatedDataElements) {
@@ -1077,29 +1088,30 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
         }
         let legenddata = this.data[this.options.activeSource].getSet(this.options.activeSet);
         for (var attribute in legenddata) {
+            // Exclude swac internal attributes
+            if (attribute.startsWith('swac_'))
+                continue;
+            // Check if attribute should be visualised
             if (typeof legenddata[attribute] === 'object') {
-                if (legenddata[attribute].visualise) {
-                    let col = this.getAttributeColor(attribute);
-                    let sel = '[swac_attrname=' + attribute + ']';
-                    let elemsForAttr = element.querySelectorAll(sel);
-                    // revert old values
-                    for (let curElemForAttr of elemsForAttr) {
-                        // Exclude attr elements
-                        if (curElemForAttr.classList.contains('swac_repeatedForAttribute')) {
-                            continue;
-                        }
-                        curElemForAttr.style.border = 'none';
-                        curElemForAttr.style.backgroundColor = 'transparent';
-                        curElemForAttr.style.color = 'inherit';
+                // Select all alements for attribute
+                let elemsForAttr = element.querySelectorAll('[swac_attrname=' + attribute + ']');
+
+                // Walk trough every element
+                for (let curElemForAttr of elemsForAttr) {
+                    // Exclude attr elements
+                    if (curElemForAttr.classList.contains('swac_repeatedForAttribute')) {
+                        continue;
                     }
-                    // add new values
-                    for (let curElemForAttr of elemsForAttr) {
-                        // Exclude attr elements
-                        if (curElemForAttr.classList.contains('swac_repeatedForAttribute')) {
-                            continue;
-                        }
-                        if (col !== '#808080') {
-                            curElemForAttr.style.border = '1px solid ' + col;
+                    // Remove old visualisations
+                    curElemForAttr.style.border = 'none';
+                    curElemForAttr.style.backgroundColor = 'transparent';
+                    curElemForAttr.style.color = 'inherit';
+                    // If attribute should be visualised
+                    if (legenddata[attribute].visualise) {
+                        let attrCol = this.getAttributeColor(attribute);
+                        // Add bordercolor for attribute
+                        if (attrCol !== '#808080') {
+                            curElemForAttr.style.border = '1px solid ' + attrCol;
                         }
                         // Get bindpoint
                         let bp = curElemForAttr.querySelector('swac-bp');
@@ -1111,18 +1123,6 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
                             let textcolor = Colorcalculations.calculateContrastColor(valcol);
                             curElemForAttr.style.color = textcolor;
                         }
-                    }
-                } else {
-                    let sel = '[swac_attrname=' + attribute + ']';
-                    let elemsForAttr = element.querySelectorAll(sel);
-                    for (let curElemForAttr of elemsForAttr) {
-                        // Exclude attr elements
-                        if (curElemForAttr.classList.contains('swac_repeatedForAttribute')) {
-                            continue;
-                        }
-                        curElemForAttr.style.border = 'none';
-                        curElemForAttr.style.backgroundColor = 'transparent';
-                        curElemForAttr.style.color = 'inherit';
                     }
                 }
             }

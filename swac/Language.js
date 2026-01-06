@@ -7,6 +7,7 @@ import Msg from './Msg.js';
 export default class Language {
 
     constructor() {
+        this.loadedLngFiles = [];
         this.availLangs = {};
         this.activeLang = 'en';
         this.dict = {};
@@ -83,7 +84,7 @@ export default class Language {
             objectname = objectname.replace('/plugins/', '/');
             objectname = objectname.replace('/', '_');
 
-            if(langfile_url.startsWith('app_')){
+            if (langfile_url.startsWith('app_')) {
                 langfile_url = window.location.href + langfile_url;
             }
 
@@ -119,8 +120,14 @@ export default class Language {
                 filepath += '_';
             }
             let filep = filepath + lang + '.js?vers=' + SWAC.desc.version;
+            if(this.loadedLngFiles.includes(filep)) {
+                resolve();
+                return;
+            }
+            
             Msg.flow('Language', 'Try to load language file >' + filep + '<');
             import(filep).then(module => {
+                thisRef.loadedLngFiles.push(filep);
                 if (module.default) {
                     thisRef.addTranslation(module.default, objectname, lang);
                     resolve();
@@ -299,8 +306,41 @@ export default class Language {
             for (let curAttrdef of attrdefs) {
                 let ids = curAttrdef.split(':');
                 let translation = this.getTranslationForId(ids[1]);
-                if (typeof translation !== 'undefined') {
+                if (translation) {
                     attrdefelem.setAttribute(ids[0], translation);
+                    if (ids[0] in attrdefelem) {
+                        attrdefelem[ids[0]] = translation;
+                    }
+                }
+            }
+            // Add change content to placeholder on input-elements
+            if (attrdefelem.tagName === "INPUT" || attrdefelem.tagName === "TEXTAREA") {
+                // Sprach-Schlüssel aus swac_langattr extrahieren
+                let attrdef = attrdefelem.getAttribute("swac_langattr");
+                let key = null;
+                if (attrdef) {
+                    let defs = attrdef.split(' ');
+                    for (let def of defs) {
+                        let ids = def.split(':');
+                        if (ids[0] === "value") {
+                            key = ids[1]; // z.B. "doubleval_value_low"
+                        }
+                    }
+                }
+
+                if (key) {
+                    // Focus-Event: Wert durch Sprach-Schlüssel ersetzen
+                    attrdefelem.addEventListener("focus", (evt) => {
+                        evt.target.value = key;
+                    });
+
+                    // Blur-Event: Wert zurück auf Übersetzung, falls leer oder Schlüssel
+                    attrdefelem.addEventListener("blur", (evt) => {
+                        let translation = this.getTranslationForId(evt.target.value);
+                        if (translation) {
+                            evt.target.value = translation;
+                        }
+                    });
                 }
             }
     }
@@ -377,10 +417,10 @@ export default class Language {
         let dayElems = elem.querySelectorAll('[swac_lang_format="day"]');
         for (let curElem of dayElems) {
             if (curElem.children.length === 0) {
-                this.localiseDate(curElem, 'toLocaleDateString', { weekday: 'short'});
+                this.localiseDate(curElem, 'toLocaleDateString', {weekday: 'short'});
             } else {
                 for (let curChild of curElem.children) {
-                    this.localiseDate(curChild, 'toLocaleDateString', { weekday: 'short'});
+                    this.localiseDate(curChild, 'toLocaleDateString', {weekday: 'short'});
                 }
             }
     }
@@ -391,7 +431,7 @@ export default class Language {
      */
     localiseDecimal(elem) {
         // Do not parse placeholders
-        if(elem.innerHTML.startsWith('{'))
+        if (elem.innerHTML.startsWith('{'))
             return;
         let value = elem.getAttribute('swac_lang_localeorig');
         if (!value) {
@@ -417,7 +457,7 @@ export default class Language {
      */
     localiseDate(elem, func, params) {
         // Do not parse placeholders
-        if(elem.innerHTML.startsWith('{'))
+        if (elem.innerHTML.startsWith('{'))
             return;
         let value = elem.getAttribute('swac_lang_localeorig');
         if (!value) {

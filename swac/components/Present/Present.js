@@ -58,6 +58,12 @@ export default class Present extends View {
             style: 'present_webPush',
             desc: 'Display for achievements in webPush PWA.'
         };
+       this.desc.templates[10] = {
+          name: 'hierarchical',
+            desc: 'Creates a presentation of hierarchical data.'
+        };
+            
+
         this.desc.reqPerSet[0] = {
             name: '*',
             desc: 'at least one value as an attribute (named whatever you want)'
@@ -71,6 +77,14 @@ export default class Present extends View {
         this.desc.optPerSet[1] = {
             name: 'parent',
             desc: 'Parent set id. Required for ordering.'
+        };
+        this.desc.optPerSet[2] = {
+            name: 'name',
+            desc: 'Optional name of dataset, some templates show this.'
+        };
+        this.desc.optPerSet[3] = {
+            name: 'icon',
+            desc: 'When available icons are shown as picture.'
         };
 
         this.desc.opts[0] = {

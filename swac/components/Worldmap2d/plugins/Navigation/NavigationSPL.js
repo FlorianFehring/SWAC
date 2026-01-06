@@ -46,6 +46,52 @@ export default class NavigationSPL extends Plugin {
         }
         if (!options.searchurl)
             this.options.searchurl = 'http://localhost:8080/SmartData/smartdata/proxy/get?url=https://nominatim.openstreetmap.org/search';
+        
+        this.desc.opts[3] = {
+            name: "datapointDensity",
+            example: 0.5,
+            desc: "Configures what percentage of datapoint density should be displayed. Routes with many datapoints encounter problems with routing"
+        };
+
+        this.desc.opts[4] = {
+            name: "enableRouteSave",
+            desc: "If true a button to save the current route is shown"
+        };
+        if (typeof options.enableRouteSave !== 'boolean') {
+            this.options.enableRouteSave = false;
+        }
+
+        this.desc.opts[5] = {
+            name: 'routeSaveTarget',
+            desc: 'Backend target where route points are saved',
+            example: 'routes_planed'
+        };
+        if (!options.routeSaveTarget) {
+            this.options.routeSaveTarget = null;
+        }
+
+        this.desc.opts[6] = {
+            name: 'routeIdGenerator',
+            desc: 'Function or string to generate route_id'
+        };
+        if (!options.routeIdGenerator) {
+            this.options.enableRouteSave = null;
+        }
+        this.desc.opts[7] = {
+            name: "connectWithLine",
+            desc: "If true connects datapoints in linear lines and omits street routing",
+            example: true
+        }
+        if (typeof options.connectWithLine !== 'boolean')
+            this.options.connectWithLine = false;
+
+        this.desc.opts[8] ={
+            name: "travelmode",
+            example: "car",
+            desc: "Determine the travel mode for street routing. Possible modes include car, bike and foot."
+        }
+        if (!options.travelmode)
+            this.options.travelmode = "bike";
 
 
         // Attributes for internal usage
@@ -55,6 +101,7 @@ export default class NavigationSPL extends Plugin {
         this.lastaddedset = null;
         this.navigationobj = {
             start: null,
+            waypoints: [],
             destination: null,
             route: null,
         }
@@ -63,6 +110,11 @@ export default class NavigationSPL extends Plugin {
         this.destinationIcon = null;
         this.navigation_click_evts = null;
         this.instructionsElem = null;
+        this.activeInputType = null;
+        this.activeWaypointIndex = null;
+        this.waypointMarkers = [];
+        this.startMarker = null;
+        this.endMarker = null;
     }
 
     init() {
@@ -80,6 +132,22 @@ export default class NavigationSPL extends Plugin {
             let endRoutingButton = this.navigationMenu.querySelector('.navigation-routing-end-button');
             let siwtchStartDestinationButton = this.navigationMenu.querySelector('.navigation-switch-button');
             this.instructionsElem = this.navigationMenu.querySelector('.navigation-instructions');
+            this.waypointsContainer = this.navigationMenu.querySelector('.navigation-waypoints');
+            this.addWaypointButton = this.navigationMenu.querySelector('.navigation-add-waypoint-button');
+            this.saveRouteButton = this.navigationMenu.querySelector('.navigation-route-save-button');
+
+            if (this.options.enableRouteSave && this.saveRouteButton) {
+                this.saveRouteButton.style.display = 'block';
+
+                this.saveRouteButton.addEventListener('click', () => {
+                    this.saveRoute();
+                });
+            }
+            // On map click -> Add Coordiantes into Text input field
+            this.addWaypointButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.addWaypointInput();
+            });
 
             // initialize all html-elements
             this.navigationMenu.style.display = 'none';
@@ -90,15 +158,15 @@ export default class NavigationSPL extends Plugin {
                     return;
                 }
                 this.name2Coordinates(e.target.value)
-                        .then((feature) => {
-                            this.navigationobj.start = {
-                                lat: feature.geometry.coordinates[1],
-                                lng: feature.geometry.coordinates[0]
-                            }
-                        })
-                        .catch((err) => {
-                            this.navigationobj.start = null;
-                        });
+                    .then((feature) => {
+                        this.navigationobj.start = {
+                            lat: feature.geometry.coordinates[1],
+                            lng: feature.geometry.coordinates[0]
+                        }
+                    })
+                    .catch((err) => {
+                        this.navigationobj.start = null;
+                    });
             });
 
             this.destinationInput.addEventListener('change', (e) => {
@@ -107,15 +175,15 @@ export default class NavigationSPL extends Plugin {
                     return;
                 }
                 this.name2Coordinates(e.target.value)
-                        .then((feature) => {
-                            this.navigationobj.destination = {
-                                lat: feature.geometry.coordinates[1],
-                                lng: feature.geometry.coordinates[0]
-                            }
-                        })
-                        .catch((err) => {
-                            this.navigationobj.destination = null;
-                        });
+                    .then((feature) => {
+                        this.navigationobj.destination = {
+                            lat: feature.geometry.coordinates[1],
+                            lng: feature.geometry.coordinates[0]
+                        }
+                    })
+                    .catch((err) => {
+                        this.navigationobj.destination = null;
+                    });
             });
 
             userLocationButton.addEventListener('click', (e) => {
@@ -138,14 +206,21 @@ export default class NavigationSPL extends Plugin {
             });
 
             this.startInput.addEventListener('focusin', (e) => {
+                this.activeInputType = 'start';
+                this.activeWaypointIndex = null;
                 this.lastFocusedInput = this.startInput;
                 userLocationButton.style.display = 'block';
             })
             this.destinationInput.addEventListener('focusin', (e) => {
+                this.activeInputType = 'destination';
+                this.activeWaypointIndex = null;
                 this.lastFocusedInput = this.destinationInput;
                 userLocationButton.style.display = 'block';
             })
 
+            // ---------------------------------------------
+            // ORIGINAL ROUTING DISABLED
+            // ---------------------------------------------
             startRoutingButton.addEventListener('click', (e) => {
                 this.startNavigation();
             });
@@ -175,32 +250,104 @@ export default class NavigationSPL extends Plugin {
             // click events for navigation plugin
             this.navigation_click_evts = {
                 'click': (e) => {
-                    if (!this.navigationobj.start && !this.navigationobj.destination) {
-                        this.navigationobj.start = e.latlng;
-                        this.startInput.value = e.latlng.lat + ', ' + e.latlng.lat;
-                        this.coordinates2Name(e.latlng.lat, e.latlng.lng)
-                                .then((name) => this.startInput.value = name);
+                    const lat = e.latlng.lat;
+                    const lng = e.latlng.lng;
+
+                    // -----------------------------
+                    // START
+                    // -----------------------------
+                    if (this.activeInputType === 'start') {
+                        this.navigationobj.start = { lat, lng };
+
+                        this.startInput.value = `${lat}, ${lng}`;
+                        this.coordinates2Name(lat, lng)
+                            .then(name => this.startInput.value = name);
+
+                        // -----------------------------
+                        // Marker setzen / ersetzen
+                        // -----------------------------
+                        if (this.startMarker) {
+                            this.map.removeLayer(this.startMarker);
+                        }
+
+                        this.startMarker =
+                            L.marker([lat, lng]).addTo(this.map);
+
+                        // Reset UI state
+                        this.activeInputType = null;
+                        this.activeWaypointIndex = null;
                         return;
                     }
-                    if (!this.navigationobj.start) {
-                        this.navigationobj.start = e.latlng;
-                        this.startInput.value = e.latlng.lat + ', ' + e.latlng.lat;
-                        this.coordinates2Name(e.latlng.lat, e.latlng.lng)
-                                .then((name) => this.startInput.value = name);
+
+                    // -----------------------------
+                    // WAYPOINT
+                    // -----------------------------
+                    if (
+                        this.activeInputType === 'waypoint' &&
+                        this.activeWaypointIndex !== null &&
+                        this.navigationobj.waypoints[this.activeWaypointIndex]
+                    ) {
+                        const wpIndex = this.activeWaypointIndex;
+                        const wp = this.navigationobj.waypoints[wpIndex];
+
+                        wp.lat = lat;
+                        wp.lng = lng;
+
+                        const inputs =
+                            this.waypointsContainer.querySelectorAll('.navigation-waypoint-input');
+                        const input = inputs[wpIndex];
+
+                        if (input) {
+                            input.value = `${lat}, ${lng}`;
+                            this.coordinates2Name(lat, lng)
+                                .then(name => input.value = name);
+                        }
+
+                        // -----------------------------
+                        // Marker setzen / ersetzen
+                        // -----------------------------
+                        if (this.waypointMarkers[wpIndex]) {
+                            this.map.removeLayer(this.waypointMarkers[wpIndex]);
+                        }
+
+                        this.waypointMarkers[wpIndex] =
+                            L.marker([lat, lng]).addTo(this.map);
+
+                        // Reset UI state
+                        this.activeInputType = null;
+                        this.activeWaypointIndex = null;
                         return;
                     }
-                    if (!this.navigationobj.destination) {
-                        this.navigationobj.destination = e.latlng;
-                        this.destinationInput.value = e.latlng.lat + ', ' + e.latlng.lat;
-                        this.coordinates2Name(e.latlng.lat, e.latlng.lng)
-                                .then((name) => this.destinationInput.value = name);
+
+                    // -----------------------------
+                    // DESTINATION
+                    // -----------------------------
+                    if (this.activeInputType === 'destination') {
+                        this.navigationobj.destination = { lat, lng };
+
+                        this.destinationInput.value = `${lat}, ${lng}`;
+                        this.coordinates2Name(lat, lng)
+                            .then(name => this.destinationInput.value = name);
+
+                        // -----------------------------
+                        // Marker setzen / ersetzen
+                        // -----------------------------
+                        if (this.endMarker) {
+                            this.map.removeLayer(this.endMarker);
+                        }
+
+                        this.endMarker =
+                            L.marker([lat, lng]).addTo(this.map);
+
+                        // Reset UI state
+                        this.activeInputType = null;
+                        this.activeWaypointIndex = null;
                         return;
                     }
                 },
                 'markerclick': (e) => {
-                    // marker -> e.target
                     const name = e.target.feature.set?.name ? e.target.feature.set.name : 'Map Pin';
-                    const latlng = {lat: e.target.feature?.geometry?.coordinates[1], lng: e.target.feature?.geometry?.coordinates[0]};
+                    const latlng = { lat: e.target.feature?.geometry?.coordinates[1], lng: e.target.feature?.geometry?.coordinates[0] };
                     if (!this.navigationobj.start && !this.navigationobj.destination) {
                         this.navigationobj.start = latlng;
                         this.startInput.value = name;
@@ -218,32 +365,132 @@ export default class NavigationSPL extends Plugin {
                     }
                 },
             }
-
             resolve();
         });
+    } // end of init()
+
+    addWaypointInput() {
+        const index = this.navigationobj.waypoints.length;
+
+        // interner State
+        this.navigationobj.waypoints.push({ lat: null, lng: null });
+
+        // DOM
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('uk-form-controls', 'uk-margin-small');
+
+        const input = document.createElement('input');
+        input.type = 'search';
+        input.classList.add('uk-input', 'navigation-waypoint-input');
+        input.placeholder = `Zwischenstopp ${index + 1}`;
+
+        // Fokus → nächster Map-Klick gehört zu diesem Waypoint
+        input.addEventListener('focusin', () => {
+            this.activeInputType = 'waypoint';
+            this.activeWaypointIndex = index;
+        });
+
+        // Text → Koordinaten
+        input.addEventListener('change', () => {
+            this.name2Coordinates(input.value)
+                .then(feature => {
+                    const lat = feature.geometry.coordinates[1];
+                    const lng = feature.geometry.coordinates[0]
+                    this.navigationobj.waypoints[index] = { lat: lat, lng: lng };
+
+                    if (this.waypointMarkers[input]) {
+                        this.map.removeLayer(this.waypointMarkers[index]);
+                    }
+                    this.waypointMarkers[index] = L.marker([lat, lng]).addTo(this.map);
+                })
+                .catch(() => {
+                    this.navigationobj.waypoints[index] = { lat: null, lng: null };
+                    if (this.waypointMarkers[index]) {
+                        this.map.removeLayer(this.waypointMarkers[index]);
+                        this.waypointMarkers[index] = null;
+                    }
+                });
+        });
+
+        wrapper.appendChild(input);
+        this.waypointsContainer.appendChild(wrapper);
+
+        // UX: direkt aktivieren
+        input.focus();
     }
 
-    afterAddSet(set, repeateds) {
-        if (this.options.createRouteFromData) {
-            if (!this.lastaddedset) {
-                // On first added set do not create route, notice only
-                this.lastaddedset = set;
-            } else {
-                let comp = this.requestor.parent.swac_comp;
-                let route = [];
-                route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
-                route.push(L.latLng(set[comp.options.latAttr], set[comp.options.lonAttr]))
-                L.Routing.control({
-                    waypoints: route,
-                    draggableWaypoints: false,
-                    addWaypoints: false,
-                    show: false,
-                    createMarker: () => {
-                        return null;
-                    }
-                }).addTo(comp.viewer);
-            }
+    afterAddSet(currentset, repeateds) {
+        if (!this.options.createRouteFromData)
+            return;
+
+        // No route on first set (datapoint)
+        if (!this.lastaddedset) {
+            this.lastaddedset = currentset;
+            return;
         }
+
+        let comp = this.requestor.parent.swac_comp; // fetch map component
+
+        // default routing method
+        if (!this.options.connectWithLine) {
+            let route = [];
+            route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
+            route.push(L.latLng(currentset[comp.options.latAttr], currentset[comp.options.lonAttr]))
+            L.Routing.control({
+                waypoints: route,
+                draggableWaypoints: false,
+                addWaypoints: false,
+                show: false,
+                createMarker: () => {
+                    return null;
+                }
+            }).addTo(comp.viewer);
+            return;
+        }
+
+        // if routingMethod is polyline use following method
+        if (!this.options.connectWithLine)
+            return;
+
+        // check route affiliation, skip polyline connection if from another route
+        if (this.lastaddedset.measurement_process != currentset.measurement_process) {
+            this.lastaddedset = currentset;
+            return;
+        }
+
+        // read coordinates
+        var point1 = null;
+        var point2 = null;
+        if (comp.options.geoJSONAttr) {
+            let geoJSON = {type: "Feature", geometry: {type: 'Point'}};
+            geoJSON.geometry.coordinates = this.lastaddedset[comp.options.geoJSONAttr].coordinates;
+            point1 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
+            geoJSON.geometry.coordinates = currentset[comp.options.geoJSONAttr].coordinates;
+            point2 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
+        } else {
+            point1 = L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]);
+            point2 = L.latLng(currentset[comp.options.latAttr], currentset[comp.options.lonAttr]);
+        }
+        // update last point
+        this.lastaddedset = currentset;
+        
+        // validate coordinates
+        if (!point1 || !point2) {  
+            Msg.warn("Polyline skipped a point — invalid coordinates: ", currentset.measurement_process);
+            return;
+        }
+
+        // color polyline segment with datadescription
+        let col = 'sienna'; // default color
+        if (comp.options.datadescription) {
+            col = comp.datadescription.getValueColor(currentset);
+        }
+
+        // construct polyline in Leaflet
+        const poly = L.polyline([point1, point2], {color: col, weight: 4, opacity: 0.9});
+
+        poly.addTo(comp.viewer); // add polyline to map
+        comp.zoomToSet(currentset); // pan to last location
     }
 
     /**
@@ -263,21 +510,72 @@ export default class NavigationSPL extends Plugin {
      * Starts the routing
      */
     startNavigation() {
-        if (!this.navigationobj.start || !this.navigationobj.destination || this.navigationobj.route) {
+        // ---------------------------------------------
+        // Validierung
+        // ---------------------------------------------
+        if (!this.navigationobj.start || !this.navigationobj.destination) {
             return;
         }
-        if (this.options.minDistanceBetweenTwoPoints >= this.calculateDistance(this.navigationobj.start.lat, this.navigationobj.start.lng, this.navigationobj.destination.lat, this.navigationobj.destination.lng) * 1000) {
-            UIkit.notification({
-                message: `Punkte müssen über ${this.options.minDistanceBetweenTwoPoints} Meter entfernt sein, um Navigation zu starten.`,
-                status: 'info',
-                timeout: SWAC.config.notifyDuration,
-                pos: 'top-center'
-            });
+
+        // ---------------------------------------------
+        // Alte Route entfernen
+        // ---------------------------------------------
+        if (this.navigationobj.route) {
+            this.navigationobj.route.remove();
+            this.navigationobj.route = null;
+        }
+
+        // ---------------------------------------------
+        // Alte Waypoint-Marker entfernen
+        // ---------------------------------------------
+        this.waypointIcons = this.waypointIcons || [];
+        this.waypointIcons.forEach(m => m.remove());
+        this.waypointIcons = [];
+
+        // ---------------------------------------------
+        // Alte Destination entfernen
+        // ---------------------------------------------
+        if (this.destinationIcon) {
+            this.destinationIcon.remove();
+            this.destinationIcon = null;
+        }
+
+        // ---------------------------------------------
+        // Routing-Waypoints aufbauen
+        // Reihenfolge: Start → Waypoints → Destination
+        // ---------------------------------------------
+        const route = [];
+
+        // Start
+        route.push(
+            L.latLng(
+                this.navigationobj.start.lat,
+                this.navigationobj.start.lng
+            )
+        );
+
+        // Zwischenstopps
+        this.navigationobj.waypoints.forEach(wp => {
+            if (wp.lat !== null && wp.lng !== null) {
+                route.push(L.latLng(wp.lat, wp.lng));
+            }
+        });
+
+        // Ziel
+        route.push(
+            L.latLng(
+                this.navigationobj.destination.lat,
+                this.navigationobj.destination.lng
+            )
+        );
+
+        if (route.length < 2) {
             return;
         }
-        let route = [];
-        route.push(L.latLng(this.navigationobj.start.lat, this.navigationobj.start.lng));
-        route.push(L.latLng(this.navigationobj.destination.lat, this.navigationobj.destination.lng));
+
+        // ---------------------------------------------
+        // Routing starten
+        // ---------------------------------------------
         this.navigationobj.route = L.Routing.control({
             formatter: new L.Routing.Formatter(),
             waypoints: route,
@@ -285,49 +583,224 @@ export default class NavigationSPL extends Plugin {
             addWaypoints: false,
             show: false,
             language: swac.lang.activeLang,
-            createMarker: () => {
-                return null;
-            }
+            createMarker: () => null
         })
-                .on('routeselected', (e) => {
-                    e.route.instructions.forEach((i) => {
-                        const instruction = document.createElement('tr');
-                        const td = document.createElement('td');
-                        td.innerHTML = this.navigationobj.route.options.formatter.formatInstruction(i);
-                        instruction.appendChild(td);
-                        this.instructionsElem.appendChild(instruction);
-                    })
-                })
-                .addTo(this.map);
+        .on('routeselected', (e) => {
+            this.instructionsElem.innerHTML = '';
 
-        this.destinationIcon = L.marker(this.navigationobj.destination, {
-            icon: L.divIcon({
-                html: '<div class="pulse"></div>',
-                className: 'css-icon',
-                iconSize: [22, 22],
-                iconAnchor: [15, 15],
-            }),
-            zIndexOffset: 1000,
-        }).addTo(this.map);
+            e.route.instructions.forEach(i => {
+                const tr = document.createElement('tr');
+                const td = document.createElement('td');
+                td.innerHTML =
+                    this.navigationobj.route.options.formatter
+                        .formatInstruction(i);
+                tr.appendChild(td);
+                this.instructionsElem.appendChild(tr);
+            });
+        })
+        .addTo(this.map);
+
+        // ---------------------------------------------
+        // WAYPOINT Pulse-Marker
+        // ---------------------------------------------
+        this.navigationobj.waypoints.forEach(wp => {
+            if (wp.lat === null || wp.lng === null) return;
+
+            const marker = L.marker(
+                { lat: wp.lat, lng: wp.lng },
+                {
+                    icon: L.divIcon({
+                        html: '<div class="pulse"></div>',
+                        className: 'css-icon',
+                        iconSize: [22, 22],
+                        iconAnchor: [15, 15],
+                    }),
+                    zIndexOffset: 1000
+                }
+            ).addTo(this.map);
+
+            this.waypointIcons.push(marker);
+        });
+
+        // ---------------------------------------------
+        // DESTINATION Pulse-Marker
+        // ---------------------------------------------
+        this.destinationIcon = L.marker(
+            this.navigationobj.destination,
+            {
+                icon: L.divIcon({
+                    html: '<div class="pulse"></div>',
+                    className: 'css-icon',
+                    iconSize: [22, 22],
+                    iconAnchor: [15, 15],
+                }),
+                zIndexOffset: 1000,
+            }
+        ).addTo(this.map);
     }
 
     /**
      * Disables any active navigation.
      */
     stopNavigation() {
+        // -----------------------------
+        // Route entfernen
+        // -----------------------------
         if (this.navigationobj.route) {
             this.navigationobj.route.remove();
             this.navigationobj.route = null;
         }
+
+        // -----------------------------
+        // Start & Ziel zurücksetzen
+        // -----------------------------
         this.navigationobj.start = null;
         this.navigationobj.destination = null;
+
         this.startInput.value = "";
         this.destinationInput.value = "";
+
+        // -----------------------------
+        // Waypoints zurücksetzen
+        // -----------------------------
+        this.navigationobj.waypoints = [];
+        this.waypointIcons?.forEach(m => m.remove());
+        this.waypointIcons = [];
+
+        if (this.waypointsContainer) {
+            this.waypointsContainer.innerHTML = "";
+        }
+
+        // -----------------------------
+        // UI-Zustände zurücksetzen
+        // -----------------------------
+        this.activeInputType = null;
+        this.activeWaypointIndex = null;
+
+        // -----------------------------
+        // Zielmarker entfernen
+        // -----------------------------
         if (this.destinationIcon) {
             this.destinationIcon.remove();
             this.destinationIcon = null;
         }
-        this.instructionsElem.innerHTML = "";
+
+        // -----------------------------
+        // Alle Marker entfernen
+        // -----------------------------
+        if (this.startMarker) {
+            this.startMarker.remove();
+            this.startMarker = null;
+        }
+        if (this.endMarker) {
+            this.endMarker.remove();
+            this.endMarker = null;
+        }
+        if (this.waypointMarkers) {
+            this.waypointMarkers.forEach(m => m.remove());
+            this.waypointMarkers = [];
+        }
+
+        // -----------------------------
+        // Routenbeschreibung leeren
+        // -----------------------------
+        if (this.instructionsElem) {
+            this.instructionsElem.innerHTML = "";
+        }
+    }
+
+    buildRoutingWaypoints() {
+        const points = [];
+
+        // Start
+        if (this.navigationobj.start) {
+            points.push(
+                L.latLng(
+                    this.navigationobj.start.lat,
+                    this.navigationobj.start.lng
+                )
+            );
+        }
+
+        // Zwischenstopps
+        for (const wp of this.navigationobj.waypoints) {
+            if (wp.lat !== null && wp.lng !== null) {
+                points.push(L.latLng(wp.lat, wp.lng));
+            }
+        }
+
+        // Ziel
+        if (this.navigationobj.destination) {
+            points.push(
+                L.latLng(
+                    this.navigationobj.destination.lat,
+                    this.navigationobj.destination.lng
+                )
+            );
+        }
+
+        return points;
+    }
+
+    saveRoute() {
+        if (!this.options.enableRouteSave || !this.options.routeSaveTarget) {
+            return;
+        }
+
+        const Model = window.swac.Model;
+
+        // Route-ID erzeugen
+        let routeId;
+        if (typeof this.options.routeIdGenerator === 'function') {
+            routeId = this.options.routeIdGenerator();
+        } else {
+            routeId = `route_${Date.now()}`;
+        }
+
+        const points = [];
+
+        // Start
+        points.push(this.navigationobj.start);
+
+        // Waypoints
+        this.navigationobj.waypoints.forEach(wp => {
+            if (wp.lat !== null && wp.lng !== null) {
+                points.push(wp);
+            }
+        });
+
+        // Destination
+        points.push(this.navigationobj.destination);
+
+        const dataCapsule = {
+            fromName: this.options.routeSaveTarget,
+            data: points.map((p, index) => ({
+                route_id: routeId,
+                step: index,
+                pos: `POINT(${p.lng} ${p.lat})`,
+                description:
+                    index === 0
+                        ? 'Startpunkt'
+                        : index === points.length - 1
+                            ? 'Zielpunkt'
+                            : `Zwischenstopp ${index}`
+            }))
+        };        
+
+        Model.save(dataCapsule)
+            .then(() => {
+                UIkit.notification({
+                    message: 'Route gespeichert',
+                    status: 'success'
+                });
+            })
+            .catch(err => {
+                console.error(err);
+                UIkit.notification({
+                    message: 'Fehler beim Speichern der Route',
+                    status: 'danger'
+                });
+            });
     }
 
     /**

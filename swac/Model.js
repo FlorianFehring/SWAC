@@ -44,7 +44,7 @@ export default class Model {
                 }
             }
 
-            // Calculate sore and request id
+            // Calculate store and request id
             dataRequest.storeId = dataRequest.fromName;
             dataRequest.requestId = dataRequest.fromName;
             if (dataRequest.fromWheres) {
@@ -239,6 +239,12 @@ export default class Model {
 ////            dataRequest.fromWheres.filter = dataRequest.fromWheres.filter.replace(curRename+',',curRename+',');
 //        }
 
+        // Note highest new id
+        let maxId = Math.max(...data.map(obj => obj[idAttr]));
+        if(isNaN(maxId))
+            maxId = 0;
+        dataRequest.highestId = maxId;
+
         // Test and transform sets
         let genid = 0;
         let transdata = [];
@@ -352,6 +358,7 @@ export default class Model {
                 // Auto generate id
                 if (isNaN(curSet[idAttr])) {
                     curSet[idAttr] = ++genid;
+                    dataRequest.highestId = curSet[idAttr];
                 }
                 curSet.swac_fromName = dataRequest.fromName;
                 // Transform set
@@ -359,6 +366,7 @@ export default class Model {
             } else {
                 wset = curSet;
             }
+            wset.swac_dataRequest = dataRequest;
             transdata[curSet[idAttr]] = wset;
 
             // Add Data to source

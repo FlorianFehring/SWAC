@@ -205,7 +205,7 @@ export default class Worldmap2d extends View {
             desc: "Id that identifies the dataset.",
             type: "long"
         };
-        
+
         this.desc.optPerSet[0] = {
             name: "name",
             alt: "title",
@@ -518,7 +518,8 @@ export default class Worldmap2d extends View {
         this.layerControl = null;
         this.baseLayers = {};
         this.overlayLayers = {};
-        this.markers = {};
+        this.markers = {}; // this is a sparse array
+        this.markersArray = []; // this is a normal array
 
         this.view = {};
         this.tile = null;
@@ -743,8 +744,12 @@ export default class Worldmap2d extends View {
         } else if (this.options.geoJSONAttr) {
             geoJSON.geometry.coordinates = set[this.options.geoJSONAttr].coordinates;
         } else {
+            if (!set[this.options.lonAttr] || !set[this.options.latAttr]) {
+                Msg.warn('Worldmap2d', 'Could not create marker for set >' + set.swac_fromName + '[' + set.id + ']<: Coordinate attribute >' + this.options.lonAttr + '< and / or >' + this.options.latAttr + '< is missing.', this.requestor);
+            }
             geoJSON.geometry.coordinates = [set[this.options.lonAttr], set[this.options.latAttr]]
         }
+
         // Add complete dataset, important to keep data at marker up to date at external changes!
         geoJSON.set = set;
         // Zoom to a certain point
@@ -803,7 +808,9 @@ export default class Worldmap2d extends View {
                 let col = this.datadescription.getValueColor(geoJSON.set);
                 // If color is hex value remove sharp because its not allowed in file URL
                 col = col.replace('#', '');
-                col = col.replace('GREY', '7B7B7B')
+                col = col.replace('GREY', '7B7B7B');
+                col = col.replace('808080', '7B7B7B'); // replace grey hex with existing grey icon
+
                 icon = new L.Icon({
                     iconUrl: '/SWAC/swac/components/Icon/imgs/map/marker-icon-' + col + '.png',
                     shadowUrl: '/SWAC/swac/components/Icon/imgs/map/marker-shadow.png',
@@ -840,6 +847,7 @@ export default class Worldmap2d extends View {
         if (!this.markers[geoJSON.set.swac_fromName])
             this.markers[geoJSON.set.swac_fromName] = [];
         this.markers[geoJSON.set.swac_fromName][geoJSON.set.id] = marker;
+        this.markersArray.push(marker);
         // check if overlay layer already exists
         if (!this.overlayLayers[geoJSON.set.swac_fromName]) {
             // check if datasource should be displayed
@@ -908,6 +916,16 @@ export default class Worldmap2d extends View {
         this.overlayLayers[geoJSON.set.swac_fromName].addLayer(lines)
         return lines
     }
+
+    /**
+     * Draws line between passed points
+     * @param {Object} points List of points with Lat-Lon to be connected
+     */
+    drawPolyline(points) {
+        var polyline = L.polyline(points, {color: 'red'}).addTo(this.viewer);
+    }
+
+
     /**
      * Removes given marker from the map.
      * @param {Object} marker The marker that will be removed
@@ -915,6 +933,9 @@ export default class Worldmap2d extends View {
     removeMarker(marker) {
         this.overlayLayers[marker.feature.set.swac_fromName].removeLayer(marker);
         delete this.markers[marker.feature.set.swac_fromName][marker.feature.set.id];
+        // Remove marker from sequential list
+        let idx = this.markersArray.indexOf(marker);
+        if (idx !== -1) this.markersArray.splice(idx, 1);
     }
     /**
      * Removes given markers and Area from the map.
@@ -1217,6 +1238,12 @@ export default class Worldmap2d extends View {
      * @param {WatchableSet} set Set to show in the center of the map 
      */
     zoomToSet(set) {
+        if (this.options.geoJSONAttr) {
+            const geoJSON = {type: "Feature", geometry: {type: 'Point'}};
+            geoJSON.geometry.coordinates = set[this.options.geoJSONAttr].coordinates;
+            this.viewer.panTo(L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]));
+            return;
+        }
         this.viewer.panTo({lat: set[this.options.latAttr], lng: set[this.options.lonAttr]});
     }
 

@@ -356,9 +356,9 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                             let image = 'no_image';
                                             let imagealt = 'Sorry, no image available';
                                             if (vevent.summary) {
-                                                let title = vevent.summary.match(/"(.*?)"/)?.[1];
+                                                let title = vevent.summary.match(/["„](.*?)["“]/)?.[1];
                                                 if (title) {
-                                                    image = title.replaceAll(' ', '_');
+                                                    image = title.replaceAll(' ', '_').replaceAll('?','');
                                                     image = new Date(vevent.startDate.toLocaleString()).getFullYear() + '_' + image;
                                                     imagealt = image;
                                                 }
@@ -396,9 +396,9 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                         let image = 'no_image';
                                         let imagealt = 'No image available';
                                         if (vevent.summary) {
-                                            let title = vevent.summary.match(/"(.*?)"/)?.[1];
+                                            let title = vevent.summary.match(/["„](.*?)["“]/)?.[1];
                                             if (title) {
-                                                image = title.replaceAll(' ', '_');
+                                                image = title.replaceAll(' ', '_').replaceAll('?','');
                                                 image = new Date(vevent.startDate.toLocaleString()).getFullYear() + '_' + image;
                                                 imagealt = image;
                                             }

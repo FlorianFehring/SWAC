@@ -190,7 +190,7 @@ class Colorcalculations {
      */
     static stringToHex(color) {
         if (color.startsWith('0x') && (color.length === 8 || color.length === 10)) {
-            let color = color.substring(4);
+            color = color.substring(4);
             let red = color.substring(4);
             let green = color.substring(2, 4);
             let blue = color.substring(0, 2);

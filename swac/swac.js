@@ -290,19 +290,15 @@ SWAC.waitForStartup = function () {
  * 
  * @returns {undefined}
  */
-SWAC.detectRequestors = function (elem = document) {
+SWAC.detectRequestors = async function (elem = document) {
     let requestors = elem.querySelectorAll("[swa]");
-    // ng
     let viewHandler = new ViewHandler();
-    let compproms = [];
     for (let requestor of requestors) {
-        // load component
+        // load component if not a template
         if (!requestor.id.includes('{id}') && !requestor.getAttribute('swa').startsWith('{'))
-            compproms.push(viewHandler.load(requestor));
+            await viewHandler.load(requestor);
     }
-    Promise.allSettled(compproms).then(function () {
-        document.dispatchEvent(new CustomEvent('swac_components_complete'));
-    });
+    document.dispatchEvent(new CustomEvent('swac_components_complete'));
 };
 
 /**
@@ -639,4 +635,34 @@ SWAC.urlBase64ToUint8Array = (base64String) => {
         outputArray[i] = rawData.charCodeAt(i);
     }
     return outputArray;
+};
+
+/**
+ * Convert string variable to best fit variable type
+ * 
+ * @param {WatchableSet} set
+ * @returns {WatchableSet} modifiedSet
+ */
+SWAC.convertSetToBestFitDatatypes = function (set) {
+    for (let attr in set) {
+        let curValue = set[attr];
+        // TODO Send null values? Remove null check in component.js and edit.js
+        if (curValue === null) // || (attr.startsWith('swac_') && j !== 'swac_from'))
+            continue;
+        if (typeof curValue === 'string' && curValue !== '') {
+            let num = Number(curValue);
+            if (!isNaN(num)) {
+                set[attr] = num;
+                continue;
+            }
+        }
+        if (curValue === 'false') {
+            set[attr] = false;
+        } else if (curValue === 'true') {
+            set[attr] = true;
+        } else {
+            set[attr] = curValue;
+        }
+    }
+    return set;
 };
