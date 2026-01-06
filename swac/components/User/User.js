@@ -278,18 +278,12 @@ export default class User extends View {
 
             let navElem = document.querySelector('[swa^="Navigation"]');
             if (navElem) {
-                let thisRef = this;
                 window.swac.reactions.addReaction(function () {
                     let userArea = document.querySelector('.swac_user_userarea');
                     if (userArea) {
                         let adonPlace = document.querySelector('.swac_nav_addons');
                         if (adonPlace)
                             adonPlace.appendChild(userArea);
-                        let mobPlace = navElem.querySelector('.swac_nav_addons_mob');
-                        let userAreaMob = userArea.querySelector('#swac_user_logindialog').cloneNode(true);
-                        mobPlace.appendChild(userAreaMob);
-                        let mobLoginBtn = userAreaMob.querySelector('.swac_user_loginButtons');
-                        mobLoginBtn.onclick = thisRef.performLogin.bind(thisRef);
                         // Make user area visible
                         userArea.classList.remove('swac_dontdisplay');
                     }
