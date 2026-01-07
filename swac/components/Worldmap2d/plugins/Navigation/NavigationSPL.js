@@ -452,13 +452,27 @@ export default class NavigationSPL extends Plugin {
             return;
         }
 
-        let comp = this.requestor.parent.swac_comp; // fetch map component
+        let mapcomp = this.requestor.parent.swac_comp; // fetch map component
+
+        // read coordinates
+        var point1 = null;
+        var point2 = null;
+        if (mapcomp.options.geoJSONAttr) {
+            let geoJSON = {type: "Feature", geometry: {type: 'Point'}};
+            geoJSON.geometry.coordinates = this.lastaddedset[mapcomp.options.geoJSONAttr].coordinates;
+            point1 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
+            geoJSON.geometry.coordinates = currentset[mapcomp.options.geoJSONAttr].coordinates;
+            point2 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
+        } else {
+            point1 = L.latLng(this.lastaddedset[mapcomp.options.latAttr], this.lastaddedset[mapcomp.options.lonAttr]);
+            point2 = L.latLng(currentset[mapcomp.options.latAttr], currentset[mapcomp.options.lonAttr]);
+        }
 
         // default routing method
         if (!this.options.connectWithLine) {
             let route = [];
-            route.push(L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]))
-            route.push(L.latLng(currentset[comp.options.latAttr], currentset[comp.options.lonAttr]))
+            route.push(point1)
+            route.push(point2)
             L.Routing.control({
                 waypoints: route,
                 draggableWaypoints: false,
@@ -467,11 +481,12 @@ export default class NavigationSPL extends Plugin {
                 createMarker: () => {
                     return null;
                 }
-            }).addTo(comp.viewer);
+            }).addTo(mapcomp.viewer);
+            this.lastaddedset = currentset; // update last point
             return;
         }
 
-        // if routingMethod is polyline use following method
+        // connect points with polyline
         if (!this.options.connectWithLine)
             return;
 
@@ -481,19 +496,6 @@ export default class NavigationSPL extends Plugin {
             return;
         }
 
-        // read coordinates
-        var point1 = null;
-        var point2 = null;
-        if (comp.options.geoJSONAttr) {
-            let geoJSON = {type: "Feature", geometry: {type: 'Point'}};
-            geoJSON.geometry.coordinates = this.lastaddedset[comp.options.geoJSONAttr].coordinates;
-            point1 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
-            geoJSON.geometry.coordinates = currentset[comp.options.geoJSONAttr].coordinates;
-            point2 = L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
-        } else {
-            point1 = L.latLng(this.lastaddedset[comp.options.latAttr], this.lastaddedset[comp.options.lonAttr]);
-            point2 = L.latLng(currentset[comp.options.latAttr], currentset[comp.options.lonAttr]);
-        }
         // update last point
         this.lastaddedset = currentset;
         
@@ -505,15 +507,15 @@ export default class NavigationSPL extends Plugin {
 
         // color polyline segment with datadescription
         let col = 'sienna'; // default color
-        if (comp.options.datadescription) {
-            col = comp.datadescription.getValueColor(currentset);
+        if (mapcomp.options.datadescription) {
+            col = mapcomp.datadescription.getValueColor(currentset);
         }
 
         // construct polyline in Leaflet
         const poly = L.polyline([point1, point2], {color: col, weight: 4, opacity: 0.9});
 
-        poly.addTo(comp.viewer); // add polyline to map
-        comp.zoomToSet(currentset); // pan to last location
+        poly.addTo(mapcomp.viewer); // add polyline to map
+        mapcomp.zoomToSet(currentset); // pan to last location
     }
 
     /**
