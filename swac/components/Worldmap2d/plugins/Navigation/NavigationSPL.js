@@ -419,6 +419,10 @@ export default class NavigationSPL extends Plugin {
         input.focus();
     }
 
+    /**
+     * add marker/datasets on map
+     * navigation routing or polyline connection as per SWAC component config
+     */
     afterAddSet(currentset, repeateds) {
         if (!this.options.createRouteFromData)
             return;
@@ -482,7 +486,7 @@ export default class NavigationSPL extends Plugin {
             return;
         }
 
-        // color polyline segment with datadescription
+        // color polyline segment as per datadescription
         let col = 'sienna'; // default color
         if (mapcomp.options.datadescription) {
             col = mapcomp.datadescription.getValueColor(currentset);
