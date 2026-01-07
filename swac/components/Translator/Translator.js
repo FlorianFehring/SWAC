@@ -15,6 +15,10 @@ export default class Translator extends View {
             name: 'translatetools',
             desc: 'Template with tools for translation.'
         };
+		this.desc.templates[1] = {
+            name: 'translatetools_unsized',
+            desc: 'Template with tools for translation. No Size Restricitons'
+        };
         this.desc.reqPerTpl[0] = {
             selc: '.swac_translator_lngsel',
             desc: 'Language selection element'
