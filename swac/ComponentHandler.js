@@ -40,6 +40,7 @@ export default class ComponentHandler {
                         })
                         document.dispatchEvent(inactiveEvent);
                         Msg.info('ComponentHandler','Requestor >' + requestor.id + '< is not active. Check your application configuration to activate it',requestor);
+                        requestor.state = 'inactive';
                         resolve();
                         return;
                     }
