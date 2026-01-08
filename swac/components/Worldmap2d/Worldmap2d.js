@@ -1321,15 +1321,19 @@ export default class Worldmap2d extends View {
         // Get datadescription component
         if (this.options.datadescription) {
             let dd = document.querySelector(this.options.datadescription);
-            if (dd)
-                this.datadescription = dd.swac_comp;
-            else
+            if (!dd)
                 Msg.error('Worldmap2d', 'Datadescription component >' + this.options.datadescription + '< not found.', this.requestor);
+            else
+                window.swac.reactions.addReaction(function (requestors) {
+                    // TODO check untimed Behaviour
 
-            // register event listener for datadescription
-            document.addEventListener('swac_Datadescription_' + this.datadescription.requestor.id + '_changed', () => {
-                this.rerenderIcons();
-            });
+                    this.datadescription = dd.swac_comp;
+
+                    // register event listener for datadescription
+                    document.addEventListener('swac_Datadescription_' + this.datadescription.requestor.id + '_changed', () => {
+                        this.rerenderIcons();
+                    });
+                }, dd.getAttribute("id"));
         }
     }
 
