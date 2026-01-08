@@ -24,20 +24,56 @@ export default class Present extends View {
             desc: 'Creates a table which displays all datasets.'
         };
         this.desc.templates[3] = {
-            name: 'hierarchical',
+            name: 'present_webPush_notifications',
+            style: 'present_webPush',
+            desc: 'Display for notifications in webPush application.'
+        };
+        this.desc.templates[4] = {
+            name: 'present_webPush_history',
+            style: 'present_webPush',
+            desc: 'Display for history in webPush application.'
+        };
+        this.desc.templates[5] = {
+            name: 'present_webPush_triggers',
+            style: 'present_webPush',
+            desc: 'Display for triggers in webPush application.'
+        };
+        this.desc.templates[6] = {
+            name: 'present_leaderboard',
+            style: 'present_webPush_PWA',
+            desc: 'Display for triggers in webPush application.'
+        };
+        this.desc.templates[7] = {
+            name: 'present_webPush_images',
+            style: 'present_webPush_PWA',
+            desc: 'Display for possible profile pictures in webPush PWA.'
+        };
+        this.desc.templates[8] = {
+            name: 'present_webPush_achievements',
+            style: 'present_webPush_PWA',
+            desc: 'Display for achievements in webPush PWA.'
+        };
+        this.desc.templates[9] = {
+            name: 'present_webPush_admin_achievements',
+            style: 'present_webPush',
+            desc: 'Display for achievements in webPush PWA.'
+        };
+       this.desc.templates[10] = {
+          name: 'hierarchical',
             desc: 'Creates a presentation of hierarchical data.'
         };
+            
 
         this.desc.reqPerSet[0] = {
             name: '*',
             desc: 'at least one value as an attribute (named whatever you want)'
         };
-        
+
         this.desc.optPerSet[0] = {
             name: 'id',
             desc: 'Datasets id. Required for ordering.'
         };
-        
+
         this.desc.optPerSet[1] = {
             name: 'parent',
             desc: 'Parent set id. Required for ordering.'
@@ -72,7 +108,7 @@ export default class Present extends View {
                 id: 'FilterSort',
                 active: false
             });
-    }
+        }
     }
 
     init() {
@@ -84,9 +120,9 @@ export default class Present extends View {
                     gridelem.setAttribute('uk-sortable', "handle: .uk-card");
                 } else {
                     Msg.warn('present', 'Option >arangeable> for >'
-                            + this.requestor.id + '< was set to true, but there is no '
-                            + 'element in the template that is able to build '
-                            + 'arangeable elements.', this.requestor);
+                        + this.requestor.id + '< was set to true, but there is no '
+                        + 'element in the template that is able to build '
+                        + 'arangeable elements.', this.requestor);
                 }
             }
             resolve();
@@ -95,10 +131,10 @@ export default class Present extends View {
 
     afterAddSet(set, repeateds) {
         // Get repeateds if they are unkown
-        if(!repeateds) {
-            repeateds = this.requestor.querySelectorAll('[swac_setid="' + set.id + '"][swac_fromName="'+set.swac_fromName+'"]');
+        if (!repeateds) {
+            repeateds = this.requestor.querySelectorAll('[swac_setid="' + set.id + '"][swac_fromName="' + set.swac_fromName + '"]');
         }
-        
+
         super.afterAddSet(set, repeateds);
         // Check for missing table cells on table template
         if (this.requestor.templateName.includes('table') && repeateds) {
@@ -115,7 +151,7 @@ export default class Present extends View {
                                 repAttrElem.classList.remove('swac_repeatForValue');
                                 repAttrElem.classList.add('swac_repeatedForValue');
                                 repAttrElem.innerHTML = '';
-                                if(repAttrElem) {
+                                if (repAttrElem) {
                                     // Add cell behind last cell
                                     lastAttrElem.after(repAttrElem);
                                 } else {

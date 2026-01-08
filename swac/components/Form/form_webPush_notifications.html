@@ -1,0 +1,45 @@
+
+<form id="notification_form" class="uk-form-stacked">
+    <h1 style="text-align: center;">Create a new Notification</h1>
+    <fieldset class="uk-fieldset">
+        <div class="uk-margin">
+            <label class="uk-form-label" for="title">Notification Title</label>
+            <input class="uk-input" name="title" id="title" type="text" placeholder="Enter notification title" required>
+        </div>
+        <div class="uk-margin">
+            <label class="uk-form-label" for="message">Notification Message</label>
+            <input class="uk-input" name="body" id="body" type="text" placeholder="Enter notification message" required></input>
+        </div>
+        <div class="uk-margin">
+            <label class="uk-form-label" for="icon">Icon URL</label>
+            <input class="uk-input" name="icon_url" id="icon_url" type="url" placeholder="https://example.com/icon.png">
+        </div>
+        <div class="uk-margin">
+            <label class="uk-form-label" for="image">Image URL</label>
+            <input class="uk-input" name="image_url" id="image_url" type="url" placeholder="https://example.com/image.jpg">
+        </div>
+        <label class="uk-form-label">Flags</label>
+        <div class="uk-margin uk-grid-small uk-child-width-auto" uk-grid>
+            <label><input class="uk-checkbox" name="renotify" id="renotify" type="checkbox" > Renotify</label>
+            <label><input class="uk-checkbox" name="silent" id="silent" type="checkbox"> Silent</label>
+        </div>
+        <label class="uk-form-label">Trigger</label>
+        <div class="uk-grid-collapse" uk-grid>
+            <div class="uk-width-auto">
+                <input class="uk-input trigger-id-input" name="trigger_id" id="trigger_id" type="number" placeholder="ID" readonly required>
+            </div>
+            <div class="uk-width-expand">
+                <button class="uk-button uk-width-expand" id="open-trigger-btn" type="button">
+                    Select Trigger
+                </button>
+            </div>
+        </div>
+        <div class="uk-margin">
+            <label class="uk-form-label" for="select_actions">Actions</label>
+            <select class="uk-select" id="select_actions" name="actions" multiple></select>
+        </div>
+        <div class="uk-margin uk-flex uk-flex-center">
+            <button class="uk-button uk-button-primary " type="submit">Create Notification</button>
+        </div>
+    </fieldset>
+</form>
