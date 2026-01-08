@@ -31,18 +31,22 @@ export default class ViewHandler extends ComponentHandler {
             Msg.createStore(domrequestor);
             let thisRef = this;
             // Parse the declaration and make attributes on the element out of it
-            domrequestor = this.parseDeclaration(domrequestor);
+            let domrequestor_swac = this.parseDeclaration(domrequestor);
 
             // Create component path
-            domrequestor.componentPath = './components/' + domrequestor.componentname + '/' + domrequestor.componentname + '.js'
-            super.load(domrequestor, false).then(function (requestor) {
-                domrequestor.swac_comp.loadTemplate().then(function () {
+            domrequestor_swac.componentPath = './components/' + domrequestor_swac.componentname + '/' + domrequestor_swac.componentname + '.js'
+            super.load(domrequestor_swac, false).then(function (requestor) {
+                if(domrequestor_swac.state === 'inactive') {
+                    resolve(requestor);
+                    return;
+                }
+                domrequestor_swac.swac_comp.loadTemplate().then(function () {
                     // Register observer for detecting when element comes in view
                     requestor.swac_comp.inViOb.observe(requestor);
-                    thisRef.init(domrequestor, false).then(function () {
+                    thisRef.init(domrequestor_swac, false).then(function () {
                         thisRef.loadData(requestor, requestor.swac_comp).then(function (dataCapsule) {
                             SWAC.lang.translateAll();
-                            thisRef.afterLoad(domrequestor).then(function () {
+                            thisRef.afterLoad(domrequestor_swac).then(function () {
                                 // Call customAfterLoad function
                                 if (requestor.swac_comp.options.customAfterLoad) {
                                     requestor.swac_comp.options.customAfterLoad(requestor);
@@ -55,11 +59,11 @@ export default class ViewHandler extends ComponentHandler {
                     });
                 });
             }).catch(function (err) {
-                if (domrequestor.swac_comp && domrequestor.swac_comp.loadTemplate) {
-                    domrequestor.swac_comp.loadTemplate().then(function () {
-                        SWAC.lang.translateAll(domrequestor);
-                        thisRef.init(domrequestor, false).then(function () {
-                            thisRef.afterLoad(domrequestor).then(function () {
+                if (domrequestor_swac.swac_comp && domrequestor_swac.swac_comp.loadTemplate) {
+                    domrequestor_swac.swac_comp.loadTemplate().then(function () {
+                        SWAC.lang.translateAll(domrequestor_swac);
+                        thisRef.init(domrequestor_swac, false).then(function () {
+                            thisRef.afterLoad(domrequestor_swac).then(function () {
                                 resolve();
                             });
                         });
