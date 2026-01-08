@@ -38,12 +38,13 @@ export default class Navigation extends View {
             name: 'nav_webPush_mobile',
             style: 'nav_webPush_mobile',
             desc: 'Display for webPush mobile application.'
-		this.desc.templates[5] = {
+        };
+        this.desc.templates[5] = {
             name: 'nav_title_offcanvas',
             style: 'nav_title_offcanvas',
             desc: 'Banner displaying a Logo on the left, an Application Name in the Center and the Navigation along its Add-Ons in an Offcanvas Container to the right. Awaits the logo.png in ../../data; AppName configurable using the swac_lang Key appName'
         };
-		this.desc.templates[6] = {
+        this.desc.templates[6] = {
             name: 'nav_imagePerItem',
             style: 'nav_imagePerItem',
             desc: 'Navigation displaying an Image per Item; img src must be specified using Key src in the displayed Data'
