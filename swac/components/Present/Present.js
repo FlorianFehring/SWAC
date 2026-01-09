@@ -62,6 +62,11 @@ export default class Present extends View {
           name: 'hierarchical',
             desc: 'Creates a presentation of hierarchical data.'
         };
+        this.desc.templates[11] = {
+          name: 'present_instruction',
+          style: 'present_webPush_PWA',
+          desc: 'Creates a presentation of instruction data.'
+        };
             
 
         this.desc.reqPerSet[0] = {
