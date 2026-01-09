@@ -103,6 +103,7 @@
   height: 100%;
   aspect-ratio: 1;
   flex: 0 0 auto;
+  color: black;
 }
 
 .lb-icon-img {
@@ -141,4 +142,55 @@
 
 .third-place {
   background-color: rgba(206, 138, 70, 0.5);
+}
+
+.ins-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  counter-reset: ins-step;
+}
+
+.ins-item {
+  counter-increment: ins-step;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ins-rank::before {
+  content: counter(ins-step);
+  min-width: 24px;
+  text-align: center;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.ins-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ins-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ins-name {
+  font-size: 14px;
+  color: #111827;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
