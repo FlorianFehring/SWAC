@@ -618,6 +618,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
      * @returns {DOMElement} HTML DIV Element containing the legend
      */
     getLegend() {
+        Msg.flow('Datadescription','getLegend()',this.requestor);
         let requestor = this.requestor;
 
         // setup border Color input in modal

@@ -24,7 +24,7 @@ export default class FilterMeasurementPointsSPL extends Plugin {
         }
 
         if (!options.typeDatasource)
-            options.typeDatasource = 'observedobjecttype/listMeasureing' 
+            options.typeDatasource = 'observedobjecttype/listMeasureing';
 
         // Attributes for internal usage
         this.filtermeasurementpoints_menu_wrapper = null;
@@ -49,11 +49,11 @@ export default class FilterMeasurementPointsSPL extends Plugin {
             this.selector_measurementpointtype.setAttribute('class', 'selector_measurementpointtype');
             this.selector_measurementpointtype.setAttribute('swa', 'Select FROM ' + this.options.typeDatasource);
             type_placeholder.appendChild(this.selector_measurementpointtype);
-            let viewHandler = new ViewHandler()
+            let viewHandler = new ViewHandler();
             viewHandler.load(this.selector_measurementpointtype);
 
             if (!this.menuOpened) {
-                this.filtermeasurementpoints_menu_wrapper.style.display = "none"
+                this.filtermeasurementpoints_menu_wrapper.style.display = "none";
             }
             
             //disable click propagation
@@ -79,7 +79,7 @@ export default class FilterMeasurementPointsSPL extends Plugin {
                     this.filtermeasurementpoints_menu_wrapper.style.removeProperty("display");
                     this.map.disableMapInteractions();
                 }
-                this.menuOpened = !this.menuOpened
+                this.menuOpened = !this.menuOpened;
             }
 
             //when selecting another filter, the shown layer is updated
@@ -93,7 +93,7 @@ export default class FilterMeasurementPointsSPL extends Plugin {
     }
     closeModal() {
         this.map.enableMapInteractions();
-        this.filtermeasurementpoints_menu_wrapper.style.display = "none"
+        this.filtermeasurementpoints_menu_wrapper.style.display = "none";
         this.menuOpened = false;
     }
 }

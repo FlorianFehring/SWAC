@@ -29,6 +29,26 @@ export default class Navigation extends View {
             style: 'sitemap',
             desc: 'Simple sitemap generated from the navigation data.'
         };
+        this.desc.templates[3] = {
+            name: 'nav_webPush',
+            style: 'nav_webPush',
+            desc: 'Display for webPush application.'
+        };
+        this.desc.templates[4] = {
+            name: 'nav_webPush_mobile',
+            style: 'nav_webPush_mobile',
+            desc: 'Display for webPush mobile application.'
+        };
+        this.desc.templates[5] = {
+            name: 'nav_title_offcanvas',
+            style: 'nav_title_offcanvas',
+            desc: 'Banner displaying a Logo on the left, an Application Name in the Center and the Navigation along its Add-Ons in an Offcanvas Container to the right. Awaits the logo.png in ../../data; AppName configurable using the swac_lang Key appName'
+        };
+        this.desc.templates[6] = {
+            name: 'nav_imagePerItem',
+            style: 'nav_imagePerItem',
+            desc: 'Navigation displaying an Image per Item; img src must be specified using Key src in the displayed Data'
+        };
         this.desc.styles[0] = {
             selc: ".swac_navigation_head",
             desc: "Makes the navigation a head navigation that stays sticky in its position on scrolling."
@@ -276,7 +296,7 @@ export default class Navigation extends View {
         // Create display element
         let sitemapCodeElem = document.createElement('div');
         sitemapCodeElem.innerHTML = this.encode(sitemapCode);
-//        this.requestor.appendChild(sitemapCodeElem);
+        //        this.requestor.appendChild(sitemapCodeElem);
         UIkit.modal.alert(sitemapCodeElem)
     }
 

@@ -32,8 +32,10 @@ export default class DataShowModalSPL extends Plugin {
             name: "allowDelete",
             desc: "If true deleteion of datasets is allowed",
         };
-        if (!options.allowDelete) {
+        if (options.allowDelete === undefined) {
             this.options.allowDelete = true;
+        } else {
+            this.options.allowDelete = options.allowDelete;
         }
 
         // Internal attributes

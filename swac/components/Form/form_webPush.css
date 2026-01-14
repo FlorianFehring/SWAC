@@ -1,0 +1,18 @@
+.hide {
+    display: none !important;
+}
+
+.trigger-id-input {
+    width: 70px !important;
+    padding-right: 0;
+}
+
+.trigger-id-input::-webkit-inner-spin-button,
+.trigger-id-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.trigger-id-input {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}

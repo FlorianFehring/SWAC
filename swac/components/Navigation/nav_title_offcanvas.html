@@ -1,0 +1,39 @@
+<div class="uk-offcanvas-content">
+	<nav uk-navbar>
+		<div class="uk-navbar-left">
+			<a class="uk-navbar-item uk-logo" href="index.html">
+				<img class="uk-margin-left" src="../../files/icons/logo.png" alt="Logo" style="width: 70px;">
+			</a>
+		</div>
+		<div class="uk-navbar-center">
+			<h1 class="uk-text-light uk-margin-remove" swac_lang="appName"></h1>
+		</div>
+		<div class="uk-navbar-right">
+			<a class="uk-margin-right uk-navbar-item" href="#offcanvas-nav" uk-toggle>
+				<span uk-navbar-toggle-icon></span>
+			</a>
+		</div>
+	</nav>
+	<div id="offcanvas-nav" uk-offcanvas="overlay: true; flip: true">
+		<div class="uk-offcanvas-bar">
+			<div class="uk-flex uk-flex-column uk-margin-bottom">
+				<span class="uk-margin-bottom" swac_lang="app.lang"></span>
+				<span class="swac_nav_addons"></span>
+			</div>
+			<div class="uk-flex uk-flex-column uk-margin-bottom">
+				<span class="uk-margin-bottom" swac_lang="app.sites"></span>
+				<ul class="uk-nav uk-nav-default">
+					<li class="swac_nav_addons_mob">
+					</li>
+					<li class="swac_repeatForSet">
+						<a href="{rto}" swac_id="{id}" swac_parent="{parent}" swac_lang="{name}"></a>
+						<ul class="uk-nav-sub swac_forChilds">
+							<li class="swac_child"><a href="{rto}" swac_lang="{name}">{name}</a></li>
+						</ul>
+						<hr class="">
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>

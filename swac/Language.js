@@ -7,6 +7,7 @@ import Msg from './Msg.js';
 export default class Language {
 
     constructor() {
+        this.loadedLngFiles = [];
         this.availLangs = {};
         this.activeLang = 'en';
         this.dict = {};
@@ -119,8 +120,14 @@ export default class Language {
                 filepath += '_';
             }
             let filep = filepath + lang + '.js?vers=' + SWAC.desc.version;
+            if(this.loadedLngFiles.includes(filep)) {
+                resolve();
+                return;
+            }
+            
             Msg.flow('Language', 'Try to load language file >' + filep + '<');
             import(filep).then(module => {
+                thisRef.loadedLngFiles.push(filep);
                 if (module.default) {
                     thisRef.addTranslation(module.default, objectname, lang);
                     resolve();
