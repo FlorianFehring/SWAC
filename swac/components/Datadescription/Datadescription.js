@@ -618,7 +618,6 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
      * @returns {DOMElement} HTML DIV Element containing the legend
      */
     getLegend() {
-        Msg.flow('Datadescription','getLegend()',this.requestor);
         let requestor = this.requestor;
 
         // setup border Color input in modal
@@ -1112,16 +1111,6 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
                         // Add bordercolor for attribute
                         if (attrCol !== '#808080') {
                             curElemForAttr.style.border = '1px solid ' + attrCol;
-                        }
-                        // Get bindpoint
-                        let bp = curElemForAttr.querySelector('swac-bp');
-                        // Get color vor value
-                        let valcol = this.getValueColor(bp.innerHTML, null, attribute);
-                        if (valcol !== '#808080') {
-                            curElemForAttr.style.backgroundColor = valcol;
-                            // Calculate contrast color
-                            let textcolor = Colorcalculations.calculateContrastColor(valcol);
-                            curElemForAttr.style.color = textcolor;
                         }
                     }
                 }

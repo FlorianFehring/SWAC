@@ -186,12 +186,6 @@ export default class Thermometer extends Diagram {
         svgText.innerHTML = value + " " + this.unit;
         svgElement.appendChild(svgText);
 
-        // Set rounded value in template
-        let valElems = this.comp.requestor.querySelectorAll('[attrname="'+name+'"]');
-        for (let curElem of valElems) {
-            curElem.textContent = value;
-        }
-
         let stepCount = 5;
         let tenPercent = diffValue / stepCount;
         let stepps = [1, 2, 5, 10, 20, 50, 100, 250, 500];
