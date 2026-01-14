@@ -194,13 +194,8 @@ export default class Visualise extends View {
 
             let datadescription = null;
             if (diagramdef.datadescription) {
-                console.log(diagramdef.datadescription)
                 let ddElem = document.querySelector(diagramdef.datadescription);
-                console.log("1")
-                console.log(ddElem)
                 if (!ddElem) {
-                    console.log("2")
-
                     Msg.error('Visualise', 'Legend >' + diagramdef.datadescription + '< was not found.', thisRef.requestor);
                     return;
                 } else {
