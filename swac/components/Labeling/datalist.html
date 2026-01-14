@@ -1,0 +1,31 @@
+<div class="label-wrapper" style="display:flex; align-items:center; gap:10px; position:relative;">
+    <!-- + Icon -->
+    <button type="button" class="label-toggle-btn" style="flex-shrink:0;">+</button>
+
+    <!-- Aktive Labels -->
+    <div class="label-container" style="display:flex; gap:5px;">
+        <span class="swac_repeatForSet" >
+            <span class="uk-label"></span>
+        </span>
+    </div>
+
+    <!-- Steuerung: Hinzufügen / Entfernen -->
+    <div class="label-controls" style="position:absolute; top:-80px; left:0; display:none; background:#fff; border:1px solid #ccc; padding:10px; z-index:10; box-shadow:0 2px 5px rgba(0,0,0,0.2);">
+        <input class="label-add-input" type="text" list="label-datalist" placeholder="Label auswählen">
+        <datalist id="label-datalist">
+            <option class="swac_repeatForAddLabel">
+
+            </option>
+        </datalist>
+        <button type="button" class="label-add-btn" style="margin-left:5px;">Hinzufügen</button>
+
+        <input class="label-remove-input" type="text" list="label-remove-datalist" placeholder="Label entfernen" style="margin-left:10px;">
+        <datalist id="label-remove-datalist">
+            <option class="swac_repeatForDelLabel">
+
+            </option>
+        </datalist>
+
+        <button type="button" class="label-remove-btn" style="margin-left:5px;">Entfernen</button>
+    </div>
+</div>

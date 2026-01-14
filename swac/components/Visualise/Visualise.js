@@ -191,75 +191,87 @@ export default class Visualise extends View {
         let thisRef = this;
         // Search diagram class
         import('./diagrams/' + diagramdef.type + '.js?vers=' + SWAC.desc.version).then(function (module) {
-            let diagramClass = module.default;
-            // Get attribute name
-            let attr = diagramdef.attr;
-            let value = set[attr];
-            let unit = diagramdef.unit;
-            if (!unit)
-                unit = '';
-            let name = diagramdef.name;
-            if (!name)
-                name = attr;
-            let width = diagramdef.width;
-            if (!width)
-                width = window.innerHeight / 2;
-            let height = diagramdef.height;
-            if (!height)
-                height = window.innerHeight / 2;
+
             let datadescription = null;
             if (diagramdef.datadescription) {
                 let ddElem = document.querySelector(diagramdef.datadescription);
                 if (!ddElem) {
                     Msg.error('Visualise', 'Legend >' + diagramdef.datadescription + '< was not found.', thisRef.requestor);
                     return;
-                }
-                datadescription = ddElem.swac_comp;
-            }
-
-            let diagram;
-            let diagramElem;
-            if (diagramdef.attr === '*') {
-                diagram = new diagramClass(unit, name, width, height, datadescription, diagramdef, thisRef);
-                diagramElem = diagram.drawSetDiagram(set);
-                let vdsetElem = valueArea.querySelector('.swac_visualise_diagram_set');
-                if (vdsetElem) {
-                    vdsetElem.appendChild(diagramElem);
-                }
-                let legsetElem = valueArea.querySelector('.swac_visualise_legend_set');
-                if (legsetElem) {
-                    let legTplElem = legsetElem.querySelector('.swac_visualise_repeatForAttr');
-                    if (legTplElem) {
-                        for (let curAttr of diagram.getAffectedAttributes()) {
-                            let curLeg = legTplElem.cloneNode(true);
-                            curLeg.classList.remove('swac_dontdisplay');
-                            let nameElem = curLeg.querySelector('.swac_visualise_legend_name');
-                            nameElem.innerHTML = curAttr;
-                            nameElem.setAttribute('swac_lang', curAttr);
-                            curLeg.querySelector('.swac_visualise_legend_value').innerHTML = set[curAttr];
-                            legTplElem.parentNode.appendChild(curLeg);
-                        }
-                    }
-                }
-                // Update translation if present
-                let transElem = document.querySelector('[swa^="Translator"]');
-                if (transElem) {
-                    transElem.swac_comp.translate();
+                } else {
+                    window.swac.reactions.addReaction(function () {
+                        datadescription = ddElem.swac_comp;
+                        thisRef.calculateDiagram(set, diagramdef, valueArea, module, datadescription)
+                    }, ddElem.id);
                 }
             } else {
-                //creates the diagram
-                diagram = new diagramClass(unit, name, width, height, datadescription, diagramdef, thisRef);
-                diagramElem = diagram.drawValueDiagram(name, value);
-                let vdattrElem = valueArea.querySelector('.swac_visualise_diagram_attr');
-                if (vdattrElem) {
-                    vdattrElem.appendChild(diagramElem);
-                }
+                thisRef.calculateDiagram(set, diagramdef, valueArea, module, datadescription)
             }
-            thisRef.createAttribution();
         }).catch(function (err) {
             Msg.error('Visualise', 'Error createing diagram >' + diagramdef.type + '<: ' + err, thisRef.requestor);
             return;
         });
+    }
+
+    calculateDiagram(set, diagramdef, valueArea, module, datadescription) {
+        let thisRef = this;
+        
+        let diagramClass = module.default;
+        // Get attribute name
+        let attr = diagramdef.attr;
+        let value = set[attr];
+        let unit = diagramdef.unit;
+        if (!unit)
+            unit = '';
+        let name = diagramdef.name;
+        if (!name)
+            name = attr;
+        let width = diagramdef.width;
+        if (!width)
+            width = window.innerHeight / 2;
+        let height = diagramdef.height;
+        if (!height)
+            height = window.innerHeight / 2;
+
+        let diagram;
+        let diagramElem;
+        if (diagramdef.attr === '*') {
+            diagram = new diagramClass(unit, name, width, height, datadescription, diagramdef, thisRef);
+            diagramElem = diagram.drawSetDiagram(set);
+            let vdsetElem = valueArea.querySelector('.swac_visualise_diagram_set');
+            if (vdsetElem) {
+                vdsetElem.appendChild(diagramElem);
+            }
+            let legsetElem = valueArea.querySelector('.swac_visualise_legend_set');
+            if (legsetElem) {
+                let legTplElem = legsetElem.querySelector('.swac_visualise_repeatForAttr');
+                if (legTplElem) {
+                    for (let curAttr of diagram.getAffectedAttributes()) {
+                        let curLeg = legTplElem.cloneNode(true);
+                        curLeg.classList.remove('swac_dontdisplay');
+                        let nameElem = curLeg.querySelector('.swac_visualise_legend_name');
+                        nameElem.innerHTML = curAttr;
+                        nameElem.setAttribute('swac_lang', curAttr);
+                        curLeg.querySelector('.swac_visualise_legend_value').innerHTML = set[curAttr];
+                        legTplElem.parentNode.appendChild(curLeg);
+                    }
+                }
+            }
+            // Update translation if present
+            let transElem = document.querySelector('[swa^="Translator"]');
+            if (transElem) {
+                transElem.swac_comp.translate();
+            }
+        } else {
+            //creates the diagram
+            diagram = new diagramClass(unit, name, width, height, datadescription, diagramdef, thisRef);
+            diagramElem = diagram.drawValueDiagram(name, value);
+            let vdattrElem = valueArea.querySelector('.swac_visualise_diagram_attr');
+            if (vdattrElem) {
+                vdattrElem.appendChild(diagramElem);
+            }
+        }
+        thisRef.createAttribution();
     }
 
     /**

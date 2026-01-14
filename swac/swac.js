@@ -294,9 +294,13 @@ SWAC.detectRequestors = async function (elem = document) {
     let requestors = elem.querySelectorAll("[swa]");
     let viewHandler = new ViewHandler();
     for (let requestor of requestors) {
-        // load component if not a template
-        if (!requestor.id.includes('{id}') && !requestor.getAttribute('swa').startsWith('{'))
-            await viewHandler.load(requestor);
+        try {
+            // load component if not a template
+            if (!requestor.id.includes('{id}') && !requestor.getAttribute('swa').startsWith('{'))
+                await viewHandler.load(requestor);
+        } catch (ex) {
+            Msg.error('swac.js', 'Requestor >' + requestor + ' Error: ' + ex);
+        }
     }
     document.dispatchEvent(new CustomEvent('swac_components_complete'));
 };
