@@ -86,6 +86,9 @@ export default class Model {
                 // Create WS if data is requested without component
                 new WatchableSource(dataRequest.fromName, Model, dataRequest.storeId);
             }
+            
+            // Add fromHeaders from comp to request
+            dataRequest.fromHeaders = comp.options.fromHeaders;
 
             // Check if data is allready loading
             let loadProm = thisRef.requests.get(dataRequest.requestId);
@@ -135,7 +138,7 @@ export default class Model {
                 let fetchUrl = dataRequest.fromName;
 
                 // Get data from remote (fetchGet uses data from first datasource that delivers data)
-                Remote.fetchGet(fetchUrl, dataRequest.fromWheres, true).then(
+                Remote.fetchGet(fetchUrl, dataRequest.fromWheres, dataRequest.fromHeaders, true).then(
                         function (dataCapsule) {
                             Msg.info('model', 'Useing data from >' + dataCapsule.fromName + '< for >' + dataRequest.fromName + '<', comp);
                             dataCapsule = thisRef.convertData(dataCapsule, dataRequest, comp);
@@ -396,7 +399,7 @@ export default class Model {
                 let filename = defRequest.fromName.substring(lastSlashPos + 1, defRequest.fromName.length);
                 defRequest.fromName = defRequest.fromName.replace(filename, 'definition.json');
             }
-            Remote.fetchDefs(defRequest.fromName, defRequest.fromWheres, true).then(function (rawCapsule) {
+            Remote.fetchDefs(defRequest.fromName, defRequest.fromWheres, defRequest.fromHeaders, true).then(function (rawCapsule) {
                 resolve(rawCapsule.data.attributes);
             }).catch(function (err) {
                 reject(err);
@@ -479,7 +482,7 @@ export default class Model {
                     remoteFailMsg = SWAC.lang.dict.core.updateerror;
                 }
                 // Send request
-                let curSaveProm = remoteFunc(dataCapsle.fromName, dataCapsle.fromWheres, supressMessages, saveObj).then(
+                let curSaveProm = remoteFunc(dataCapsle.fromName, dataCapsle.fromWheres, dataCapsle.fromHeaders, supressMessages, saveObj).then(
                         function (dataCap) {
                             if (!supressMessages) {
                                 UIkit.notification({
@@ -559,7 +562,7 @@ export default class Model {
             for (let j in dataCapsle.data) {
                 if (dataCapsle.data[j].id) {
                     // Send request
-                    Remote.fetchDelete(dataCapsle.fromName + "/" + dataCapsle.data[j].id, dataCapsle.data[j], supressErrorMessages).then(
+                    Remote.fetchDelete(dataCapsle.fromName + "/" + dataCapsle.data[j].id, dataCapsle.data[j], dataCapsle.fromHeaders, supressErrorMessages).then(
                             function (response) {
                                 UIkit.notification({
                                     message: SWAC.lang.dict.core.deletesuccsess,

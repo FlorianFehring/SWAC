@@ -38,13 +38,14 @@ remoteHandler.clearDatasourceStates = function () {
  *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
+ * @param {Object} fromHeaders Object with headers as attributes
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
  * @param {boolean} corsfetch if true the request will be send over local cors provider (avoiding cors problems)
  * @returns {Promise} Promise that resolves with datacapsle when data was recived
  */
-remoteHandler.fetchHead = function (fromName, fromWheres, supressErrorMessage, corsfetch = false) {
+remoteHandler.fetchHead = function (fromName, fromWheres, fromHeaders, supressErrorMessage, corsfetch = false) {
     remoteHandler.datasourceTries = {};
-    return remoteHandler.fetch(fromName, fromWheres, 'head', supressErrorMessage, undefined, corsfetch);
+    return remoteHandler.fetch(fromName, fromWheres, fromHeaders, 'head', supressErrorMessage, undefined, corsfetch);
 };
 
 /**
@@ -54,12 +55,13 @@ remoteHandler.fetchHead = function (fromName, fromWheres, supressErrorMessage, c
  *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
+ * @param {Object} fromHeaders Object with headers as attributes
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
  * @returns {Promise} Promise that resolves with datacapsle when data was recived
  */
-remoteHandler.fetchGet = function (fromName, fromWheres, supressErrorMessage) {
+remoteHandler.fetchGet = function (fromName, fromWheres, fromHeaders, supressErrorMessage) {
     remoteHandler.datasourceTries = {};
-    return remoteHandler.fetch(fromName, fromWheres, 'get', supressErrorMessage);
+    return remoteHandler.fetch(fromName, fromWheres, fromHeaders, 'get', supressErrorMessage);
 };
 
 /**
@@ -67,12 +69,13 @@ remoteHandler.fetchGet = function (fromName, fromWheres, supressErrorMessage) {
  *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
+ * @param {Object} fromHeaders Object with headers as attributes
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
  * @returns {Promise} Promise that resolves with datacapsle when data was recived
  */
-remoteHandler.fetchDefs = function (fromName, fromWheres, supressErrorMessage) {
+remoteHandler.fetchDefs = function (fromName, fromWheres, fromHeaders, supressErrorMessage) {
     remoteHandler.datasourceTries = {};
-    return remoteHandler.fetch(fromName, fromWheres, 'defs', supressErrorMessage);
+    return remoteHandler.fetch(fromName, fromWheres, fromHeaders, 'defs', supressErrorMessage);
 };
 
 /**
@@ -82,12 +85,13 @@ remoteHandler.fetchDefs = function (fromName, fromWheres, supressErrorMessage) {
  *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
+ * @param {Object} fromHeaders Object with headers as attributes
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
  * @returns {Promise} Promise that resolves with datacapsle when data was recived
  */
-remoteHandler.fetchDelete = function (fromName, fromWheres, supressErrorMessage) {
+remoteHandler.fetchDelete = function (fromName, fromWheres, fromHeaders, supressErrorMessage) {
     remoteHandler.datasourceTries = {};
-    return remoteHandler.fetch(fromName, fromWheres, 'delete', supressErrorMessage);
+    return remoteHandler.fetch(fromName, fromWheres, fromHeaders, 'delete', supressErrorMessage);
 };
 
 /**
@@ -95,19 +99,20 @@ remoteHandler.fetchDelete = function (fromName, fromWheres, supressErrorMessage)
  *
  * @param {string} fromName resource from that fetch or delete data (maybe an url, or an REST resource path)
  * @param {Object} fromWheres Object with attributes and values that should be send as query
+ * @param {Object} fromHeaders Object with headers as attributes
  * @param [string} mode string with mode (get, list, defs, create, update, delete)
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
  * @param {object} data object with parameters to send along (only on POST and UPDATE)
  * @returns {Promise} Promise that resolves with datacapsle when data was recived
  */
-remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage, data) {
+remoteHandler.fetch = function (fromName, fromWheres, fromHeaders, mode, supressErrorMessage, data) {
     if (!fromName) {
         Msg.error('Remote', 'fromName is missing for fetch reequest. Check your dataRequestor.');
         return;
     }
     // Detect max requests
     if (remoteHandler.running > 50) {
-        return this.addToWaitlist(fromName, fromWheres, mode, supressErrorMessage, data);
+        return this.addToWaitlist(fromName, fromWheres, fromHeaders, mode, supressErrorMessage, data);
     } else {
         remoteHandler.running++;
     }
@@ -144,6 +149,10 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
             redirect: 'follow', // *manual, error
             referrer: 'no-referrer' // *client
         };
+        // Integrate Custom-Headers
+        if (fromHeaders && typeof fromHeaders === 'object') {
+            Object.assign(fetchConf.headers, fromHeaders);
+        }
 
         if (typeof data !== 'undefined') {
             try {
@@ -179,7 +188,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                         // Save datasourceStates for page reloads
                         localStorage.setItem('swac_datasourceStates', JSON.stringify(remoteHandler.datasourceStates));
 
-                        remoteHandler.fetch(fromName, fromWheres, mode, supressErrorMessage, data).then(
+                        remoteHandler.fetch(fromName, fromWheres, fromHeaders, mode, supressErrorMessage, data).then(
                                 function (data) {
                                     // Resolved in child try
                                     resolve(data);
@@ -312,12 +321,12 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
 
                                 // Check if dates are valid
                                 if (lastPosibleDate === null || isNaN(lastPosibleDate.getTime())) {
-                                    Msg.error('Remote','Given lastPosibleDate >' + lastPosibleDate + '< is not a valid date.');
+                                    Msg.error('Remote', 'Given lastPosibleDate >' + lastPosibleDate + '< is not a valid date.');
                                     lastPosibleDate = new Date();
                                     lastPosibleDate.setMonth(lastPosibleDate.getMonth() + 12);
                                     lastPosibleDate.setDate(lastPosibleDate.getDate() + 1);
                                 }
-                                if(firstPosibleDate === null | isNaN(firstPosibleDate.getTime())) {
+                                if (firstPosibleDate === null | isNaN(firstPosibleDate.getTime())) {
                                     firstPosibleDate = new Date();
                                 }
 
@@ -358,7 +367,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                             if (vevent.summary) {
                                                 let title = vevent.summary.match(/["„](.*?)["“]/)?.[1];
                                                 if (title) {
-                                                    image = title.replaceAll(' ', '_').replaceAll('?','');
+                                                    image = title.replaceAll(' ', '_').replaceAll('?', '');
                                                     image = new Date(vevent.startDate.toLocaleString()).getFullYear() + '_' + image;
                                                     imagealt = image;
                                                 }
@@ -398,7 +407,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                         if (vevent.summary) {
                                             let title = vevent.summary.match(/["„](.*?)["“]/)?.[1];
                                             if (title) {
-                                                image = title.replaceAll(' ', '_').replaceAll('?','');
+                                                image = title.replaceAll(' ', '_').replaceAll('?', '');
                                                 image = new Date(vevent.startDate.toLocaleString()).getFullYear() + '_' + image;
                                                 imagealt = image;
                                             }
@@ -418,7 +427,7 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
                                         if (vevent.startDate.toString().length === 10) {
                                             formattedEvent.wholeDay = true;
                                         }
-                                        
+
                                         if (startDate.getFullYear() === endDate.getFullYear() &&
                                                 startDate.getMonth() === endDate.getMonth() &&
                                                 startDate.getDate() === endDate.getDate()) {
@@ -497,17 +506,19 @@ remoteHandler.fetch = function (fromName, fromWheres, mode, supressErrorMessage,
  *
  * @param {string} fromName resource from that fetch or delete data (maybe an url, or an REST resource path)
  * @param {Object} fromWheres Object with attributes and values that should be send as query
+ * @param {Object} fromHeaders Object with headers as attributes
  * @param [string} mode string with mode (get, list, defs, create, update, delete)
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
  * @param {object} data object with parameters to send along (only on POST and UPDATE)
  * @param {boolean} corsfetch if true the request will be send over local cors provider (avoiding cors problems)
  * @returns {Promise} Promise that resolves with datacapsle when data was send / recived
  */
-remoteHandler.addToWaitlist = function (fromName, fromWheres, mode, supressErrorMessage, data) {
+remoteHandler.addToWaitlist = function (fromName, fromWheres, fromHeaders, mode, supressErrorMessage, data) {
     return new Promise((resolve, reject) => {
         let entry = {
             fromName: fromName,
             fromWheres: fromWheres,
+            fromHeaders: fromHeaders,
             mode: mode,
             supressErrorMessage: supressErrorMessage,
             data: data,
@@ -537,7 +548,7 @@ remoteHandler.lookAtWaitlist = function () {
             break;
         }
     }
-    remoteHandler.fetch(set.fromName, set.fromWheres, set.mode, set.supressErrorMessage, set.data, set.corsfetch).then(function (res) {
+    remoteHandler.fetch(set.fromName, set.fromWheres, set.fromHeaders, set.mode, set.supressErrorMessage, set.data, set.corsfetch).then(function (res) {
         set.callbackResolve(res);
     }).catch(function (err) {
         set.callbackReject(err);
@@ -551,13 +562,14 @@ remoteHandler.lookAtWaitlist = function () {
  *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
+ * @param {Object} fromHeaders Object with headers as attributes
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
  * @param {object} data object with parameters to send along
  * @returns {Promise} Promise that resolves when data was recived
  */
-remoteHandler.fetchCreate = function (fromName, fromWheres, supressErrorMessage, data) {
+remoteHandler.fetchCreate = function (fromName, fromWheres, fromHeaders, supressErrorMessage, data) {
     remoteHandler.datasourceTries = {};
-    return remoteHandler.fetch(fromName, fromWheres, 'create', supressErrorMessage, data);
+    return remoteHandler.fetch(fromName, fromWheres, fromHeaders, 'create', supressErrorMessage, data);
 };
 
 /**
@@ -567,13 +579,14 @@ remoteHandler.fetchCreate = function (fromName, fromWheres, supressErrorMessage,
  *
  * @param {string} fromName url where to fetch
  * @param {Object} fromWheres Object with attributes and values that should be send as query
+ * @param {Object} fromHeaders Object with headers as attributes
  * @param {boolean} supressErrorMessage if true no errormessages will be generated
  * @param {object} data object with parameters to send along
  * @returns {Promise} Promise that resolves when data was recived
  */
-remoteHandler.fetchUpdate = function (fromName, fromWheres, supressErrorMessage, data) {
+remoteHandler.fetchUpdate = function (fromName, fromWheres, fromHeaders, supressErrorMessage, data) {
     remoteHandler.datasourceTries = {};
-    return remoteHandler.fetch(fromName, fromWheres, 'update', supressErrorMessage, data);
+    return remoteHandler.fetch(fromName, fromWheres, fromHeaders, 'update', supressErrorMessage, data);
 };
 
 /**

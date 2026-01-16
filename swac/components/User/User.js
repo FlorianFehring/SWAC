@@ -447,7 +447,7 @@ export default class User extends View {
         let thisRef = this;
         Remote.clearDatasourceStates();
         // Use create here because it uses POST method
-        Remote.fetchCreate(this.options.loginURL, null, true, logindata).then(function (userdata) {
+        Remote.fetchCreate(this.options.loginURL, null, this.options.fromHeaders, true, logindata).then(function (userdata) {
             try {
                 window.localStorage.setItem("USERID", userdata.data.id);
 
@@ -487,7 +487,7 @@ export default class User extends View {
                         }
 
                         // Save terms state in database
-                        Remote.fetchUpdate(thisRef.options.saveURL, null, true, userdata.data).then(function () {
+                        Remote.fetchUpdate(thisRef.options.saveURL, null, this.options.fromHeaders, true, userdata.data).then(function () {
                             thisRef.saveLogin(userdata);
                         }).catch(function (e) {
                             Msg.error('User', 'Could not save accepted privacy and terms state: ' + e, thisRef.requestor);

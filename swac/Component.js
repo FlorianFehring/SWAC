@@ -260,6 +260,16 @@ export default class Component {
         if (!options.apiActualUrlAttr)
             this.options.apiActualUrlAttr = null;
 
+        this.desc.opts[1025] = {
+            name: 'fromHeaders',
+            desc: 'Headers to send along with any datarequest.',
+            example: {
+                "X-Requested-By": "SWAC"
+            }
+        };
+        if (!options.fromHeaders)
+            this.options.fromHeaders = null;
+
         this.desc.funcs = [];
         this.desc.funcs[1000] = {
             name: 'addData',
@@ -1632,7 +1642,7 @@ DEFINTION of SET:\n\
                 window[curFromName] = this.data[curFromName].toObject()
                 if (this.options.saveAlongData) {
                     for (let curSet of window[curFromName]) {
-                        if(!curSet){
+                        if (!curSet) {
                             continue;
                         }
                         for (let curAttr in this.options.saveAlongData) {
