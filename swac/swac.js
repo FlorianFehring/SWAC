@@ -498,6 +498,16 @@ SWAC.replaceGlobalPlaceholders = function () {
     for (const key in this.config.globalparams) {
         SWAC.searchAndReplace('{{' + key + '}}', this.config.globalparams[key], document);
     }
+    const dynamicValues = {
+        'hostname': window.location.hostname,
+        'protocol': window.location.protocol,
+        'port': window.location.port,
+        'href': window.location.href
+    };
+    for (const key in dynamicValues) {
+        SWAC.searchAndReplace('{{' + key + '}}', dynamicValues[key], document);
+    }
+
     // Clean HTML from invisible chars
     const cleanHTML = document.body.innerHTML.replace(/[\u200B-\u200D\uFEFF]/g, '');
     // Replace special placeholders
@@ -551,6 +561,8 @@ SWAC.replaceGlobalPlaceholders = function () {
         }
         SWAC.searchAndReplace(curSps[0], val, document, true);
     }
+    // Replace host placeholders
+
 
     // Remove placeholders that can not be filled
     let unreplaced = document.body.innerHTML.match(/\{\{(.+?)\}\}/g);
