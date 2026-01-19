@@ -1109,11 +1109,13 @@ export default class Mediaplayer extends View {
      * @returns {undefined}
      */
     fadeinPlay() {
+        Msg.flow('MediaPlayer', 'fadeinPlay()', this.requestor);
         if (!this.interval)
             this.interval = setInterval(this.playNextSecond.bind(this), 1000);
         if (this.actMediaElem) {
-            if (this.actTitle.fadein)
+            if (this.actTitle.fadein) {
                 this.fadein(this.actMediaElem, this.actTitle.fadein);
+            }
             this.actMediaElem.play();
         }
     }
@@ -1124,6 +1126,7 @@ export default class Mediaplayer extends View {
      * @returns {undefined}
      */
     fadeoutPlay() {
+        Msg.flow('MediaPlayer', 'fadeoutPlay()', this.requestor);
         if (this.actMediaElem) {
             if (this.actTitle.fadeout) {
                 let thisRef = this;
@@ -1253,8 +1256,10 @@ export default class Mediaplayer extends View {
                     this.actMediaElem.currentTime = runSecs;
                 }
                 // Fadein if defined
-                if (this.actTitle.fadein)
+                if (this.actTitle.fadein) {
+                    this.actMediaElem.volume = 0;
                     this.fadein(this.actMediaElem, this.actTitle.fadein);
+                } else
                 // Set volume
                 if (this.actTitle.volume) {
                     this.actMediaElem.volume = this.actTitle.volume / 100;
@@ -1768,14 +1773,22 @@ export default class Mediaplayer extends View {
      * @param {int} seconds Seconds to fade out
      */
     fadein(mediaElem, seconds) {
-        mediaElem.volume = 0;
+        let thisRef = this;
         let fadepercentage = (100 / seconds / 4) / 100;
         let fadeintval = setInterval(function () {
             mediaElem.volume += fadepercentage;
+            // Show fadein in control if faded in media is active one
+            if (mediaElem === thisRef.actMediaElem) {
+                let volumeButton = thisRef.requestor.querySelector('.swac_mediaplayer_volume');
+                volumeButton.value = mediaElem.volume;
+            }
+            let maxVolume = thisRef.actTitle.volume / 100;
+            if (mediaElem.volume >= maxVolume)
+                clearInterval(fadeintval);
         }, 250);
         setTimeout(function () {
             clearInterval(fadeintval);
-        }, seconds * 1000);
+        }, seconds * 1200);
     }
 
     /**
@@ -2029,8 +2042,9 @@ export default class Mediaplayer extends View {
                     let curElem = this.requestor.querySelector('#keymedia_' + curSet.id);
                     if (!curElem)
                         Msg.error('Mediaplayer', 'Could not find keymedia for >' + curSet.swac_fromName + '[' + curSet.id + ']<', this.requestor);
-                    if (curSet.fadein)
+                    if (curSet.fadein) {
                         this.fadein(curElem, curSet.fadein);
+                    }
                     curElem.play();
                     // Display copyright notice
                     if (curSet.copyright) {
