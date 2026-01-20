@@ -1259,6 +1259,8 @@ export default class Mediaplayer extends View {
                 if (this.actTitle.fadein) {
                     this.actMediaElem.volume = 0;
                     this.fadein(this.actMediaElem, this.actTitle.fadein);
+                    let volumeButton = this.requestor.querySelector('.swac_mediaplayer_volume');
+                    volumeButton.value = this.actMediaElem.volume;
                 } else
                 // Set volume
                 if (this.actTitle.volume) {
@@ -1780,7 +1782,7 @@ export default class Mediaplayer extends View {
             // Show fadein in control if faded in media is active one
             if (mediaElem === thisRef.actMediaElem) {
                 let volumeButton = thisRef.requestor.querySelector('.swac_mediaplayer_volume');
-                volumeButton.value = mediaElem.volume;
+                volumeButton.value = mediaElem.volume * 100;
             }
             let maxVolume = thisRef.actTitle.volume / 100;
             if (mediaElem.volume >= maxVolume)
