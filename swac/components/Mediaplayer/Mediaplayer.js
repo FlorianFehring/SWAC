@@ -883,6 +883,7 @@ export default class Mediaplayer extends View {
                         sourceElem.setAttribute('src', basepath + set.path);
                         sourceElem.setAttribute('type', set.mimetype);
                         audioElem.appendChild(sourceElem);
+                        audioElem.swac_set = set;
                         keymediacard.appendChild(audioElem);
                         // Add to key list
                         if (set.startonkey) {
@@ -1776,21 +1777,27 @@ export default class Mediaplayer extends View {
      */
     fadein(mediaElem, seconds) {
         let thisRef = this;
-        let fadepercentage = (100 / seconds / 4) / 100;
-        let fadeintval = setInterval(function () {
-            mediaElem.volume += fadepercentage;
+        mediaElem.volume = 0;
+        let maxVolume = 100;
+        if (mediaElem.swac_set.volume)
+            maxVolume = mediaElem.swac_set.volume;
+        let steps = seconds * 4;
+        let increment = maxVolume / steps;
+        let current = 0;
+        this.fadeintval = setInterval(function () {
+            current += increment;
+            if (current >= maxVolume) {
+                current = maxVolume;
+                clearInterval(thisRef.fadeintval);
+            }
+            // Media element volume is from 0 to 1
+            mediaElem.volume = current / 100;
             // Show fadein in control if faded in media is active one
             if (mediaElem === thisRef.actMediaElem) {
                 let volumeButton = thisRef.requestor.querySelector('.swac_mediaplayer_volume');
                 volumeButton.value = mediaElem.volume * 100;
             }
-            let maxVolume = thisRef.actTitle.volume / 100;
-            if (mediaElem.volume >= maxVolume)
-                clearInterval(fadeintval);
         }, 250);
-        setTimeout(function () {
-            clearInterval(fadeintval);
-        }, seconds * 1200);
     }
 
     /**
@@ -1800,6 +1807,9 @@ export default class Mediaplayer extends View {
      * @param {int} seconds Seconds to fade out
      */
     fadeout(mediaElem, seconds) {
+        if(this.fadeintval) {
+            clearInterval(this.fadeintval);
+        }
         let fadepercentage = (100 / seconds / 4) / 100;
         let fadeouttval = setInterval(function () {
             if (mediaElem.volume - fadepercentage > 0)

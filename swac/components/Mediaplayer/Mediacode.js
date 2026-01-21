@@ -104,6 +104,7 @@ export default class Mediacode {
             vidElem.setAttribute('loop','loop');
         }
         vidElem.innerHTML = SWAC.lang.dict.Mediacode.novideosupport;
+        vidElem.swac_set = this.set;
         this.createMediaSource(vidElem);
         return vidElem;
     }
@@ -143,6 +144,7 @@ export default class Mediacode {
             audioElem.setAttribute('loop','loop');
         }
         audioElem.innerHTML = SWAC.lang.dict.Mediacode.noaudiosupport;
+        audioElem.swac_set = this.set;
         this.createMediaSource(audioElem);
         divElem.appendChild(audioElem);
         return divElem;
