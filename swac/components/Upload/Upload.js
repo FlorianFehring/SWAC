@@ -1090,6 +1090,7 @@ export default class Upload extends View {
         let processingTD = statusTR.querySelector('.processingtd');
         let resultsAcord = document.createElement('ul');
         resultsAcord.setAttribute('uk-accordion', 'true');
+        resultsAcord.classList.add('uk-accordion-default');
         // Add information about each fileHandler and its status
         let i = 0;
         for (let curFileHandler of processedfile.fileHandlers) {
