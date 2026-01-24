@@ -88,7 +88,7 @@ export default class Model {
             }
             
             // Add fromHeaders from comp to request
-            if(comp.options)
+            if(comp)
                 dataRequest.fromHeaders = comp.options.fromHeaders;
 
             // Check if data is allready loading
