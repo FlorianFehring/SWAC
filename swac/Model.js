@@ -88,7 +88,8 @@ export default class Model {
             }
             
             // Add fromHeaders from comp to request
-            dataRequest.fromHeaders = comp.options.fromHeaders;
+            if(comp.options)
+                dataRequest.fromHeaders = comp.options.fromHeaders;
 
             // Check if data is allready loading
             let loadProm = thisRef.requests.get(dataRequest.requestId);
