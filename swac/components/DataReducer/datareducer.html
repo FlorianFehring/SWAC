@@ -1,0 +1,50 @@
+<div class="swac_datareducer uk-card uk-card-default uk-card-small uk-card-body uk-margin-small-bottom">
+    <div uk-grid class="uk-grid-small uk-flex-middle">
+
+        <!-- Time range filter -->
+        <div class="swac_datareducer_timeblock uk-width-auto">
+            <span class="uk-text-bold uk-text-small" swac_lang="DataReducer.timerange">Time range:</span>
+        </div>
+        <div class="swac_datareducer_timeblock uk-width-auto">
+            <input class="swac_datareducer_from uk-input uk-form-small" type="datetime-local" title="From" style="width: 180px;">
+        </div>
+        <div class="swac_datareducer_timeblock uk-width-auto">
+            <span class="uk-text-muted">–</span>
+        </div>
+        <div class="swac_datareducer_timeblock uk-width-auto">
+            <input class="swac_datareducer_to uk-input uk-form-small" type="datetime-local" title="To" style="width: 180px;">
+        </div>
+
+        <!-- Divider -->
+        <div class="uk-width-auto"><span class="uk-text-muted">|</span></div>
+
+        <!-- Value filter -->
+        <div class="uk-width-auto">
+            <span class="uk-text-bold uk-text-small" swac_lang="DataReducer.value">Value:</span>
+        </div>
+        <div class="uk-width-auto">
+            <select class="swac_datareducer_attr uk-select uk-form-small" style="width: 140px;">
+                <option value="" swac_lang="DataReducer.attr">Attribute</option>
+            </select>
+        </div>
+        <div class="uk-width-auto">
+            <select class="swac_datareducer_op uk-select uk-form-small" style="width: 80px;">
+                <option value="gt">&gt;</option>
+                <option value="lt">&lt;</option>
+                <option value="eq">=</option>
+                <option value="gte">&gt;=</option>
+                <option value="lte">&lt;=</option>
+            </select>
+        </div>
+        <div class="uk-width-auto">
+            <input class="swac_datareducer_val uk-input uk-form-small" type="number" placeholder="Value" style="width: 100px;">
+        </div>
+
+        <!-- One shared apply and reset button for all filters -->
+        <div class="uk-width-auto">
+            <button class="swac_datareducer_apply uk-button uk-button-primary uk-button-small" type="button" swac_lang="DataReducer.apply">Apply</button>
+            <button class="swac_datareducer_reset uk-button uk-button-default uk-button-small" type="button" swac_lang="DataReducer.reset">Reset</button>
+        </div>
+
+    </div>
+</div>
