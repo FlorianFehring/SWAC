@@ -1,0 +1,186 @@
+.questgame {
+    max-width: 600px;
+    margin: auto;
+    padding: 1rem;
+    font-family: sans-serif;
+}
+
+.qg-header img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+}
+
+.qg-title {
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.qg-content {
+    margin-top: 1rem;
+    line-height: 1.5;
+}
+
+.qg-next-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.4rem;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+.qg-overjump-btn {
+    font-size: 0.7rem;
+}
+
+.qg-feedback {
+    margin-top: 1rem;
+    color: red;
+    font-weight: bold;
+}
+
+.qg-repeat_for_answer-option {
+    display: none;
+}
+
+.qg-answer-option {
+    padding: 0.8rem;
+    background: #eee;
+    margin: 0.5rem 0;
+    border-radius: 6px;
+}
+
+.qg-choise ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.qg-choise li {
+    margin-bottom: 0.8rem;
+}
+
+.qg-choise label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.qg-choise input[type="radio"],
+.qg-choise input[type="checkbox"] {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.qg-choiseanswer-option {
+    flex: 1;
+}
+
+.qg-textanswer {
+    margin-top: 1rem;
+    width: 100%;
+}
+
+.qg-textanswer input[type="text"] {
+    width: 100%;
+    padding: 0.9rem 1rem;
+
+    font-size: 1.2rem;
+    border-radius: 10px;
+
+    border: 1px solid #ccc;
+    background: #f7f7f7;
+
+    box-sizing: border-box;
+
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+/* Fokus-Effekt */
+.qg-textanswer input[type="text"]:focus {
+    outline: none;
+    border-color: #333;
+    background: #fff;
+}
+
+.qg-hints {
+    margin-top: 1rem;
+}
+
+.qg-hint-btn {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: 1.1rem;
+    background: #444;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.qg-hint-btn:active {
+    background: #333;
+}
+
+.qg-hint-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.8rem;
+}
+
+.qg-hint-list li {
+    background: #f7f7f7;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.6rem;
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+
+.qg-says {
+    background: #fff;
+    border: 2px solid #333;
+    border-radius: 20px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    position: relative;
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+
+/* Comic-Pfeil */
+.qg-says::after {
+    content: "";
+    position: absolute;
+    bottom: -14px;
+    left: 30px;
+    width: 0;
+    height: 0;
+    border-top: 14px solid #333;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+}
+
+.qg-says::before {
+    content: "";
+    position: absolute;
+    bottom: -12px;
+    left: 30px;
+    width: 0;
+    height: 0;
+    border-top: 12px solid #fff;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+}

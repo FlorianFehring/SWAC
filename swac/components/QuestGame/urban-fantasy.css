@@ -1,0 +1,156 @@
+/* Grundlayout */
+.questgame {
+    max-width: 600px;
+    margin: auto;
+    padding: 1.2rem;
+    font-family: "Merriweather", serif; /* wirkt erzählerischer */
+    background: #1b1b1d;
+    color: #e6e6e6;
+    border-radius: 12px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.4);
+}
+
+/* Header-Bild */
+.qg-header img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.5);
+}
+
+/* Titel */
+.qg-title {
+    text-align: center;
+    margin-top: 0.8rem;
+    font-size: 1.6rem;
+    letter-spacing: 1px;
+    color: #f0e6d2; /* leicht warmes Fantasy-Gold */
+}
+
+/* Text */
+.qg-content {
+    margin-top: 1rem;
+    line-height: 1.6;
+    font-size: 1.1rem;
+}
+
+/* Button */
+.qg-next-btn {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.3rem;
+    background: linear-gradient(135deg, #3a2f4a, #5a3d6d);
+    color: #f7f7f7;
+    border: none;
+    border-radius: 10px;
+    margin-top: 1.2rem;
+    box-shadow: 0 0 12px rgba(90, 61, 109, 0.6);
+    transition: transform 0.1s ease;
+}
+
+.qg-next-btn:active {
+    transform: scale(0.97);
+}
+
+/* Antwortoptionen */
+.qg-choise label {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #e6e6e6;
+    backdrop-filter: blur(4px);
+}
+
+/* Textantwort */
+.qg-textanswer input[type="text"] {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #f0e6d2;
+}
+
+/* Hinweise */
+.qg-hint-btn {
+    background: #5a3d6d;
+    border-radius: 10px;
+}
+
+.qg-hint-list li {
+    background: #262629;
+    border: 2px solid #444;
+    border-radius: 25px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1rem;
+    color: #e6e6e6;
+    position: relative;
+    box-shadow: 0 0 12px rgba(255,255,255,0.08);
+}
+
+/* Gedankenblasen-Kreise */
+.qg-hint-list li::before,
+.qg-hint-list li::after {
+    content: "";
+    position: absolute;
+    background: #262629;
+    border: 2px solid #444;
+    border-radius: 50%;
+}
+
+.qg-hint-list li::before {
+    width: 18px;
+    height: 18px;
+    bottom: -12px;
+    left: 30px;
+}
+
+.qg-hint-list li::after {
+    width: 12px;
+    height: 12px;
+    bottom: -24px;
+    left: 20px;
+}
+
+/* Sprechblase */
+.qg-says {
+    background: #262629;
+    border: 2px solid #5a3d6d;
+    border-radius: 20px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    position: relative;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    color: #f0e6d2;
+    box-shadow: 0 0 15px rgba(90, 61, 109, 0.4);
+}
+
+/* Pfeil */
+.qg-says::after {
+    content: "";
+    position: absolute;
+    bottom: -18px;
+    left: 40px;
+    border-width: 18px 18px 0 18px;
+    border-style: solid;
+    border-color: #5a3d6d transparent transparent transparent;
+}
+
+.qg-says::before {
+    content: "";
+    position: absolute;
+    bottom: -16px;
+    left: 40px;
+    border-width: 16px 16px 0 16px;
+    border-style: solid;
+    border-color: #262629 transparent transparent transparent;
+}
+
+
+.qg-repeat_for_answer-option {
+    display: none;
+}
+
+.qg-choise ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
