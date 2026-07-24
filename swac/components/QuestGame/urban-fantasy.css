@@ -63,6 +63,9 @@
 
 /* Textantwort */
 .qg-textanswer input[type="text"] {
+    width: 90%;
+    padding: 1rem;
+    font-size: 1.3rem;
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.2);
     color: #f0e6d2;
@@ -70,6 +73,10 @@
 
 /* Hinweise */
 .qg-hint-btn {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1.0rem;
+    color: #e6e6e6;
     background: #5a3d6d;
     border-radius: 10px;
 }
