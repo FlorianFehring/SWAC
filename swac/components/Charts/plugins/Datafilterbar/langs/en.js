@@ -1,0 +1,27 @@
+var Charts_Datafilterbar_en = {
+    menu: 'Filter and settings',
+    availrange: 'Available time range',
+    filters: 'Filters',
+    timerange: 'Time range',
+    value: 'Value',
+    attr: 'Attribute',
+    apply: 'Apply',
+    reset: 'Reset',
+    aggregation: 'Aggregation',
+    unit_seconds: 'Seconds',
+    unit_minutes: 'Minutes',
+    unit_hours: 'Hours',
+    unit_days: 'Days',
+    series: 'Data series',
+    computed: 'Computed column',
+    addcolumn: 'Add column',
+    datasource: 'Datasource',
+    loadsource: 'Load',
+    removesource: 'Remove',
+    settings: 'Settings',
+    exportbtn: 'Export',
+    importbtn: 'Import',
+    requestor: 'Resulting dataRequestor',
+    renameprompt: 'New column name'
+};
+export default Charts_Datafilterbar_en;

@@ -52,9 +52,7 @@ export default class DataManagerSPL extends Plugin {
             example: ['id', 'synced']
         };
         if (!opts.excludeAttrs)
-            this.options.excludeAttrs = ['id', 'synced', 'pos', 'pos_accuracy', 'pos_altitude',
-                'pos_altitude_accuracy', 'pos_heading', 'pos_speed', 'measurement_process',
-                'measurement_name'];
+            this.options.excludeAttrs = ['id'];
 
         this.desc.opts[2] = {
             name: 'chartPlugin',
@@ -72,6 +70,9 @@ export default class DataManagerSPL extends Plugin {
         this.initialised = false;       // bar built and defaults set
         this.bar = null;                // the settings bar dom element
         this.filterPredicate = null;    // optional external filter for drawn sets
+        this.displaySets = null;        // optional external sets to draw instead of allSets
+        this.displayNames = {};         // attribute name -> display name (renames)
+        this.mutedHooks = null;         // stored drawing plugin hooks while muted
     }
 
     init() {
@@ -92,6 +93,9 @@ export default class DataManagerSPL extends Plugin {
      * @returns {undefined}
      */
     afterAddSet(set, repeateds) {
+        // Ignore transformed sets created by the Datafilterbar plugin
+        if (set.swac_datafilterbar_artificial)
+            return;
         // Collect the set for later redraw
         this.allSets.push(set);
 
@@ -101,7 +105,7 @@ export default class DataManagerSPL extends Plugin {
                 continue;
             if (this.options.excludeAttrs.includes(curAttr))
                 continue;
-            if (typeof set[curAttr] !== 'number')
+            if (!this.isNumericValue(set[curAttr]))
                 continue;
             this.knownAttrs.add(curAttr);
         }
@@ -173,6 +177,18 @@ export default class DataManagerSPL extends Plugin {
         chartReq.insertBefore(bar, chartReq.firstChild);
         this.bar = bar;
 
+        // Build the language prefix the same way SWAC does: the component name
+        // with /plugins/ removed and / replaced by _ (e.g. Charts_DataManager).
+        // The bar html uses the short id 'DataManager.key', here it is expanded
+        // to the full key so the translation is found.
+        let langPrefix = this.name.replace('/plugins/', '/').replace('/', '_');
+        let langElems = bar.querySelectorAll('[swac_lang]');
+        for (let curElem of langElems) {
+            let key = curElem.getAttribute('swac_lang');
+            if (key.startsWith('DataManager.'))
+                curElem.setAttribute('swac_lang', langPrefix + '.' + key.substring('DataManager.'.length));
+        }
+
         // Translate the inserted bar
         SWAC.lang.translateAll(bar);
     }
@@ -226,7 +242,7 @@ export default class DataManagerSPL extends Plugin {
             let li = document.createElement('li');
             let a = document.createElement('a');
             a.href = '#';
-            a.textContent = curAttr;
+            a.textContent = this.displayName(curAttr);
             a.addEventListener('click', function (evt) {
                 evt.preventDefault();
                 thisRef.activateAttr(curAttr);
@@ -239,9 +255,11 @@ export default class DataManagerSPL extends Plugin {
         if (list.children.length === 0) {
             let li = document.createElement('li');
             li.classList.add('uk-nav-header');
-            li.setAttribute('swac_lang', 'DataManager.allactive');
+            let langPrefix = this.name.replace('/plugins/', '/').replace('/', '_');
+            li.setAttribute('swac_lang', langPrefix + '.allactive');
             li.textContent = 'All series shown';
             list.appendChild(li);
+            SWAC.lang.translateAll(list);
         }
     }
 
@@ -322,7 +340,7 @@ export default class DataManagerSPL extends Plugin {
 
         // Label
         let label = document.createElement('span');
-        label.textContent = attr;
+        label.textContent = this.displayName(attr);
         label.style.fontSize = '0.85rem';
 
         // Remove button
@@ -371,11 +389,10 @@ export default class DataManagerSPL extends Plugin {
             return;
         }
 
-        // Remove the existing chart
-        if (chartPlugin.chart) {
-            chartPlugin.chart.destroy();
-            chartPlugin.chart = null;
-        }
+        // Reactivate the drawing plugin in case it was muted and remove the
+        // existing chart completely before redrawing
+        this.unmuteChartPlugin();
+        this.clearChart(chartPlugin);
 
         // Nothing to draw when no attribute is active
         if (this.activeAttrs.length === 0)
@@ -386,10 +403,15 @@ export default class DataManagerSPL extends Plugin {
         // the right order (avoids lines crossing the diagram)
         let xAttr = comp.options.xAxisAttrName;
         let drawSets = [];
-        for (let curSet of this.allSets) {
-            if (this.filterPredicate && !this.filterPredicate(curSet))
-                continue;
-            drawSets.push(curSet);
+        if (this.displaySets) {
+            // Draw externally provided sets (filtered/transformed elsewhere)
+            drawSets = this.displaySets.slice();
+        } else {
+            for (let curSet of this.allSets) {
+                if (this.filterPredicate && !this.filterPredicate(curSet))
+                    continue;
+                drawSets.push(curSet);
+            }
         }
         drawSets.sort(function (a, b) {
             let av = a[xAttr];
@@ -411,6 +433,71 @@ export default class DataManagerSPL extends Plugin {
                 chartPlugin.afterAddSet(curSet, []);
             }
         }
+
+        // Apply display names to legend and axis titles
+        this.patchDatasetLabels();
+    }
+
+    /**
+     * Sets display names (renames) for attributes. They are used in the tags,
+     * the dropdown, the chart legend and the axis titles, the data itself is
+     * not changed.
+     *
+     * @param {Object|null} names Map attribute name to display name
+     * @returns {undefined}
+     */
+    setDisplayNames(names) {
+        this.displayNames = names || {};
+        this.refreshAttrDropdown();
+        this.refreshTags();
+        this.patchDatasetLabels();
+    }
+
+    /**
+     * Returns the display name of an attribute.
+     *
+     * @param {String} attr Attribute name
+     * @returns {String} Display name
+     */
+    displayName(attr) {
+        return this.displayNames[attr] || attr;
+    }
+
+    /**
+     * Replaces attribute names in the chart legend and the axis titles by
+     * their display names.
+     *
+     * @returns {undefined}
+     */
+    patchDatasetLabels() {
+        let chartPlugin = this.getChartPlugin();
+        if (!chartPlugin || !chartPlugin.chart)
+            return;
+        let changed = false;
+        for (let oldName in this.displayNames) {
+            let newName = this.displayNames[oldName];
+            // Legend entries end with _attribute
+            let suffix = '_' + oldName;
+            for (let curDs of chartPlugin.chart.data.datasets) {
+                if (curDs.label && curDs.label.endsWith(suffix)) {
+                    curDs.label = curDs.label.substring(0, curDs.label.length - suffix.length) + '_' + newName;
+                    changed = true;
+                }
+            }
+            // Axis titles
+            let scales = chartPlugin.chart.options.scales || {};
+            let yScale = scales['y_' + oldName];
+            if (yScale && yScale.title && yScale.title.text === oldName) {
+                yScale.title.text = newName;
+                changed = true;
+            }
+            if (scales.x && scales.x.title && scales.x.title.text === oldName) {
+                scales.x.title.text = newName;
+                changed = true;
+            }
+        }
+        if (changed)
+            chartPlugin.chart.update('none');
     }
 
     /**
@@ -423,6 +510,131 @@ export default class DataManagerSPL extends Plugin {
      */
     setFilterPredicate(predicate) {
         this.filterPredicate = predicate;
+        this.rebuildChart();
+    }
+
+    /**
+     * Removes the existing chart completely: destroys the chart.js instance,
+     * resets the axis definitions the drawing plugin collected (otherwise axes
+     * of removed series stay visible) and replaces the canvas by a fresh one
+     * (a reused canvas keeps a broken size after destroy and the chart ends up
+     * tiny in a corner).
+     *
+     * @param {Plugin} chartPlugin The chart drawing plugin
+     * @returns {undefined}
+     */
+    clearChart(chartPlugin) {
+        if (!chartPlugin)
+            return;
+        if (chartPlugin.chart) {
+            chartPlugin.chart.destroy();
+            chartPlugin.chart = null;
+        }
+        if (chartPlugin.options && chartPlugin.options.scales)
+            chartPlugin.options.scales = {};
+        if (chartPlugin.contElements && chartPlugin.contElements[0]) {
+            let oldCanvas = chartPlugin.contElements[0].querySelector('canvas');
+            if (oldCanvas) {
+                let freshCanvas = document.createElement('canvas');
+                oldCanvas.replaceWith(freshCanvas);
+            }
+        }
+    }
+
+    /**
+     * Prepares a rebuild triggered by an external plugin (Datafilterbar).
+     * The chart is cleared and the drawing plugin is muted: its per set hooks
+     * are replaced by empty functions, because every single change on another
+     * component with the same datasource would otherwise trigger a full chart
+     * update per set through the shared datastore, which freezes the browser
+     * on hundreds of sets. rebuildChart restores the hooks and draws once.
+     *
+     * @returns {undefined}
+     */
+    prepareRebuild() {
+        let chartPlugin = this.getChartPlugin();
+        if (!chartPlugin)
+            return;
+        this.clearChart(chartPlugin);
+        if (!this.mutedHooks) {
+            this.mutedHooks = {
+                afterAddSet: chartPlugin.afterAddSet,
+                afterRemoveSet: chartPlugin.afterRemoveSet
+            };
+            chartPlugin.afterAddSet = function () {};
+            chartPlugin.afterRemoveSet = function () {};
+        }
+    }
+
+    /**
+     * Restores the muted hooks of the drawing plugin.
+     *
+     * @returns {undefined}
+     */
+    unmuteChartPlugin() {
+        if (!this.mutedHooks)
+            return;
+        let chartPlugin = this.getChartPlugin();
+        if (chartPlugin) {
+            chartPlugin.afterAddSet = this.mutedHooks.afterAddSet;
+            chartPlugin.afterRemoveSet = this.mutedHooks.afterRemoveSet;
+        }
+        this.mutedHooks = null;
+    }
+
+    /**
+     * Sets external display sets that are drawn instead of the collected sets,
+     * used by the Datafilterbar plugin for aggregated, renamed or replaced
+     * data. Attribute renames are applied to the active series and the x axis,
+     * the series selection is rebuilt from the given sets. Pass null to return
+     * to the own collected sets.
+     *
+     * @param {Array|null} sets Sets to draw, or null
+     * @param {Object|null} renameMap Map old attribute name to new name
+     * @returns {undefined}
+     */
+    setDisplaySets(sets, renameMap) {
+        let comp = this.requestor.parent.swac_comp;
+        this.displaySets = sets;
+        if (sets && renameMap) {
+            // Follow renames in the active series, their colors and the x axis
+            this.activeAttrs = this.activeAttrs.map(a => renameMap[a] || a);
+            for (let oldName in renameMap) {
+                if (this.attrColors[oldName]) {
+                    this.attrColors[renameMap[oldName]] = this.attrColors[oldName];
+                    delete this.attrColors[oldName];
+                }
+            }
+            if (renameMap[comp.options.xAxisAttrName])
+                comp.options.xAxisAttrName = renameMap[comp.options.xAxisAttrName];
+        }
+        if (sets) {
+            // Rebuild the known attributes from the display sets
+            this.knownAttrs = new Set();
+            for (let curSet of sets) {
+                for (let curAttr in curSet) {
+                    if (curAttr.startsWith('swac_'))
+                        continue;
+                    if (this.options.excludeAttrs.includes(curAttr))
+                        continue;
+                    if (this.isNumericValue(curSet[curAttr]))
+                        this.knownAttrs.add(curAttr);
+                }
+            }
+            // Drop active series that no longer exist
+            this.activeAttrs = this.activeAttrs.filter(a => this.knownAttrs.has(a));
+            if (this.activeAttrs.length === 0 && sets.length > 0) {
+                let first = this.firstNumericAttr(sets[0]);
+                if (first)
+                    this.activeAttrs.push(first);
+            }
+            for (let curAttr of this.activeAttrs) {
+                if (!this.attrColors[curAttr])
+                    this.attrColors[curAttr] = this.generateColor(this.activeAttrs.indexOf(curAttr));
+            }
+        }
+        this.refreshAttrDropdown();
+        this.refreshTags();
         this.rebuildChart();
     }
 
@@ -453,10 +665,50 @@ export default class DataManagerSPL extends Plugin {
                 continue;
             if (this.options.excludeAttrs.includes(curAttr))
                 continue;
-            if (typeof set[curAttr] === 'number')
+            if (this.isNumericValue(set[curAttr]))
                 return curAttr;
         }
         return null;
+    }
+
+    /**
+     * Checks if a value counts as a number for display. Real numbers (int and
+     * double) and numeric strings are accepted. Booleans, dates, timestamps and
+     * other strings are rejected.
+     *
+     * @param {*} val Value to check
+     * @returns {Boolean} True when the value is usable as a number
+     */
+    isNumericValue(val) {
+        if (typeof val === 'number')
+            return isFinite(val);
+        if (typeof val === 'string') {
+            if (val.trim() === '')
+                return false;
+            if (this.looksLikeDate(val))
+                return false;
+            let num = Number(val);
+            return !isNaN(num) && isFinite(num);
+        }
+        return false;
+    }
+
+    /**
+     * Checks if a value looks like a parseable date string.
+     *
+     * @param {*} val Value to check
+     * @returns {Boolean} True when the value parses as a date
+     */
+    looksLikeDate(val) {
+        if (typeof val !== 'string')
+            return false;
+        // Require a real date pattern (ISO or german format) at the start of
+        // the string. A plain parse check is too loose, texts like 'Test 01'
+        // would otherwise be treated as dates by some engines.
+        if (!/^\d{4}-\d{2}-\d{2}/.test(val) && !/^\d{1,2}\.\d{1,2}\.\d{4}/.test(val))
+            return false;
+        let d = new Date(val);
+        return !isNaN(d.valueOf());
     }
 
     /**
