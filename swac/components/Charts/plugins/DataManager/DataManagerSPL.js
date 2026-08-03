@@ -373,15 +373,6 @@ export default class DataManagerSPL extends Plugin {
         // Set the displayed attributes
         comp.options.yAxisAttrNames = this.activeAttrs.slice();
 
-        // Write the colors into sourceColors for every datasource
-        if (!comp.options.sourceColors)
-            comp.options.sourceColors = {};
-        for (let curSource in comp.data) {
-            for (let curAttr of this.activeAttrs) {
-                comp.options.sourceColors[curSource + '_' + curAttr] = this.attrColors[curAttr];
-            }
-        }
-
         // Get the chart drawing plugin
         let chartPlugin = this.getChartPlugin();
         if (!chartPlugin) {
@@ -413,6 +404,7 @@ export default class DataManagerSPL extends Plugin {
                 drawSets.push(curSet);
             }
         }
+        this.updateSourceColors(comp, drawSets);
         drawSets.sort(function (a, b) {
             let av = a[xAttr];
             let bv = b[xAttr];
@@ -436,6 +428,33 @@ export default class DataManagerSPL extends Plugin {
 
         // Apply display names to legend and axis titles
         this.patchDatasetLabels();
+    }
+
+    /**
+     * Writes colors into sourceColors for all sources that are drawn.
+     *
+     * @param {Charts} comp Charts component
+     * @param {Array} drawSets Sets that will be drawn
+     * @returns {undefined}
+     */
+    updateSourceColors(comp, drawSets) {
+        if (!comp.options.sourceColors)
+            comp.options.sourceColors = {};
+        let sources = new Set();
+        for (let curSource in comp.data) {
+            sources.add(curSource);
+        }
+        for (let curSet of drawSets) {
+            if (curSet && curSet.swac_fromName)
+                sources.add(curSet.swac_fromName);
+        }
+        for (let curSource of sources) {
+            for (let curAttr of this.activeAttrs) {
+                if (!this.attrColors[curAttr])
+                    this.attrColors[curAttr] = this.generateColor(this.activeAttrs.indexOf(curAttr));
+                comp.options.sourceColors[curSource + '_' + curAttr] = this.attrColors[curAttr];
+            }
+        }
     }
 
     /**
@@ -625,6 +644,60 @@ export default class DataManagerSPL extends Plugin {
             this.activeAttrs = this.activeAttrs.filter(a => this.knownAttrs.has(a));
             if (this.activeAttrs.length === 0 && sets.length > 0) {
                 let first = this.firstNumericAttr(sets[0]);
+                if (first)
+                    this.activeAttrs.push(first);
+            }
+            for (let curAttr of this.activeAttrs) {
+                if (!this.attrColors[curAttr])
+                    this.attrColors[curAttr] = this.generateColor(this.activeAttrs.indexOf(curAttr));
+            }
+        }
+        this.refreshAttrDropdown();
+        this.refreshTags();
+        this.rebuildChart();
+    }
+
+    /**
+     * Gets the current data series settings.
+     *
+     * @returns {Object} Settings with active attributes and colors
+     */
+    getDisplaySettings() {
+        let colors = {};
+        for (let curAttr in this.attrColors) {
+            colors[curAttr] = this.attrColors[curAttr];
+        }
+        return {
+            activeAttrs: this.activeAttrs.slice(),
+            attrColors: colors
+        };
+    }
+
+    /**
+     * Applies data series settings and redraws the chart.
+     *
+     * @param {Object|null} settings Settings with active attributes and colors
+     * @returns {undefined}
+     */
+    setDisplaySettings(settings) {
+        if (!settings)
+            return;
+        if (settings.attrColors) {
+            for (let curAttr in settings.attrColors) {
+                this.attrColors[curAttr] = settings.attrColors[curAttr];
+            }
+        }
+        if (Array.isArray(settings.activeAttrs)) {
+            let attrs = [];
+            for (let curAttr of settings.activeAttrs) {
+                if (this.knownAttrs.has(curAttr))
+                    attrs.push(curAttr);
+            }
+            this.activeAttrs = attrs;
+            if (this.activeAttrs.length === 0) {
+                let sample = this.displaySets && this.displaySets.length > 0
+                        ? this.displaySets[0] : this.allSets[0];
+                let first = sample ? this.firstNumericAttr(sample) : null;
                 if (first)
                     this.activeAttrs.push(first);
             }

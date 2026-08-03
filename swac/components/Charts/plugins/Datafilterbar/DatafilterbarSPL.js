@@ -1,6 +1,7 @@
 import SWAC from '../../../../swac.js';
 import Msg from '../../../../Msg.js';
 import Plugin from '../../../../Plugin.js';
+import DataSourceAdapter from '../../../../DataSourceAdapter.js';
 
 /**
  * Shared base of the Datafilterbar plugin. Adds a side menu with general data
@@ -68,7 +69,9 @@ export default class DatafilterbarSPL extends Plugin {
         this.aggregation = null;
         this.renames = {};
         this.computedColumns = [];
+        this.seriesSettings = null;
         this.altSource = null;
+        this.datasourceToLoad = null;
         // Attribute detection
         this.knownAttrs = new Set();
         this.allAttrs = new Set();
@@ -262,6 +265,9 @@ export default class DatafilterbarSPL extends Plugin {
         menu.querySelector('.swac_datafilterbar_loadsource').addEventListener('click', function () {
             thisRef.onClickLoadSource();
         });
+        menu.querySelector('.swac_datafilterbar_sourcefile').addEventListener('change', function (evt) {
+            thisRef.onChangeSourceFile(evt);
+        });
         menu.querySelector('.swac_datafilterbar_removesource').addEventListener('click', function () {
             thisRef.onClickRemoveSource();
         });
@@ -341,9 +347,10 @@ export default class DatafilterbarSPL extends Plugin {
                 + '<div class="swac_datafilterbar_computedlist uk-text-small uk-margin-small-top"></div>'
                 + '<hr>'
                 + '<h5 swac_lang="Datafilterbar.datasource">Datasource</h5>'
-                + '<input class="swac_datafilterbar_sourceurl uk-input uk-form-small uk-margin-small-bottom" type="text" placeholder="../../data/mydata.json">'
+                + '<input class="swac_datafilterbar_sourceurl uk-input uk-form-small uk-margin-small-bottom" type="url" placeholder="https://example.org/data.json">'
                 + '<button class="swac_datafilterbar_loadsource uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.loadsource">Load</button> '
                 + '<button class="swac_datafilterbar_removesource uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.removesource">Remove</button>'
+                + '<input class="swac_datafilterbar_sourcefile uk-input uk-form-small uk-margin-small-top" type="file" accept="application/json,.json">'
                 + '<div class="swac_datafilterbar_sourcestate uk-text-small uk-text-muted uk-margin-small-top"></div>'
                 + '<hr>'
                 + '<h5 swac_lang="Datafilterbar.settings">Settings</h5>'
@@ -752,6 +759,11 @@ export default class DatafilterbarSPL extends Plugin {
                     dm.setDisplayNames(this.renames);
                 if (typeof dm.setDisplaySets === 'function') {
                     dm.setDisplaySets(displaySets, null);
+                    if (this.seriesSettings && !this.datasourceToLoad
+                            && typeof dm.setDisplaySettings === 'function') {
+                        dm.setDisplaySettings(this.seriesSettings);
+                        this.seriesSettings = null;
+                    }
                 } else {
                     Msg.warn('Datafilterbar', 'The DataManager plugin is outdated, please update it.', this.requestor);
                     dm.setFilterPredicate(function (set) {
@@ -762,6 +774,7 @@ export default class DatafilterbarSPL extends Plugin {
             }
             this.updateTableHeaders(curTarget.comp);
             this.updateRowVisibility(curTarget.comp);
+            this.updateSourceColumns(curTarget.comp);
             this.updateComputedColumns(curTarget.comp, displaySets);
             this.renderDisplayRows(curTarget.comp, displaySets);
         }
@@ -826,6 +839,8 @@ export default class DatafilterbarSPL extends Plugin {
             tr.className = 'swac_datafilterbar_displayrow';
             tr.removeAttribute('swac_setid');
             tr.removeAttribute('swac_fromname');
+            if (this.altSource)
+                this.prepareSourceDisplayRow(tr, curSet);
             for (let curCell of tr.children) {
                 // Computed cells carry the column name
                 let colName = curCell.getAttribute('swac_datafilterbar_col');
@@ -869,7 +884,7 @@ export default class DatafilterbarSPL extends Plugin {
                 let text = this.columnFilters[curName];
                 if (!text)
                     continue;
-                let td = curRow.querySelector('td[swac_datafilterbar_col="' + curName + '"]');
+                let td = this.findComputedCell(curRow, curName);
                 if (td && !td.textContent.includes(text)) {
                     show = false;
                     break;
@@ -948,8 +963,25 @@ export default class DatafilterbarSPL extends Plugin {
             let name = curHead.getAttribute('swac_datafilterbar_col');
             if (!this.computedColumns.find(c => c.name === name)) {
                 curHead.remove();
-                for (let curCell of req.querySelectorAll('td[swac_datafilterbar_col="' + name + '"]')) {
+                for (let curCell of this.findComputedCells(req, name)) {
                     curCell.remove();
+                }
+            }
+        }
+        for (let curRow of req.querySelectorAll('.swac_repeatedForSet')) {
+            for (let curCell of curRow.querySelectorAll('td[swac_datafilterbar_col]')) {
+                let name = curCell.getAttribute('swac_datafilterbar_col');
+                if (!this.computedColumns.find(c => c.name === name))
+                    curCell.remove();
+            }
+            for (let curCol of this.computedColumns) {
+                let found = false;
+                for (let curCell of this.findComputedCellCandidates(curRow, curCol.name)) {
+                    if (found) {
+                        curCell.remove();
+                        continue;
+                    }
+                    found = true;
                 }
             }
         }
@@ -958,11 +990,14 @@ export default class DatafilterbarSPL extends Plugin {
         // search field like the other columns have
         let thisRef = this;
         for (let curCol of this.computedColumns) {
-            if (!req.querySelector('.swac_datafilterbar_colhead[swac_datafilterbar_col="' + curCol.name + '"]')) {
+            if (!this.findComputedHead(req, curCol.name)) {
                 let th = document.createElement('th');
                 th.classList.add('swac_datafilterbar_colhead');
                 th.setAttribute('swac_datafilterbar_col', curCol.name);
+                th.setAttribute('swac_attrname', curCol.name);
                 let label = document.createElement('span');
+                label.classList.add('swac_datafilterbar_colname');
+                label.setAttribute('swac_datafilterbar_attr', curCol.name);
                 label.textContent = curCol.name;
                 let ren = document.createElement('a');
                 ren.href = '#';
@@ -1011,9 +1046,27 @@ export default class DatafilterbarSPL extends Plugin {
                 th.appendChild(filter);
                 headRow.appendChild(th);
             }
+            let head = this.findComputedHead(req, curCol.name);
+            if (head) {
+                head.setAttribute('swac_attrname', curCol.name);
+                let label = head.querySelector('.swac_datafilterbar_colname');
+                if (!label) {
+                    label = head.querySelector('span');
+                    if (label)
+                        label.classList.add('swac_datafilterbar_colname');
+                }
+                if (label) {
+                    label.setAttribute('swac_datafilterbar_attr', curCol.name);
+                    label.textContent = this.renames[curCol.name] || curCol.name;
+                }
+                let filter = head.querySelector('.swac_datafilterbar_colfilter');
+                if (filter)
+                    filter.value = this.columnFilters[curCol.name] || '';
+            }
         }
         if (this.computedColumns.length === 0)
             return;
+        let headerPositions = this.computedHeaderPositions(headRow);
 
         // Index the source sets for the row matching
         let byKey = new Map();
@@ -1027,12 +1080,15 @@ export default class DatafilterbarSPL extends Plugin {
             let sfn = curRow.getAttribute('swac_fromname');
             let set = byKey.get(sfn + '|' + sid) || byKey.get(sfn + '|' + Number(sid));
             for (let curCol of this.computedColumns) {
-                let td = curRow.querySelector('td[swac_datafilterbar_col="' + curCol.name + '"]');
+                let td = this.findComputedCell(curRow, curCol.name);
                 if (!td) {
-                    td = document.createElement('td');
-                    td.setAttribute('swac_datafilterbar_col', curCol.name);
+                    let valueCells = curRow.querySelectorAll('.swac_repeatedForValue');
+                    let tplCell = valueCells.length > 0 ? valueCells[valueCells.length - 1] : null;
+                    td = tplCell ? tplCell.cloneNode(true) : document.createElement('td');
                     curRow.appendChild(td);
                 }
+                this.prepareComputedCell(td, curCol.name, sfn, sid);
+                this.placeComputedCell(curRow, td, headerPositions[curCol.name]);
                 let val = null;
                 if (set) {
                     val = (set[curCol.name] !== undefined && set[curCol.name] !== null)
@@ -1040,9 +1096,257 @@ export default class DatafilterbarSPL extends Plugin {
                             : this.evaluateFormula(curCol.formula, set);
                 }
                 // Not computable combinations (dates, booleans, texts) show NaN
-                td.textContent = (val === null || val === undefined) ? 'NaN' : val;
+                this.fillComputedCell(td, curCol.name, val);
             }
         }
+    }
+
+    /**
+     * Finds the table header for one computed column.
+     *
+     * @param {HTMLElement} root Search root
+     * @param {String} name Computed column name
+     * @returns {HTMLElement|null} Header element or null
+     */
+    findComputedHead(root, name) {
+        for (let curHead of root.querySelectorAll('.swac_datafilterbar_colhead')) {
+            if (curHead.getAttribute('swac_datafilterbar_col') === name)
+                return curHead;
+        }
+        return null;
+    }
+
+    /**
+     * Finds the table cell for one computed column in a row.
+     *
+     * @param {HTMLElement} row Table row
+     * @param {String} name Computed column name
+     * @returns {HTMLElement|null} Cell element or null
+     */
+    findComputedCell(row, name) {
+        let cells = this.findComputedCellCandidates(row, name);
+        return cells.length > 0 ? cells[0] : null;
+    }
+
+    /**
+     * Finds all candidate cells for one computed column in a row.
+     *
+     * @param {HTMLElement} row Table row
+     * @param {String} name Computed column name
+     * @returns {Array} Candidate cell elements
+     */
+    findComputedCellCandidates(row, name) {
+        let cells = [];
+        for (let curCell of row.querySelectorAll('td')) {
+            if (curCell.getAttribute('swac_datafilterbar_col') === name
+                    || curCell.getAttribute('swac_attrname') === name
+                    || curCell.getAttribute('attrname') === name)
+                cells.push(curCell);
+        }
+        return cells;
+    }
+
+    /**
+     * Finds all table cells for one computed column.
+     *
+     * @param {HTMLElement} root Search root
+     * @param {String} name Computed column name
+     * @returns {Array} Cell elements
+     */
+    findComputedCells(root, name) {
+        let cells = [];
+        for (let curCell of root.querySelectorAll('td[swac_datafilterbar_col]')) {
+            if (curCell.getAttribute('swac_datafilterbar_col') === name)
+                cells.push(curCell);
+        }
+        return cells;
+    }
+
+    /**
+     * Updates table headers for an alternative datasource.
+     *
+     * @param {View} comp Target component
+     * @returns {undefined}
+     */
+    updateSourceColumns(comp) {
+        let req = comp.requestor;
+        if (!this.altSource) {
+            for (let curHead of req.querySelectorAll('.swac_datafilterbar_sourcehead')) {
+                curHead.remove();
+            }
+            for (let curHead of req.querySelectorAll('.swac_repeatedForAttribute')) {
+                curHead.classList.remove('swac_dontdisplay');
+            }
+            return;
+        }
+
+        let firstTh = req.querySelector('th');
+        if (!firstTh)
+            return;
+        let headRow = firstTh.parentNode;
+        let attrs = this.sourceDisplayAttrs();
+        for (let curHead of req.querySelectorAll('.swac_repeatedForAttribute')) {
+            if (!curHead.classList.contains('swac_datafilterbar_sourcehead'))
+                curHead.classList.add('swac_dontdisplay');
+        }
+        for (let curHead of req.querySelectorAll('.swac_datafilterbar_sourcehead')) {
+            let attr = curHead.getAttribute('swac_attrname');
+            if (!attrs.includes(attr))
+                curHead.remove();
+        }
+        let before = headRow.querySelector('.swac_datafilterbar_colhead');
+        for (let curAttr of attrs) {
+            if (headRow.querySelector('.swac_datafilterbar_sourcehead[swac_attrname="' + curAttr + '"]'))
+                continue;
+            let th = document.createElement('th');
+            th.classList.add('swac_repeatedForAttribute', 'swac_datafilterbar_sourcehead');
+            th.setAttribute('swac_attrname', curAttr);
+            th.textContent = this.renames[curAttr] || curAttr;
+            if (before)
+                headRow.insertBefore(th, before);
+            else
+                headRow.appendChild(th);
+        }
+    }
+
+    /**
+     * Gets attributes to show for the alternative datasource.
+     *
+     * @returns {Array} Attribute names
+     */
+    sourceDisplayAttrs() {
+        let attrs = [];
+        for (let curAttr of this.allAttrs) {
+            if (curAttr.startsWith('swac_'))
+                continue;
+            attrs.push(curAttr);
+        }
+        return attrs;
+    }
+
+    /**
+     * Prepares a display row for an alternative datasource.
+     *
+     * @param {HTMLElement} row Display row
+     * @param {Object} set Dataset
+     * @returns {undefined}
+     */
+    prepareSourceDisplayRow(row, set) {
+        for (let curCell of Array.from(row.children)) {
+            if (curCell.classList.contains('swac_repeatedForValue')
+                    && !curCell.getAttribute('swac_datafilterbar_col')) {
+                curCell.remove();
+            }
+        }
+        let before = row.querySelector('td[swac_datafilterbar_col]');
+        for (let curAttr of this.sourceDisplayAttrs()) {
+            let td = document.createElement('td');
+            td.classList.add('swac_repeatedForValue', 'swac_datafilterbar_sourcecell');
+            td.setAttribute('swac_attrname', curAttr);
+            td.setAttribute('attrname', curAttr);
+            let val = set[curAttr];
+            td.textContent = (val === null || val === undefined) ? 'NaN' : val;
+            if (before)
+                row.insertBefore(td, before);
+            else
+                row.appendChild(td);
+        }
+    }
+
+    /**
+     * Gets visible table cells of a row, ignoring SWAC template cells.
+     *
+     * @param {HTMLElement} row Table row
+     * @returns {Array} Visible table cells
+     */
+    visibleTableCells(row) {
+        let cells = [];
+        for (let curCell of row.children) {
+            if (curCell.nodeName !== 'TD' && curCell.nodeName !== 'TH')
+                continue;
+            if (curCell.classList.contains('swac_repeatForValue')
+                    || curCell.classList.contains('swac_repeatForAttribute'))
+                continue;
+            if (curCell.classList.contains('swac_dontdisplay'))
+                continue;
+            if (curCell.style && curCell.style.display === 'none')
+                continue;
+            cells.push(curCell);
+        }
+        return cells;
+    }
+
+    /**
+     * Gets visible header positions for computed columns.
+     *
+     * @param {HTMLElement} headRow Header row
+     * @returns {Object} Column name to visible position
+     */
+    computedHeaderPositions(headRow) {
+        let positions = {};
+        let headers = this.visibleTableCells(headRow);
+        for (let curCol of this.computedColumns) {
+            let head = this.findComputedHead(headRow, curCol.name);
+            positions[curCol.name] = headers.indexOf(head);
+        }
+        return positions;
+    }
+
+    /**
+     * Places a computed cell at the same visible position as its header.
+     *
+     * @param {HTMLElement} row Table row
+     * @param {HTMLElement} cell Computed cell
+     * @param {Number} visibleIndex Visible header index
+     * @returns {undefined}
+     */
+    placeComputedCell(row, cell, visibleIndex) {
+        if (visibleIndex < 0)
+            return;
+        let cells = this.visibleTableCells(row).filter(curCell => curCell !== cell);
+        let before = cells[visibleIndex] || null;
+        if (before)
+            row.insertBefore(cell, before);
+        else
+            row.appendChild(cell);
+    }
+
+    /**
+     * Prepares a cell for a computed column.
+     *
+     * @param {HTMLElement} cell Table cell
+     * @param {String} attr Attribute name
+     * @param {String} sourceName Source name
+     * @param {String} setId Set id
+     * @returns {undefined}
+     */
+    prepareComputedCell(cell, attr, sourceName, setId) {
+        cell.classList.remove('swac_repeatForValue');
+        cell.classList.add('swac_repeatedForValue');
+        cell.setAttribute('swac_fromname', sourceName);
+        cell.setAttribute('swac_setid', setId);
+        cell.setAttribute('swac_datafilterbar_col', attr);
+        cell.setAttribute('swac_attrname', attr);
+        cell.setAttribute('attrname', attr);
+    }
+
+    /**
+     * Fills a computed table cell while keeping its layout structure.
+     *
+     * @param {HTMLElement} cell Table cell
+     * @param {String} attr Attribute name
+     * @param {*} val Computed value
+     * @returns {undefined}
+     */
+    fillComputedCell(cell, attr, val) {
+        let text = (val === null || val === undefined) ? 'NaN' : val;
+        let tooltip = cell.querySelector('[uk-tooltip]');
+        if (tooltip) {
+            tooltip.setAttribute('uk-tooltip', 'title: ' + attr);
+            tooltip.textContent = text;
+            return;
+        }
+        cell.textContent = text;
     }
 
     /**
@@ -1137,6 +1441,21 @@ export default class DatafilterbarSPL extends Plugin {
             // No translation available, use the fallback
         }
         return fallback;
+    }
+
+    /**
+     * Gets the current chart series settings.
+     *
+     * @returns {Object|null} Series settings or null
+     */
+    getSeriesSettings() {
+        if (this.seriesSettings)
+            return this.seriesSettings;
+        for (let curTarget of this.findTargets()) {
+            if (curTarget.dataManager && typeof curTarget.dataManager.getDisplaySettings === 'function')
+                return curTarget.dataManager.getDisplaySettings();
+        }
+        return null;
     }
 
     /**
@@ -1307,35 +1626,209 @@ export default class DatafilterbarSPL extends Plugin {
     }
 
     /**
+     * Builds a short status text for a loaded datasource.
+     *
+     * @param {String} url Datasource url
+     * @param {Number} count Number of loaded sets
+     * @param {Object|null} adapter Adapter result
+     * @returns {String} Status text
+     */
+    buildSourceStateText(url, count, adapter) {
+        let text = url + ' (' + count + ')';
+        if (adapter && adapter.rowPath)
+            text += ' adapted from ' + adapter.rowPath;
+        if (adapter && adapter.timeAttr)
+            text += ', time: ' + adapter.timeAttr;
+        if (adapter && adapter.numericAttrs && adapter.numericAttrs.length > 0)
+            text += ', numeric: ' + adapter.numericAttrs.length;
+        if (adapter && adapter.warnings && adapter.warnings.length > 0)
+            text += ', ' + adapter.warnings.join(', ');
+        return text;
+    }
+
+    /**
+     * Normalizes an external datasource link.
+     *
+     * @param {String} link External datasource link
+     * @returns {String|null} Normalized link or null
+     */
+    normalizeSourceLink(link) {
+        let source = (link || '').trim();
+        let parsed;
+        try {
+            parsed = new URL(source);
+        } catch (e) {
+            return null;
+        }
+        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')
+            return null;
+        return this.normalizeSharedFileLink(parsed);
+    }
+
+    /**
+     * Converts known shared file links into direct download links.
+     *
+     * @param {URL} parsed Parsed source link
+     * @returns {String} Normalized source link
+     */
+    normalizeSharedFileLink(parsed) {
+        if (parsed.hostname === 'drive.google.com') {
+            let id = parsed.searchParams.get('id');
+            let match = parsed.pathname.match(/\/file\/d\/([^\/]+)/);
+            if (!id && match)
+                id = match[1];
+            if (id)
+                return 'https://drive.google.com/uc?export=download&id='
+                        + encodeURIComponent(id);
+        }
+        return parsed.href;
+    }
+
+    /**
+     * Loads json from an external link without SWAC backend request headers.
+     *
+     * @param {String} url Json source url
+     * @returns {Promise} Promise with parsed json
+     */
+    loadExternalJson(url) {
+        return fetch(url, {
+            method: 'GET',
+            cache: 'no-cache',
+            credentials: 'omit',
+            headers: {
+                'Accept': 'application/json, text/plain;q=0.9, */*;q=0.8'
+            }
+        }).then(function (res) {
+            if (!res.ok)
+                throw new Error('HTTP status ' + res.status);
+            return res.text();
+        }).then(function (txt) {
+            let jsonText = txt.trim().replace(/^\uFEFF/, '');
+            try {
+                return JSON.parse(jsonText);
+            } catch (e) {
+                let firstObject = jsonText.indexOf('{');
+                let firstArray = jsonText.indexOf('[');
+                let start = firstObject >= 0 && (firstArray < 0 || firstObject < firstArray)
+                        ? firstObject : firstArray;
+                let endObject = jsonText.lastIndexOf('}');
+                let endArray = jsonText.lastIndexOf(']');
+                let end = endObject > endArray ? endObject : endArray;
+                if (start >= 0 && end > start)
+                    return JSON.parse(jsonText.substring(start, end + 1));
+                throw new Error('Response is no valid json.');
+            }
+        });
+    }
+
+    /**
+     * Applies loaded sets as alternative datasource.
+     *
+     * @param {String} sourceName Source name
+     * @param {Array} sets Loaded sets
+     * @param {Object|null} adapter Adapter result
+     * @param {Boolean} saveable True if the source can be loaded again
+     * @returns {Boolean} True if the source was applied
+     */
+    applyAlternativeSource(sourceName, sets, adapter, saveable) {
+        if ((adapter && !adapter.usable) || sets.length === 0) {
+            this.altSource = null;
+            this.datasourceToLoad = null;
+            this.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
+                    = 'JSON not suitable';
+            Msg.warn('Datafilterbar', adapter && adapter.reason
+                    ? adapter.reason : 'JSON not suitable.', this.requestor);
+            return false;
+        }
+        for (let curSet of sets) {
+            if (!curSet.swac_fromName)
+                curSet.swac_fromName = sourceName;
+        }
+        this.altSource = {
+            url: sourceName,
+            sets: sets,
+            adapter: adapter,
+            local: !saveable
+        };
+        this.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
+                = this.buildSourceStateText(sourceName, sets.length, adapter);
+        this.redetectAttributes();
+        this.chooseTimeAttr();
+        this.updateTimeBlockVisibility();
+        this.refreshAttrOptions();
+        this.updateAvailableRange();
+        this.datasourceToLoad = null;
+        if (saveable)
+            this.saveSettings();
+        this.updateRequestorDisplay();
+        this.applyAll();
+        return true;
+    }
+
+    /**
      * Loads an alternative datasource that replaces the shown data (#64)
      *
      * @returns {undefined}
      */
     onClickLoadSource() {
         let thisRef = this;
-        let url = this.menu.querySelector('.swac_datafilterbar_sourceurl').value.trim();
-        if (!url)
+        let input = this.menu.querySelector('.swac_datafilterbar_sourceurl');
+        let url = this.normalizeSourceLink(input.value);
+        if (!input.value.trim())
             return;
-        window.swac.Model.load({fromName: url}).then(function (res) {
-            let sets = [];
-            for (let curSet of res) {
-                if (curSet)
-                    sets.push(curSet);
-            }
-            thisRef.altSource = {url: url, sets: sets};
-            thisRef.menu.querySelector('.swac_datafilterbar_sourcestate').textContent = url + ' (' + sets.length + ')';
-            thisRef.redetectAttributes();
-            thisRef.chooseTimeAttr();
-            thisRef.updateTimeBlockVisibility();
-            thisRef.refreshAttrOptions();
-            thisRef.updateAvailableRange();
-            thisRef.saveSettings();
-            thisRef.updateRequestorDisplay();
-            thisRef.applyAll();
+        if (!url) {
+            this.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
+                    = 'Please enter an http or https link.';
+            Msg.warn('Datafilterbar', 'Datasource must be an http or https link.', this.requestor);
+            return;
+        }
+        input.value = url;
+        this.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
+                = 'Loading: ' + url;
+        this.loadExternalJson(url).then(function (json) {
+            let adapter = DataSourceAdapter.adaptCapsule({data: json, fromName: url});
+            let sets = adapter.sets || [];
+            thisRef.applyAlternativeSource(url, sets, adapter, true);
         }).catch(function (err) {
-            Msg.error('Datafilterbar', 'Could not load datasource >' + url + '<: ' + err, thisRef.requestor);
-            thisRef.menu.querySelector('.swac_datafilterbar_sourcestate').textContent = 'Error: ' + url;
+            thisRef.datasourceToLoad = null;
+            let message = err && err.message ? err.message : err;
+            Msg.error('Datafilterbar', 'Could not load datasource >' + url + '<: ' + message, thisRef.requestor);
+            thisRef.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
+                    = 'Error: ' + message;
         });
+    }
+
+    /**
+     * Loads an alternative datasource from a local json file.
+     *
+     * @param {Event} evt Change event
+     * @returns {undefined}
+     */
+    onChangeSourceFile(evt) {
+        let thisRef = this;
+        let file = evt.target.files && evt.target.files.length > 0
+                ? evt.target.files[0] : null;
+        if (!file)
+            return;
+        let reader = new FileReader();
+        reader.onload = function () {
+            let json;
+            try {
+                json = JSON.parse(reader.result);
+            } catch (e) {
+                Msg.error('Datafilterbar', 'Selected file is no valid json.', thisRef.requestor);
+                thisRef.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
+                        = 'JSON not suitable';
+                return;
+            }
+            let sourceName = 'localfile:' + file.name;
+            let adapter = DataSourceAdapter.adaptCapsule({data: json, fromName: sourceName});
+            thisRef.applyAlternativeSource(sourceName, adapter.sets, adapter, false);
+        };
+        reader.onerror = function () {
+            Msg.error('Datafilterbar', 'Could not read selected file.', thisRef.requestor);
+        };
+        reader.readAsText(file);
     }
 
     /**
@@ -1345,8 +1838,10 @@ export default class DatafilterbarSPL extends Plugin {
      */
     onClickRemoveSource() {
         this.altSource = null;
+        this.datasourceToLoad = null;
         this.menu.querySelector('.swac_datafilterbar_sourcestate').textContent = '';
         this.menu.querySelector('.swac_datafilterbar_sourceurl').value = '';
+        this.menu.querySelector('.swac_datafilterbar_sourcefile').value = '';
         this.redetectAttributes();
         this.chooseTimeAttr();
         this.updateTimeBlockVisibility();
@@ -1386,6 +1881,10 @@ export default class DatafilterbarSPL extends Plugin {
         this.fillInputsFromState();
         this.refreshComputedList();
         this.updateRequestorDisplay();
+        if (this.datasourceToLoad) {
+            this.onClickLoadSource();
+            return;
+        }
         this.applyAll();
     }
 
@@ -1402,7 +1901,10 @@ export default class DatafilterbarSPL extends Plugin {
             aggregation: this.aggregation,
             renames: this.renames,
             computedColumns: this.computedColumns,
-            datasource: this.altSource ? this.altSource.url : null
+            columnFilters: this.columnFilters,
+            series: this.getSeriesSettings(),
+            datasource: this.altSource && !this.altSource.local
+                    ? this.altSource.url : this.datasourceToLoad
         };
     }
 
@@ -1419,9 +1921,17 @@ export default class DatafilterbarSPL extends Plugin {
         this.aggregation = obj.aggregation || null;
         this.renames = obj.renames || {};
         this.computedColumns = obj.computedColumns || [];
+        this.columnFilters = obj.columnFilters || {};
+        this.seriesSettings = obj.series || null;
         if (obj.datasource) {
+            this.altSource = null;
+            this.datasourceToLoad = obj.datasource;
             this.menu.querySelector('.swac_datafilterbar_sourceurl').value = obj.datasource;
-            this.onClickLoadSource();
+        } else {
+            this.altSource = null;
+            this.datasourceToLoad = null;
+            this.menu.querySelector('.swac_datafilterbar_sourceurl').value = '';
+            this.menu.querySelector('.swac_datafilterbar_sourcestate').textContent = '';
         }
     }
 
@@ -1431,18 +1941,25 @@ export default class DatafilterbarSPL extends Plugin {
      * @returns {undefined}
      */
     fillInputsFromState() {
-        if (this.fromFilter)
-            this.menu.querySelector('.swac_datafilterbar_from').value = this.toInputValue(this.fromFilter);
-        if (this.toFilter)
-            this.menu.querySelector('.swac_datafilterbar_to').value = this.toInputValue(this.toFilter);
+        this.menu.querySelector('.swac_datafilterbar_from').value
+                = this.fromFilter ? this.toInputValue(this.fromFilter) : '';
+        this.menu.querySelector('.swac_datafilterbar_to').value
+                = this.toFilter ? this.toInputValue(this.toFilter) : '';
         if (this.valueFilter) {
             this.menu.querySelector('.swac_datafilterbar_attr').value = this.valueFilter.attr;
             this.menu.querySelector('.swac_datafilterbar_op').value = this.valueFilter.op;
             this.menu.querySelector('.swac_datafilterbar_val').value = this.valueFilter.val;
+        } else {
+            this.menu.querySelector('.swac_datafilterbar_attr').value = '';
+            this.menu.querySelector('.swac_datafilterbar_op').value = 'gt';
+            this.menu.querySelector('.swac_datafilterbar_val').value = '';
         }
         if (this.aggregation) {
             this.menu.querySelector('.swac_datafilterbar_aggamount').value = this.aggregation.amount;
             this.menu.querySelector('.swac_datafilterbar_aggunit').value = this.aggregation.unit;
+        } else {
+            this.menu.querySelector('.swac_datafilterbar_aggamount').value = '';
+            this.menu.querySelector('.swac_datafilterbar_aggunit').value = 'minutes';
         }
     }
 
@@ -1534,7 +2051,12 @@ export default class DatafilterbarSPL extends Plugin {
             obj.computedColumns = global.computedColumns || [];
         }
         this.settingsFromObject(obj);
+        if (obj.datasource)
+            this.seriesSettings = null;
         this.fillInputsFromState();
+        this.datasourceToLoad = null;
+        this.menu.querySelector('.swac_datafilterbar_sourceurl').value = '';
+        this.menu.querySelector('.swac_datafilterbar_sourcestate').textContent = '';
     }
 
     /**

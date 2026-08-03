@@ -3,6 +3,7 @@ import Msg from './Msg.js';
 import Remote from './Remote.js';
 import WatchableSet from './WatchableSet.js';
 import WatchableSource from './WatchableSource.js';
+import DataSourceAdapter from './DataSourceAdapter.js';
 
 export default class Model {
 
@@ -59,6 +60,10 @@ export default class Model {
                     }
                     dataRequest.requestId += curWhere + '=' + dataRequest.fromWheres[curWhere];
                 }
+            }
+            if (dataRequest.autoAdaptJson) {
+                dataRequest.storeId += 'autoAdaptJson=true';
+                dataRequest.requestId += 'autoAdaptJson=true';
             }
 
             // Calculate fromWheres for lazy loading
@@ -255,6 +260,20 @@ export default class Model {
      * @returns {WatchableSet[]} Array of WatchableSets
      */
     static convertData(dataCapsule, dataRequest, comp) {
+
+        if (dataRequest.autoAdaptJson) {
+            let adapted = DataSourceAdapter.adaptCapsule(dataCapsule, dataRequest);
+            dataRequest.swac_dataAdapter = adapted;
+            if (!adapted.usable) {
+                Msg.warn('Model', adapted.reason || 'Json not suitable.', comp);
+                return [];
+            }
+            dataCapsule = {
+                data: adapted.sets,
+                fromName: dataCapsule.fromName,
+                fromWheres: dataCapsule.fromWheres
+            };
+        }
 
         // ------------------------------------------------------------
         // 1) INPUT NORMALISIEREN
