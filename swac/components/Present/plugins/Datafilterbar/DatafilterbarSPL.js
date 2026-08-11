@@ -4,6 +4,7 @@ import Plugin from '../../../../Plugin.js';
 import AIDataSourceAdapter from '../../../../AIDataSourceAdapter.js?ver=07.08.2026.3';
 import ExternalDataSource from '../../../../ExternalDataSource.js?ver=07.08.2026.3';
 import DataAggregation from '../../../../DataAggregation.js';
+import MathJsonFormula from '../../../../MathJsonFormula.js';
 import TableExport from '../../../../TableExport.js?ver=08.08.2026.6';
 import TextTransfer from '../../../../TextTransfer.js?ver=10.08.2026.1';
 
@@ -67,6 +68,14 @@ export default class DatafilterbarSPL extends Plugin {
         if (!opts.filterTarget)
             this.options.filterTarget = 'both';
 
+        this.desc.opts[6] = {
+            name: 'enableMathlive',
+            desc: 'Enables MathLive and MathJSON for calculated columns.',
+            example: true
+        };
+        if (typeof opts.enableMathlive === 'undefined')
+            this.options.enableMathlive = false;
+
         // Filter and transformation state
         this.fromFilter = null;
         this.toFilter = null;
@@ -92,12 +101,49 @@ export default class DatafilterbarSPL extends Plugin {
         this.watchedTargets = [];
         this.applyTimeout = null;
         this.columnFilters = {};
+        this.mathliveReady = false;
+        this.mathlivePromise = null;
+        this.MathfieldElement = null;
+        this.mathVariables = {};
     }
 
     init() {
+        this.loadConfiguredDefaults();
+        this.loadMathlive();
         return new Promise((resolve, reject) => {
             resolve();
         });
+    }
+
+    /**
+     * Loads page defaults after the plugin requestor is available.
+     *
+     * @returns {undefined}
+     */
+    loadConfiguredDefaults() {
+        let config = window[this.requestor.id + '_options'];
+        if (config && typeof config.enableMathlive === 'boolean')
+            this.options.enableMathlive = config.enableMathlive;
+    }
+
+    /**
+     * Loads the optional MathLive editor for calculated columns.
+     *
+     * @returns {undefined}
+     */
+    loadMathlive() {
+        if (!this.options.enableMathlive || this.mathlivePromise)
+            return;
+        this.mathlivePromise = import('../../../../libs/mathlive/MathLiveLoader.js?ver=11.08.2026.3')
+                .then((MathLiveLoader) => MathLiveLoader.loadMathLive())
+                .then((MathfieldElement) => {
+                    this.MathfieldElement = MathfieldElement;
+                    this.mathliveReady = true;
+                    this.initializeMathfield();
+                }).catch((error) => {
+                    this.mathliveReady = false;
+                    Msg.warn('Datafilterbar', this.translate('mathliveerror', 'MathLive could not be loaded.') + ' ' + error.message, this.requestor);
+                });
     }
 
     /**
@@ -269,6 +315,9 @@ export default class DatafilterbarSPL extends Plugin {
         menu.querySelector('.swac_datafilterbar_addcolumn').addEventListener('click', function () {
             thisRef.onClickAddColumn();
         });
+        menu.querySelector('.swac_datafilterbar_insertmathattr').addEventListener('click', function () {
+            thisRef.insertMathAttribute();
+        });
         menu.querySelector('.swac_datafilterbar_loadsource').addEventListener('click', function () {
             thisRef.onClickLoadSource();
         });
@@ -300,6 +349,7 @@ export default class DatafilterbarSPL extends Plugin {
 
         SWAC.lang.translateAll(toggle);
         SWAC.lang.translateAll(menu);
+        this.initializeMathfield();
     }
 
     /**
@@ -361,6 +411,15 @@ export default class DatafilterbarSPL extends Plugin {
                 + '<hr>'
                 + '<h5 swac_lang="Datafilterbar.computed">Computed column</h5>'
                 + '<input class="swac_datafilterbar_colname uk-input uk-form-small uk-margin-small-bottom" type="text" placeholder="name">'
+                + '<div class="swac_datafilterbar_mathliveblock swac_dontdisplay">'
+                + '<label class="uk-form-label uk-text-small" swac_lang="Datafilterbar.formula">Formula</label>'
+                + '<div class="swac_datafilterbar_mathfieldcont"></div>'
+                + '<div class="uk-flex uk-flex-middle uk-margin-small-top" style="gap:4px;">'
+                + '<select class="swac_datafilterbar_mathattr uk-select uk-form-small"><option value="" swac_lang="Datafilterbar.attr">Attribute</option></select>'
+                + '<button class="swac_datafilterbar_insertmathattr uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.insertattr">Insert</button>'
+                + '</div>'
+                + '<div class="swac_datafilterbar_mathvariables uk-text-small uk-text-muted uk-margin-small-top"></div>'
+                + '</div>'
                 + '<div class="swac_datafilterbar_formularows">'
                 + '<div class="uk-flex uk-flex-middle uk-margin-small-bottom" style="gap:4px;">'
                 + '<select class="swac_datafilterbar_formulaattr uk-select uk-form-small"><option value="" swac_lang="Datafilterbar.attr">Attribute</option></select>'
@@ -468,6 +527,7 @@ export default class DatafilterbarSPL extends Plugin {
         for (let curSel of this.menu.querySelectorAll('.swac_datafilterbar_formulaattr')) {
             this.fillAttrSelect(curSel, this.allAttrs);
         }
+        this.refreshMathfieldAttributes();
     }
 
     /**
@@ -489,6 +549,98 @@ export default class DatafilterbarSPL extends Plugin {
             opt.textContent = curAttr;
             select.appendChild(opt);
         }
+    }
+
+    /**
+     * Activates the MathLive formula editor after it has been loaded.
+     *
+     * @returns {undefined}
+     */
+    initializeMathfield() {
+        if (!this.menu || !this.mathliveReady)
+            return;
+        let mathBlock = this.menu.querySelector('.swac_datafilterbar_mathliveblock');
+        let formulaRows = this.menu.querySelector('.swac_datafilterbar_formularows');
+        let addRow = this.menu.querySelector('.swac_datafilterbar_addrow');
+        let fieldCont = this.menu.querySelector('.swac_datafilterbar_mathfieldcont');
+        if (fieldCont && !fieldCont.querySelector('math-field')) {
+            let mathfield = new this.MathfieldElement();
+            mathfield.classList.add('swac_datafilterbar_mathfield', 'uk-form-small');
+            mathfield.virtualKeyboardMode = 'manual';
+            mathfield.style.width = '100%';
+            mathfield.style.minHeight = '38px';
+            fieldCont.appendChild(mathfield);
+        }
+        if (mathBlock)
+            mathBlock.classList.remove('swac_dontdisplay');
+        if (formulaRows)
+            formulaRows.classList.add('swac_dontdisplay');
+        if (addRow)
+            addRow.classList.add('swac_dontdisplay');
+        this.refreshMathfieldAttributes();
+    }
+
+    /**
+     * Builds MathJSON variables for the selectable attributes.
+     *
+     * @returns {undefined}
+     */
+    refreshMathfieldAttributes() {
+        if (!this.menu || !this.mathliveReady)
+            return;
+        let select = this.menu.querySelector('.swac_datafilterbar_mathattr');
+        this.fillAttrSelect(select, this.allAttrs);
+        let variableData = MathJsonFormula.createVariables(this.allAttrs);
+        this.mathVariables = variableData.variables;
+        let info = this.menu.querySelector('.swac_datafilterbar_mathvariables');
+        if (info) {
+            info.textContent = this.translate('formulahint', 'Insert attributes using the selection.');
+            if (variableData.aliases.length > 0) {
+                info.textContent += ' ' + variableData.aliases
+                        .map((alias) => alias.symbol + ' = ' + alias.attr).join(', ');
+            }
+        }
+    }
+
+    /**
+     * Inserts the selected attribute into the MathLive field.
+     *
+     * @returns {undefined}
+     */
+    insertMathAttribute() {
+        if (!this.menu || !this.mathliveReady)
+            return;
+        let attr = this.menu.querySelector('.swac_datafilterbar_mathattr').value;
+        let symbol = Object.entries(this.mathVariables)
+                .find(([, value]) => value === attr)?.[0];
+        let field = this.menu.querySelector('.swac_datafilterbar_mathfield');
+        if (!symbol || !field || typeof field.insert !== 'function')
+            return;
+        field.insert('\\operatorname{' + symbol.replace(/_/g, '\\_') + '}');
+        field.focus();
+    }
+
+    /**
+     * Reads a safe formula and its MathJSON representation from MathLive.
+     *
+     * @returns {Object|null} Formula definition or null
+     */
+    getMathfieldFormula() {
+        let field = this.menu?.querySelector('.swac_datafilterbar_mathfield');
+        if (!field || typeof field.getValue !== 'function')
+            return null;
+        let mathJson = MathJsonFormula.parse(field.getValue('math-json'));
+        let formula = MathJsonFormula.toFormula(mathJson, this.mathVariables);
+        if (!formula) {
+            Msg.warn('Datafilterbar', this.translate('formulaerror', 'The formula contains unsupported values.'), this.requestor);
+            return null;
+        }
+        return {
+            formula: formula,
+            mathJson: mathJson,
+            mathVariables: Object.assign({}, this.mathVariables),
+            latex: field.value
+        };
     }
 
     /**
@@ -533,6 +685,9 @@ export default class DatafilterbarSPL extends Plugin {
      */
     resetFormulaRows() {
         this.menu.querySelector('.swac_datafilterbar_colname').value = '';
+        let mathfield = this.menu.querySelector('.swac_datafilterbar_mathfield');
+        if (mathfield && this.mathliveReady)
+            mathfield.value = '';
         let rows = this.menu.querySelector('.swac_datafilterbar_formularows');
         let allRows = rows.querySelectorAll(':scope > div');
         for (let i = 1; i < allRows.length; i++) {
@@ -663,7 +818,7 @@ export default class DatafilterbarSPL extends Plugin {
         // Computed columns before aggregation, so intervals average the results
         for (let curCol of this.computedColumns) {
             for (let curSet of sets) {
-                curSet[curCol.name] = this.evaluateFormula(curCol.formula, curSet);
+                curSet[curCol.name] = this.evaluateComputedColumn(curCol, curSet);
             }
         }
         if (useAggregation && this.aggregation)
@@ -740,6 +895,30 @@ export default class DatafilterbarSPL extends Plugin {
         } catch (e) {
             return null;
         }
+    }
+
+    /**
+     * Gets the safe formula string for a computed column.
+     *
+     * @param {Object} column Computed column definition
+     * @returns {String|null} Formula string or null
+     */
+    getComputedFormula(column) {
+        if (column?.mathJson)
+            return MathJsonFormula.toFormula(column.mathJson, column.mathVariables || {});
+        return column?.formula || null;
+    }
+
+    /**
+     * Evaluates one computed column for a dataset.
+     *
+     * @param {Object} column Computed column definition
+     * @param {Object} set Dataset values
+     * @returns {Number|null} Computed value or null
+     */
+    evaluateComputedColumn(column, set) {
+        let formula = this.getComputedFormula(column);
+        return formula ? this.evaluateFormula(formula, set) : null;
     }
 
     /**
@@ -919,7 +1098,7 @@ export default class DatafilterbarSPL extends Plugin {
             let col = this.computedColumns.find(c => c.name === curName);
             if (!col)
                 continue;
-            let val = this.evaluateFormula(col.formula, set);
+            let val = this.evaluateComputedColumn(col, set);
             let str = (val === null || val === undefined) ? 'NaN' : String(val);
             if (!str.includes(text))
                 return false;
@@ -1104,7 +1283,7 @@ export default class DatafilterbarSPL extends Plugin {
                 if (set) {
                     val = (set[curCol.name] !== undefined && set[curCol.name] !== null)
                             ? set[curCol.name]
-                            : this.evaluateFormula(curCol.formula, set);
+                            : this.evaluateComputedColumn(curCol, set);
                 }
                 // Not computable combinations (dates, booleans, texts) show NaN
                 this.fillComputedCell(td, curCol.name, val);
@@ -1615,6 +1794,18 @@ export default class DatafilterbarSPL extends Plugin {
         let name = this.menu.querySelector('.swac_datafilterbar_colname').value.trim();
         if (!name)
             return;
+        if (this.mathliveReady) {
+            let mathFormula = this.getMathfieldFormula();
+            if (!mathFormula)
+                return;
+            this.computedColumns = this.computedColumns.filter(c => c.name !== name);
+            this.computedColumns.push(Object.assign({name: name}, mathFormula));
+            this.saveSettings();
+            this.refreshComputedList();
+            this.resetFormulaRows();
+            this.applyAll();
+            return;
+        }
         // Build the formula from the row inputs: column, operator, column, ...
         let parts = [];
         for (let curRow of this.menu.querySelectorAll('.swac_datafilterbar_formularows > div')) {
@@ -1650,7 +1841,7 @@ export default class DatafilterbarSPL extends Plugin {
         for (let curCol of this.computedColumns) {
             let row = document.createElement('div');
             let label = document.createElement('span');
-            label.textContent = curCol.name + ' = ' + curCol.formula + ' ';
+            label.textContent = curCol.name + ' = ' + (curCol.latex || curCol.formula) + ' ';
             let del = document.createElement('a');
             del.href = '#';
             del.innerHTML = '<span uk-icon="icon: close; ratio: 0.7"></span>';
