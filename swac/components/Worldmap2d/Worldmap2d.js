@@ -454,6 +454,20 @@ export default class Worldmap2d extends View {
         if (typeof options.showMeasureingTool === 'undefined')
             this.options.showMeasureingTool = true;
 
+        this.desc.opts[29] = {
+            name: 'warnOnMissingCoordinates',
+            desc: 'If true a warning is shown when a dataset has no usable coordinates.'
+        };
+        if (typeof options.warnOnMissingCoordinates === 'undefined')
+            this.options.warnOnMissingCoordinates = true;
+
+        this.desc.opts[30] = {
+            name: 'markerCondition',
+            desc: 'Function that decides whether a dataset is rendered as a marker.'
+        };
+        if (typeof options.markerCondition === 'undefined')
+            this.options.markerCondition = null;
+
         // document plugins
         if (!options.plugins) {
             this.options.plugins = new Map();
@@ -724,6 +738,18 @@ export default class Worldmap2d extends View {
 //        this.viewer.on('contextmenu', function (e) {
 //            popup.setLatLng(e.latlng).openOn(thisRef.viewer);
 //        });
+        this.refreshMapSize();
+    }
+
+    // Refresh Leaflet after the map container was rendered.
+    refreshMapSize() {
+        if (!this.viewer || typeof this.viewer.invalidateSize !== 'function')
+            return;
+
+        this.viewer.invalidateSize();
+        window.setTimeout(() => {
+            this.viewer.invalidateSize();
+        }, 100);
     }
 
     /**
@@ -733,30 +759,124 @@ export default class Worldmap2d extends View {
         L.DomEvent.on(this.requestor.querySelector('.swac_worldmap2d_plugins_area > div'), 'click', L.DomEvent.stopPropagation);
     }
 
-    afterAddSet(set, repeateds) {
-        Msg.flow('Worldmap2d', 'afterAddSet(' + set.swac_fromName + '[' + set.id + '])', this.requestor);
-        const geoJSON = {type: "Feature", geometry: {type: 'Point'}};
-        // check config for datasources
+    /**
+     * Gets point coordinates from configured dataset attributes.
+     *
+     * @param {WatchableSet} set Dataset to read
+     * @returns {Array|null} Coordinates as longitude, latitude and optional altitude
+     */
+    getPointCoordinates(set) {
+        let coordinates = null;
         let datasource = this.options.datasources?.get(set.swac_fromName);
         if (datasource && datasource.latitudeAttr && datasource.longitudeAttr) {
-            try {
-                geoJSON.geometry.coordinates = [eval('set.' + datasource.latitudeAttr), eval('set.' + datasource.longitudeAttr)]
-            } catch (e) {
+            let latitude = this.getSetValue(set, datasource.latitudeAttr);
+            let longitude = this.getSetValue(set, datasource.longitudeAttr);
+            if (typeof latitude === 'undefined' || typeof longitude === 'undefined') {
                 Msg.error('Worldmap2d', 'Configured latitude attribute >' + datasource.latitudeAttr
-                        + '< or longitude attribute >' + datasource.longitudeAttr + '< where not found in set >' + set.swac_fromName + '[' + set.id + ']<.', this.requestor);
-                return;
+                        + '< or longitude attribute >' + datasource.longitudeAttr + '< were not found in set >' + set.swac_fromName + '[' + set.id + ']<.', this.requestor);
+                return null;
             }
-        } else if (this.options.geoJSONAttr) {
-            if (!set[this.options.geoJSONAttr]) {
-                Msg.warn('Worldmap2d', 'Could not create marker for set >' + set.swac_fromName + '[' + set.id + ']<: Coordinate attribute >' + this.options.geoJSONAttr + '< is missing.', this.requestor);
-                return;
+            coordinates = [longitude, latitude];
+        }
+
+        if (!coordinates && this.options.geoJSONAttr && set[this.options.geoJSONAttr]) {
+            coordinates = this.getCoordinatesFromGeoValue(set[this.options.geoJSONAttr]);
+        }
+
+        if (!coordinates
+                && typeof set[this.options.lonAttr] !== 'undefined' && set[this.options.lonAttr] !== null
+                && typeof set[this.options.latAttr] !== 'undefined' && set[this.options.latAttr] !== null) {
+            coordinates = [set[this.options.lonAttr], set[this.options.latAttr]];
+        }
+
+        return this.normalizeCoordinates(coordinates);
+    }
+
+    /**
+     * Gets a direct or nested value from a dataset.
+     *
+     * @param {WatchableSet} set Dataset to read
+     * @param {String} attribute Attribute path
+     * @returns {Mixed} Attribute value
+     */
+    getSetValue(set, attribute) {
+        if (Object.prototype.hasOwnProperty.call(set, attribute))
+            return set[attribute];
+
+        return attribute.split('.').reduce((value, key) => value?.[key], set);
+    }
+
+    /**
+     * Gets coordinates from GeoJSON like values and WKT points.
+     *
+     * @param {Object|String|Array} value Geometry value
+     * @returns {Array|null} Coordinates or null
+     */
+    getCoordinatesFromGeoValue(value) {
+        if (Array.isArray(value))
+            return value;
+        if (typeof value === 'string') {
+            try {
+                return this.getCoordinatesFromGeoValue(JSON.parse(value));
+            } catch (e) {
+                return this.getCoordinatesFromWktPoint(value);
             }
-            geoJSON.geometry.coordinates = set[this.options.geoJSONAttr].coordinates;
-        } else {
-            if (!set[this.options.lonAttr] || !set[this.options.latAttr]) {
-                Msg.warn('Worldmap2d', 'Could not create marker for set >' + set.swac_fromName + '[' + set.id + ']<: Coordinate attribute >' + this.options.lonAttr + '< and / or >' + this.options.latAttr + '< is missing.', this.requestor);
-            }
-            geoJSON.geometry.coordinates = [set[this.options.lonAttr], set[this.options.latAttr]]
+        }
+        if (value?.type === 'Feature')
+            return value.geometry?.coordinates;
+        return value?.coordinates;
+    }
+
+    /**
+     * Gets coordinates from WKT POINT values.
+     *
+     * @param {String} value WKT point value
+     * @returns {Array|null} Coordinates or null
+     */
+    getCoordinatesFromWktPoint(value) {
+        let numberPattern = '[-+]?\\d*\\.?\\d+(?:[eE][-+]?\\d+)?';
+        let pointRegex = new RegExp('^POINT\\s*(?:ZM|Z|M)?\\s*\\(\\s*(' + numberPattern + ')\\s+(' + numberPattern + ')(?:\\s+(' + numberPattern + '))?\\s*\\)$', 'i');
+        let match = value.match(pointRegex);
+        if (!match)
+            return null;
+        let coordinates = [match[1], match[2]];
+        if (typeof match[3] !== 'undefined')
+            coordinates.push(match[3]);
+        return coordinates;
+    }
+
+    /**
+     * Normalizes coordinate values to numbers.
+     *
+     * @param {Array} coordinates Raw coordinates
+     * @returns {Array|null} Numeric coordinates or null
+     */
+    normalizeCoordinates(coordinates) {
+        if (!Array.isArray(coordinates) || coordinates.length < 2)
+            return null;
+
+        let lon = Number(coordinates[0]);
+        let lat = Number(coordinates[1]);
+        if (!Number.isFinite(lon) || !Number.isFinite(lat)
+                || lon < -180 || lon > 180 || lat < -90 || lat > 90)
+            return null;
+        let normalized = [lon, lat];
+        if (coordinates.length > 2 && Number.isFinite(Number(coordinates[2])))
+            normalized.push(Number(coordinates[2]));
+        return normalized;
+    }
+
+    afterAddSet(set, repeateds) {
+        Msg.flow('Worldmap2d', 'afterAddSet(' + set.swac_fromName + '[' + set.id + '])', this.requestor);
+        if (this.options.markerCondition && !this.options.markerCondition(set))
+            return;
+
+        const geoJSON = {type: "Feature", geometry: {type: 'Point'}};
+        geoJSON.geometry.coordinates = this.getPointCoordinates(set);
+        if (!geoJSON.geometry.coordinates) {
+            if (this.options.warnOnMissingCoordinates)
+                Msg.warn('Worldmap2d', 'Could not create marker for set >' + set.swac_fromName + '[' + set.id + ']<: Geocoordinates are missing or invalid.', this.requestor);
+            return;
         }
 
         // Add complete dataset, important to keep data at marker up to date at external changes!
@@ -773,7 +893,10 @@ export default class Worldmap2d extends View {
 
     afterRemoveSet(set) {
         // Search marker and remove
-        this.removeMarker(this.markers[set.swac_fromName][set.id]);
+        let marker = this.markers[set.swac_fromName]?.[set.id];
+        if (marker)
+            this.removeMarker(marker);
+        super.afterRemoveSet(set);
     }
 
     /**
@@ -812,7 +935,7 @@ export default class Worldmap2d extends View {
                 icon = this.unvisitedIcon;
             }
             // Use icon from datadescription
-            if (this.options.datadescription && geoJSON.set) {
+            if (this.options.datadescription && this.datadescription && geoJSON.set) {
                 // Get color
                 let col = this.datadescription.getValueColor(geoJSON.set);
                 // If color is hex value remove sharp because its not allowed in file URL
@@ -1247,13 +1370,10 @@ export default class Worldmap2d extends View {
      * @param {WatchableSet} set Set to show in the center of the map 
      */
     zoomToSet(set) {
-        if (this.options.geoJSONAttr) {
-            const geoJSON = {type: "Feature", geometry: {type: 'Point'}};
-            geoJSON.geometry.coordinates = set[this.options.geoJSONAttr].coordinates;
-            this.viewer.panTo(L.latLng(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]));
+        let coordinates = this.getPointCoordinates(set);
+        if (!coordinates)
             return;
-        }
-        this.viewer.panTo({lat: set[this.options.latAttr], lng: set[this.options.lonAttr]});
+        this.viewer.panTo(L.latLng(coordinates[1], coordinates[0]));
     }
 
     /**
@@ -1350,6 +1470,8 @@ export default class Worldmap2d extends View {
      * Rerenders Icon on the map based on the datadescription.
      */
     rerenderIcons() {
+        if (!this.datadescription)
+            return;
         for (let key in this.markers) {
             for (let marker of this.markers[key]) {
                 if (typeof marker !== 'undefined') {
@@ -1362,7 +1484,7 @@ export default class Worldmap2d extends View {
                     col = col.replace('#', '');
                     col = col.replace('GREY', '7B7B7B')
                     col = col.toUpperCase();
-                    if (marker.options.icon.options.color === col) {
+                    if (marker.options.icon?.options?.color === col) {
                         // do not rerender if color is the same
                         continue;
                     }

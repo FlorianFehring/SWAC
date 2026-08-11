@@ -1,15 +1,14 @@
 import SWAC from '../../../../swac.js';
 import Msg from '../../../../Msg.js';
 import Plugin from '../../../../Plugin.js';
-import DataSourceAdapter from '../../../../DataSourceAdapter.js';
+import AIDataSourceAdapter from '../../../../AIDataSourceAdapter.js?ver=07.08.2026.3';
+import ExternalDataSource from '../../../../ExternalDataSource.js?ver=07.08.2026.3';
+import DataAggregation from '../../../../DataAggregation.js';
+import TableExport from '../../../../TableExport.js?ver=08.08.2026.6';
+import TextTransfer from '../../../../TextTransfer.js?ver=10.08.2026.1';
 
 /**
- * Shared base of the Datafilterbar plugin. Adds a side menu with general data
- * management to the host component: available time range, filters,
- * aggregation, computed columns, datasource switch and settings export.
- * Column renaming is offered directly at the table headers. All functions
- * also apply to every component on the page that reads the same datasource.
- * Attributes are detected from the data, so the plugin works with any source.
+ * Adds a side menu for data filters and transformations.
  */
 export default class DatafilterbarSPL extends Plugin {
 
@@ -19,8 +18,6 @@ export default class DatafilterbarSPL extends Plugin {
         this.desc.text = 'Side menu with filters, aggregation, computed columns and datasource management.';
         this.desc.developers = 'Maczap (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
-
-        // No template on purpose: a plugin with template gets an own tab
 
         this.desc.opts[0] = {
             name: 'timeAttr',
@@ -62,16 +59,34 @@ export default class DatafilterbarSPL extends Plugin {
         if (typeof opts.filterSameSource === 'undefined')
             this.options.filterSameSource = true;
 
+        this.desc.opts[5] = {
+            name: 'filterTarget',
+            desc: 'Target for filters and aggregation. Possible values are both, chart or table.',
+            example: 'both'
+        };
+        if (!opts.filterTarget)
+            this.options.filterTarget = 'both';
+
+        this.desc.opts[6] = {
+            name: 'defaultComputedColumns',
+            desc: 'Computed columns added by the page configuration.',
+            example: [{name: 'ratio', formula: 'value_a / value_b'}]
+        };
+        if (!Array.isArray(opts.defaultComputedColumns))
+            this.options.defaultComputedColumns = [];
+
         // Filter and transformation state
         this.fromFilter = null;
         this.toFilter = null;
         this.valueFilter = null;
         this.aggregation = null;
+        this.filterTarget = this.normalizeFilterTarget(this.options.filterTarget);
         this.renames = {};
-        this.computedColumns = [];
+        this.computedColumns = this.mergeDefaultComputedColumns([]);
         this.seriesSettings = null;
         this.altSource = null;
         this.datasourceToLoad = null;
+        this.adaptationMode = 'auto';
         // Attribute detection
         this.knownAttrs = new Set();
         this.allAttrs = new Set();
@@ -84,13 +99,65 @@ export default class DatafilterbarSPL extends Plugin {
         this.restored = false;
         this.watchedTargets = [];
         this.applyTimeout = null;
+        this.targetObserver = null;
+        this.targetScanTimeout = null;
         this.columnFilters = {};
     }
 
     init() {
+        this.loadConfiguredDefaults();
+        this.watchForTargets();
+        document.addEventListener('swac_ready', () => {
+            if (this.built)
+                this.applyAll();
+        }, {once: true});
+        document.addEventListener('swac_lang_loaded', () => {
+            if (this.built)
+                this.applyAll();
+        });
         return new Promise((resolve, reject) => {
             resolve();
         });
+    }
+
+    /**
+     * Loads page defaults after the plugin requestor is available.
+     *
+     * @returns {undefined}
+     */
+    loadConfiguredDefaults() {
+        let config = window[this.requestor.id + '_options'];
+        let host = this.requestor.parent && this.requestor.parent.swac_comp;
+        if (host && host.options.plugins) {
+            let pluginConfig = host.options.plugins.get(this.requestor.pluginname);
+            if (pluginConfig && Array.isArray(pluginConfig.defaultComputedColumns))
+                config = pluginConfig;
+        }
+        if (config && Array.isArray(config.defaultComputedColumns))
+            this.options.defaultComputedColumns = config.defaultComputedColumns;
+        this.computedColumns = this.mergeDefaultComputedColumns(this.computedColumns);
+    }
+
+    /**
+     * Detects components that become available after the plugin was loaded.
+     *
+     * @returns {undefined}
+     */
+    watchForTargets() {
+        if (this.targetObserver || !document.body)
+            return;
+        this.targetObserver = new MutationObserver(() => {
+            if (this.targetScanTimeout)
+                clearTimeout(this.targetScanTimeout);
+            this.targetScanTimeout = setTimeout(() => {
+                this.targetScanTimeout = null;
+                let targetCount = this.watchedTargets.length;
+                this.findTargets();
+                if (this.built && this.watchedTargets.length > targetCount)
+                    this.applyAll();
+            }, 100);
+        });
+        this.targetObserver.observe(document.body, {childList: true, subtree: true});
     }
 
     /**
@@ -195,7 +262,22 @@ export default class DatafilterbarSPL extends Plugin {
         }
         this.refreshComputedList();
         this.updateRequestorDisplay();
+        this.notifySourceChange();
         this.applyAll();
+    }
+
+    /**
+     * Notifies page code when the available source attributes change.
+     *
+     * @returns {undefined}
+     */
+    notifySourceChange() {
+        document.dispatchEvent(new CustomEvent('swac_Datafilterbar_sourceChanged', {
+            detail: {
+                hostId: this.getHost().requestor.id,
+                attributes: Array.from(this.allAttrs)
+            }
+        }));
     }
 
     /**
@@ -239,6 +321,7 @@ export default class DatafilterbarSPL extends Plugin {
         hostReq.insertBefore(menu, hostReq.firstChild);
         hostReq.insertBefore(toggle, hostReq.firstChild);
         this.menu = menu;
+        menu.querySelector('.swac_datafilterbar_target').value = this.filterTarget;
 
         // Expand the short translation keys to the full plugin key
         let langPrefix = this.name.replace('/plugins/', '/').replace('/', '_');
@@ -268,11 +351,24 @@ export default class DatafilterbarSPL extends Plugin {
         menu.querySelector('.swac_datafilterbar_sourcefile').addEventListener('change', function (evt) {
             thisRef.onChangeSourceFile(evt);
         });
+        menu.querySelector('.swac_datafilterbar_adaptationmode').addEventListener('change', function (evt) {
+            thisRef.adaptationMode = thisRef.normalizeAdaptationMode(evt.target.value);
+            thisRef.saveSettings();
+        });
         menu.querySelector('.swac_datafilterbar_removesource').addEventListener('click', function () {
             thisRef.onClickRemoveSource();
         });
+        menu.querySelector('.swac_datafilterbar_tableexport').addEventListener('click', function () {
+            thisRef.onClickTableExport();
+        });
         menu.querySelector('.swac_datafilterbar_exportbtn').addEventListener('click', function () {
             thisRef.onClickExport();
+        });
+        menu.querySelector('.swac_datafilterbar_settingsdownload').addEventListener('click', function () {
+            thisRef.onClickSettingsDownload();
+        });
+        menu.querySelector('.swac_datafilterbar_settingscopy').addEventListener('click', function () {
+            thisRef.onClickSettingsCopy();
         });
         menu.querySelector('.swac_datafilterbar_importbtn').addEventListener('click', function () {
             thisRef.onClickImport();
@@ -303,6 +399,12 @@ export default class DatafilterbarSPL extends Plugin {
                 + '<span class="swac_datafilterbar_availvalues uk-text-small"></span>'
                 + '</div>'
                 + '<hr>'
+                + '<label class="uk-form-label uk-text-small" swac_lang="Datafilterbar.target">Apply to</label>'
+                + '<select class="swac_datafilterbar_target uk-select uk-form-small uk-margin-small-bottom">'
+                + '<option value="both" swac_lang="Datafilterbar.target_both">Chart and table</option>'
+                + '<option value="chart" swac_lang="Datafilterbar.target_chart">Chart only</option>'
+                + '<option value="table" swac_lang="Datafilterbar.target_table">Table only</option>'
+                + '</select>'
                 + '<h5 swac_lang="Datafilterbar.filters">Filters</h5>'
                 + '<div class="swac_datafilterbar_timeblock">'
                 + '<label class="uk-form-label uk-text-small" swac_lang="Datafilterbar.timerange">Time range</label>'
@@ -347,19 +449,39 @@ export default class DatafilterbarSPL extends Plugin {
                 + '<div class="swac_datafilterbar_computedlist uk-text-small uk-margin-small-top"></div>'
                 + '<hr>'
                 + '<h5 swac_lang="Datafilterbar.datasource">Datasource</h5>'
+                + '<label class="uk-form-label uk-text-small" swac_lang="Datafilterbar.adaptation">Adaptation</label>'
+                + '<select class="swac_datafilterbar_adaptationmode uk-select uk-form-small uk-margin-small-bottom">'
+                + '<option value="auto" swac_lang="Datafilterbar.adaptation_auto">Automatic</option>'
+                + '<option value="deterministic" swac_lang="Datafilterbar.adaptation_deterministic">Rules</option>'
+                + '<option value="ai" swac_lang="Datafilterbar.adaptation_ai">AI</option>'
+                + '</select>'
                 + '<input class="swac_datafilterbar_sourceurl uk-input uk-form-small uk-margin-small-bottom" type="url" placeholder="https://example.org/data.json">'
                 + '<button class="swac_datafilterbar_loadsource uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.loadsource">Load</button> '
                 + '<button class="swac_datafilterbar_removesource uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.removesource">Remove</button>'
                 + '<input class="swac_datafilterbar_sourcefile uk-input uk-form-small uk-margin-small-top" type="file" accept="application/json,.json">'
                 + '<div class="swac_datafilterbar_sourcestate uk-text-small uk-text-muted uk-margin-small-top"></div>'
-                + '<hr>'
                 + '<h5 swac_lang="Datafilterbar.settings">Settings</h5>'
                 + '<textarea class="swac_datafilterbar_settingsio uk-textarea uk-form-small uk-margin-small-bottom" rows="4"></textarea>'
+                + '<div class="uk-margin-small-bottom">'
                 + '<button class="swac_datafilterbar_exportbtn uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.exportbtn">Export</button> '
                 + '<button class="swac_datafilterbar_importbtn uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.importbtn">Import</button>'
+                + '</div>'
+                + '<div>'
+                + '<button class="swac_datafilterbar_settingscopy uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.settingscopy">Copy</button> '
+                + '<button class="swac_datafilterbar_settingsdownload uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.settingstxt">Download as TXT</button>'
+                + '</div>'
                 + '<hr>'
                 + '<h5 swac_lang="Datafilterbar.requestor">Resulting dataRequestor</h5>'
                 + '<pre class="swac_datafilterbar_requestor uk-text-small" style="white-space:pre-wrap;"></pre>'
+                + '<hr>'
+                + '<h5 swac_lang="Datafilterbar.tableexport">Table export</h5>'
+                + '<label class="uk-form-label uk-text-small" swac_lang="Datafilterbar.exportformat">Format</label>'
+                + '<select class="swac_datafilterbar_tableexportformat uk-select uk-form-small uk-margin-small-bottom">'
+                + '<option value="csv" swac_lang="Datafilterbar.exportformat_csv">CSV</option>'
+                + '<option value="json" swac_lang="Datafilterbar.exportformat_json">JSON</option>'
+                + '<option value="xlsx" swac_lang="Datafilterbar.exportformat_xlsx">XLSX</option>'
+                + '</select>'
+                + '<button class="swac_datafilterbar_tableexport uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.tableexportbtn">Export table</button>'
                 + '</div>'
                 + '</div>';
     }
@@ -498,7 +620,7 @@ export default class DatafilterbarSPL extends Plugin {
     }
 
     /**
-     * Updates the available time range display (#61)
+     * Updates the available time range display
      *
      * @returns {undefined}
      */
@@ -552,6 +674,8 @@ export default class DatafilterbarSPL extends Plugin {
         let amount = parseFloat(this.menu.querySelector('.swac_datafilterbar_aggamount').value);
         let unit = this.menu.querySelector('.swac_datafilterbar_aggunit').value;
         this.aggregation = (isNaN(amount) || amount <= 0) ? null : {amount: amount, unit: unit};
+        this.filterTarget = this.normalizeFilterTarget(
+                this.menu.querySelector('.swac_datafilterbar_target').value);
 
         this.saveSettings();
         this.updateRequestorDisplay();
@@ -580,10 +704,12 @@ export default class DatafilterbarSPL extends Plugin {
     /**
      * Checks if the table needs replaced display sets
      *
+     * @param {Boolean} useAggregation True when aggregation applies to the table
      * @returns {Boolean} True when aggregation or an alternative source is active
      */
-    tableTransformActive() {
-        return this.altSource !== null || this.aggregation !== null;
+    tableTransformActive(useAggregation = true) {
+        return this.altSource !== null
+                || (useAggregation && this.aggregation !== null);
     }
 
     /**
@@ -591,29 +717,44 @@ export default class DatafilterbarSPL extends Plugin {
      * aggregated. Original sets are never changed, copies are used as soon as
      * a transformation is active.
      *
+     * @param {Object} opts Build options
      * @returns {Array} Sets to display
      */
-    buildDisplaySets() {
+    buildDisplaySets(opts = {}) {
+        let useFilters = opts.useFilters !== false;
+        let useAggregation = opts.useAggregation !== false;
+        let computedColumns = this.getCompatibleComputedColumns();
         let sets = [];
         for (let curSet of this.sourceSets()) {
-            if (this.passesFilters(curSet))
+            if (!useFilters || this.passesFilters(curSet))
                 sets.push(curSet);
         }
-        let needCopies = this.altSource !== null || this.aggregation !== null
-                || this.computedColumns.length > 0;
+        let needCopies = this.altSource !== null
+                || (useAggregation && this.aggregation !== null)
+                || computedColumns.length > 0;
         if (!needCopies) {
             this.sortByTime(sets);
             return sets;
         }
         sets = sets.map(s => this.copySet(s));
-        // Computed columns before aggregation, so intervals average the results
-        for (let curCol of this.computedColumns) {
+        // Numeric columns are calculated before aggregation.
+        for (let curCol of computedColumns) {
+            if (!curCol.formula)
+                continue;
             for (let curSet of sets) {
-                curSet[curCol.name] = this.evaluateFormula(curCol.formula, curSet);
+                curSet[curCol.name] = this.evaluateComputedColumn(curCol, curSet);
             }
         }
-        if (this.aggregation)
+        if (useAggregation && this.aggregation)
             sets = this.aggregateSets(sets);
+        // Rule based columns use the final values after aggregation.
+        for (let curCol of computedColumns) {
+            if (!Array.isArray(curCol.valueRules))
+                continue;
+            for (let curSet of sets) {
+                curSet[curCol.name] = this.evaluateComputedColumn(curCol, curSet);
+            }
+        }
         // Every display set needs a source name for the chart labels
         let fallbackName = this.altSource
                 ? this.altSource.url
@@ -644,7 +785,7 @@ export default class DatafilterbarSPL extends Plugin {
     }
 
     /**
-     * Aggregates sets into time intervals (#59). Sets are grouped into buckets
+     * Aggregates sets into time intervals. Sets are grouped into buckets
      * of the chosen length, every numeric attribute is averaged per bucket and
      * the time attribute is set to the bucket start.
      *
@@ -652,67 +793,14 @@ export default class DatafilterbarSPL extends Plugin {
      * @returns {Array} Aggregated sets, one per interval
      */
     aggregateSets(sets) {
-        if (!this.timeAttrName)
-            return sets;
-        let unitMs = {seconds: 1000, minutes: 60000, hours: 3600000, days: 86400000};
-        let bucketMs = this.aggregation.amount * unitMs[this.aggregation.unit];
-        if (!bucketMs || bucketMs <= 0 || isNaN(bucketMs))
-            return sets;
-
-        let buckets = new Map();
-        for (let curSet of sets) {
-            let d = new Date(curSet[this.timeAttrName]);
-            if (isNaN(d.valueOf()))
-                continue;
-            let key = Math.floor(d.getTime() / bucketMs);
-            if (!buckets.has(key))
-                buckets.set(key, []);
-            buckets.get(key).push(curSet);
-        }
-
-        let result = [];
-        for (let [key, group] of buckets) {
-            let agg = {};
-            for (let curAttr in group[0]) {
-                agg[curAttr] = group[0][curAttr];
-            }
-            // Average every numeric attribute found in the group
-            let numAttrs = new Set();
-            for (let curSet of group) {
-                for (let curAttr in curSet) {
-                    if (curAttr.startsWith('swac_') || curAttr === 'id'
-                            || curAttr === this.timeAttrName)
-                        continue;
-                    if (this.isNumericValue(curSet[curAttr]))
-                        numAttrs.add(curAttr);
-                }
-            }
-            for (let curAttr of numAttrs) {
-                let sum = 0;
-                let count = 0;
-                for (let curSet of group) {
-                    let v = curSet[curAttr];
-                    if (typeof v === 'string')
-                        v = Number(v);
-                    if (typeof v === 'number' && isFinite(v)) {
-                        sum += v;
-                        count++;
-                    }
-                }
-                if (count > 0)
-                    agg[curAttr] = Math.round((sum / count) * 1000) / 1000;
-            }
-            agg[this.timeAttrName] = this.toIsoLocal(new Date(key * bucketMs));
-            result.push(agg);
-        }
-        return result;
+        return DataAggregation.aggregateSets(sets, this.timeAttrName, this.aggregation);
     }
 
     /**
      * Evaluates a computed column formula for one set. Attribute names are
      * replaced by values, afterwards only numbers and basic math are allowed.
      *
-     * @param {String} formula Formula like temp1 + co2
+     * @param {String} formula Formula like value_a + value_b
      * @param {Object} set Set with the values
      * @returns {Number|null} Result or null
      */
@@ -742,6 +830,86 @@ export default class DatafilterbarSPL extends Plugin {
     }
 
     /**
+     * Evaluates a configured formula or numeric value rules.
+     *
+     * @param {Object} column Computed column definition
+     * @param {Object} set Set with source values
+     * @returns {*} Computed value or null
+     */
+    evaluateComputedColumn(column, set) {
+        if (column.formula)
+            return this.evaluateFormula(column.formula, set);
+        if (!column.source || !Array.isArray(column.valueRules))
+            return null;
+        let value = set[column.source];
+        if (typeof value === 'string')
+            value = Number(value);
+        if (typeof value !== 'number' || !isFinite(value))
+            return this.configuredText(column.noValueKey, column.noValue || null);
+        for (let curRule of column.valueRules) {
+            if (this.valueRuleMatches(curRule, value))
+                return this.configuredText(curRule.valueKey, curRule.value || null);
+        }
+        return this.configuredText(column.noValueKey, column.noValue || null);
+    }
+
+    /**
+     * Checks all numeric limits of one value rule.
+     *
+     * @param {Object} rule Value rule
+     * @param {Number} value Value to check
+     * @returns {Boolean} True when all configured limits match
+     */
+    valueRuleMatches(rule, value) {
+        if (typeof rule.lt === 'number' && !(value < rule.lt))
+            return false;
+        if (typeof rule.lte === 'number' && !(value <= rule.lte))
+            return false;
+        if (typeof rule.gt === 'number' && !(value > rule.gt))
+            return false;
+        if (typeof rule.gte === 'number' && !(value >= rule.gte))
+            return false;
+        if (typeof rule.eq === 'number' && value !== rule.eq)
+            return false;
+        return true;
+    }
+
+    /**
+     * Gets a translated configured value with a fallback.
+     *
+     * @param {String} key Translation key
+     * @param {*} fallback Fallback value
+     * @returns {*} Translated or fallback value
+     */
+    configuredText(key, fallback) {
+        if (!key)
+            return fallback;
+        try {
+            let value = SWAC.lang.getTranslationForId(key);
+            if (value) {
+                let decoder = document.createElement('textarea');
+                decoder.innerHTML = value;
+                return decoder.value;
+            }
+        } catch (e) {
+            // Use the configured fallback.
+        }
+        return fallback;
+    }
+
+    /**
+     * Gets the visible name of a computed column.
+     *
+     * @param {Object} column Computed column definition
+     * @returns {String} Visible column name
+     */
+    computedColumnLabel(column) {
+        if (this.renames[column.name])
+            return this.renames[column.name];
+        return this.configuredText(column.labelKey, column.name);
+    }
+
+    /**
      * Applies the settings to all targets. The charts get the display sets
      * for one redraw, tables toggle their rows in the dom and show own
      * display rows when a transformation is active. The datastore is never
@@ -751,8 +919,12 @@ export default class DatafilterbarSPL extends Plugin {
      */
     applyAll() {
         let thisRef = this;
-        let displaySets = this.buildDisplaySets();
         for (let curTarget of this.findTargets()) {
+            let useEffects = this.filterTargetApplies(curTarget);
+            let displaySets = this.buildDisplaySets({
+                useFilters: useEffects,
+                useAggregation: useEffects
+            });
             if (curTarget.dataManager) {
                 let dm = curTarget.dataManager;
                 if (typeof dm.setDisplayNames === 'function')
@@ -773,10 +945,10 @@ export default class DatafilterbarSPL extends Plugin {
                 continue;
             }
             this.updateTableHeaders(curTarget.comp);
-            this.updateRowVisibility(curTarget.comp);
+            this.updateRowVisibility(curTarget.comp, useEffects);
             this.updateSourceColumns(curTarget.comp);
             this.updateComputedColumns(curTarget.comp, displaySets);
-            this.renderDisplayRows(curTarget.comp, displaySets);
+            this.renderDisplayRows(curTarget.comp, displaySets, useEffects);
         }
     }
 
@@ -786,10 +958,11 @@ export default class DatafilterbarSPL extends Plugin {
      * are toggled by the filters.
      *
      * @param {View} comp Target component
+     * @param {Boolean} useEffects True when filters apply to the table
      * @returns {undefined}
      */
-    updateRowVisibility(comp) {
-        let transformed = this.tableTransformActive();
+    updateRowVisibility(comp, useEffects = true) {
+        let transformed = this.tableTransformActive(useEffects);
         let byKey = new Map();
         for (let curSet of this.sourceSets()) {
             byKey.set(curSet.swac_fromName + '|' + curSet.id, curSet);
@@ -802,7 +975,8 @@ export default class DatafilterbarSPL extends Plugin {
                 let sfn = curRow.getAttribute('swac_fromname');
                 let sid = curRow.getAttribute('swac_setid');
                 let set = byKey.get(sfn + '|' + sid) || byKey.get(sfn + '|' + Number(sid));
-                show = set ? (this.passesFilters(set) && this.matchesColumnFilters(set)) : true;
+                show = set ? ((!useEffects || this.passesFilters(set))
+                        && this.matchesColumnFilters(set)) : true;
             }
             if (show)
                 curRow.classList.remove('swac_dontdisplay');
@@ -820,14 +994,15 @@ export default class DatafilterbarSPL extends Plugin {
      *
      * @param {View} comp Target component
      * @param {Array} displaySets Sets to display
+     * @param {Boolean} useEffects True when aggregation applies to the table
      * @returns {undefined}
      */
-    renderDisplayRows(comp, displaySets) {
+    renderDisplayRows(comp, displaySets, useEffects = true) {
         let req = comp.requestor;
         for (let curRow of req.querySelectorAll('.swac_datafilterbar_displayrow')) {
             curRow.remove();
         }
-        if (!this.tableTransformActive())
+        if (!this.tableTransformActive(useEffects))
             return;
         let sample = req.querySelector('.swac_repeatedForSet');
         if (!sample)
@@ -849,17 +1024,20 @@ export default class DatafilterbarSPL extends Plugin {
                     curCell.textContent = (val === null || val === undefined) ? 'NaN' : val;
                     continue;
                 }
-                // Attribute cells carry their attribute in the tooltip
-                let attr = null;
+                // Attribute cells use their own name or the tooltip fallback
+                let attr = curCell.getAttribute('swac_attrname')
+                        || curCell.getAttribute('attrname');
+                if (attr && !this.allAttrs.has(attr))
+                    attr = null;
                 let tipElem = curCell.querySelector('[uk-tooltip]');
-                if (tipElem) {
+                if (!attr && tipElem) {
                     let match = /title:\s*([^;]+)/.exec(tipElem.getAttribute('uk-tooltip'));
                     if (match && this.allAttrs.has(match[1].trim()))
                         attr = match[1].trim();
                 }
                 if (attr) {
                     let val = curSet[attr];
-                    curCell.textContent = (val === null || val === undefined) ? 'NaN' : val;
+                    curCell.textContent = this.displaySourceValue(val);
                 } else {
                     // Cells like labels or map links make no sense on
                     // aggregated rows, clear them including subcomponents
@@ -901,14 +1079,19 @@ export default class DatafilterbarSPL extends Plugin {
      * @returns {Boolean} True if the set matches all column filters
      */
     matchesColumnFilters(set) {
+        let computedSet = this.copySet(set);
+        let computedColumns = this.getCompatibleComputedColumns();
+        for (let curCol of computedColumns) {
+            computedSet[curCol.name] = this.evaluateComputedColumn(curCol, computedSet);
+        }
         for (let curName in this.columnFilters) {
             let text = this.columnFilters[curName];
             if (!text)
                 continue;
-            let col = this.computedColumns.find(c => c.name === curName);
+            let col = computedColumns.find(c => c.name === curName);
             if (!col)
                 continue;
-            let val = this.evaluateFormula(col.formula, set);
+            let val = computedSet[curName];
             let str = (val === null || val === undefined) ? 'NaN' : String(val);
             if (!str.includes(text))
                 return false;
@@ -934,6 +1117,11 @@ export default class DatafilterbarSPL extends Plugin {
             return;
         this.computedColumns = this.computedColumns.filter(c => c.name !== input);
         col.name = input;
+        delete col.labelKey;
+        for (let curCol of this.computedColumns) {
+            if (curCol.source === oldName)
+                curCol.source = input;
+        }
         if (this.columnFilters[oldName] !== undefined) {
             this.columnFilters[input] = this.columnFilters[oldName];
             delete this.columnFilters[oldName];
@@ -956,12 +1144,13 @@ export default class DatafilterbarSPL extends Plugin {
         let firstTh = req.querySelector('th');
         if (!firstTh)
             return;
+        let computedColumns = this.getCompatibleComputedColumns();
         let headRow = firstTh.parentNode;
 
         // Remove headers and cells of no longer existing columns
         for (let curHead of req.querySelectorAll('.swac_datafilterbar_colhead')) {
             let name = curHead.getAttribute('swac_datafilterbar_col');
-            if (!this.computedColumns.find(c => c.name === name)) {
+            if (!computedColumns.find(c => c.name === name)) {
                 curHead.remove();
                 for (let curCell of this.findComputedCells(req, name)) {
                     curCell.remove();
@@ -971,10 +1160,10 @@ export default class DatafilterbarSPL extends Plugin {
         for (let curRow of req.querySelectorAll('.swac_repeatedForSet')) {
             for (let curCell of curRow.querySelectorAll('td[swac_datafilterbar_col]')) {
                 let name = curCell.getAttribute('swac_datafilterbar_col');
-                if (!this.computedColumns.find(c => c.name === name))
+                if (!computedColumns.find(c => c.name === name))
                     curCell.remove();
             }
-            for (let curCol of this.computedColumns) {
+            for (let curCol of computedColumns) {
                 let found = false;
                 for (let curCell of this.findComputedCellCandidates(curRow, curCol.name)) {
                     if (found) {
@@ -989,7 +1178,7 @@ export default class DatafilterbarSPL extends Plugin {
         // Ensure a header per column with rename icon, remove icon and a
         // search field like the other columns have
         let thisRef = this;
-        for (let curCol of this.computedColumns) {
+        for (let curCol of computedColumns) {
             if (!this.findComputedHead(req, curCol.name)) {
                 let th = document.createElement('th');
                 th.classList.add('swac_datafilterbar_colhead');
@@ -998,7 +1187,7 @@ export default class DatafilterbarSPL extends Plugin {
                 let label = document.createElement('span');
                 label.classList.add('swac_datafilterbar_colname');
                 label.setAttribute('swac_datafilterbar_attr', curCol.name);
-                label.textContent = curCol.name;
+                label.textContent = this.computedColumnLabel(curCol);
                 let ren = document.createElement('a');
                 ren.href = '#';
                 ren.innerHTML = '<span uk-icon="icon: pencil; ratio: 0.6"></span>';
@@ -1057,16 +1246,16 @@ export default class DatafilterbarSPL extends Plugin {
                 }
                 if (label) {
                     label.setAttribute('swac_datafilterbar_attr', curCol.name);
-                    label.textContent = this.renames[curCol.name] || curCol.name;
+                    label.textContent = this.computedColumnLabel(curCol);
                 }
                 let filter = head.querySelector('.swac_datafilterbar_colfilter');
                 if (filter)
                     filter.value = this.columnFilters[curCol.name] || '';
             }
         }
-        if (this.computedColumns.length === 0)
+        if (computedColumns.length === 0)
             return;
-        let headerPositions = this.computedHeaderPositions(headRow);
+        let headerPositions = this.computedHeaderPositions(headRow, computedColumns);
 
         // Index the source sets for the row matching
         let byKey = new Map();
@@ -1079,7 +1268,8 @@ export default class DatafilterbarSPL extends Plugin {
             let sid = curRow.getAttribute('swac_setid');
             let sfn = curRow.getAttribute('swac_fromname');
             let set = byKey.get(sfn + '|' + sid) || byKey.get(sfn + '|' + Number(sid));
-            for (let curCol of this.computedColumns) {
+            let computedSet = set ? this.copySet(set) : null;
+            for (let curCol of computedColumns) {
                 let td = this.findComputedCell(curRow, curCol.name);
                 if (!td) {
                     let valueCells = curRow.querySelectorAll('.swac_repeatedForValue');
@@ -1090,12 +1280,12 @@ export default class DatafilterbarSPL extends Plugin {
                 this.prepareComputedCell(td, curCol.name, sfn, sid);
                 this.placeComputedCell(curRow, td, headerPositions[curCol.name]);
                 let val = null;
-                if (set) {
-                    val = (set[curCol.name] !== undefined && set[curCol.name] !== null)
-                            ? set[curCol.name]
-                            : this.evaluateFormula(curCol.formula, set);
+                if (computedSet) {
+                    val = (computedSet[curCol.name] !== undefined && computedSet[curCol.name] !== null)
+                            ? computedSet[curCol.name]
+                            : this.evaluateComputedColumn(curCol, computedSet);
+                    computedSet[curCol.name] = val;
                 }
-                // Not computable combinations (dates, booleans, texts) show NaN
                 this.fillComputedCell(td, curCol.name, val);
             }
         }
@@ -1244,13 +1434,22 @@ export default class DatafilterbarSPL extends Plugin {
             td.classList.add('swac_repeatedForValue', 'swac_datafilterbar_sourcecell');
             td.setAttribute('swac_attrname', curAttr);
             td.setAttribute('attrname', curAttr);
-            let val = set[curAttr];
-            td.textContent = (val === null || val === undefined) ? 'NaN' : val;
+            td.textContent = this.displaySourceValue(set[curAttr]);
             if (before)
                 row.insertBefore(td, before);
             else
                 row.appendChild(td);
         }
+    }
+
+    /**
+     * Formats a source value for table output.
+     *
+     * @param {*} value Source value
+     * @returns {*} Value or null text
+     */
+    displaySourceValue(value) {
+        return (value === null || value === undefined) ? 'null' : value;
     }
 
     /**
@@ -1282,10 +1481,10 @@ export default class DatafilterbarSPL extends Plugin {
      * @param {HTMLElement} headRow Header row
      * @returns {Object} Column name to visible position
      */
-    computedHeaderPositions(headRow) {
+    computedHeaderPositions(headRow, computedColumns = this.getCompatibleComputedColumns()) {
         let positions = {};
         let headers = this.visibleTableCells(headRow);
-        for (let curCol of this.computedColumns) {
+        for (let curCol of computedColumns) {
             let head = this.findComputedHead(headRow, curCol.name);
             positions[curCol.name] = headers.indexOf(head);
         }
@@ -1350,7 +1549,7 @@ export default class DatafilterbarSPL extends Plugin {
     }
 
     /**
-     * Adds a rename icon behind every column title of a table target (#70).
+     * Adds a rename icon behind every column title of a table target.
      * A click on the icon asks for the new name, the rename is stored
      * globally in localStorage and applied to tables and charts.
      *
@@ -1470,15 +1669,19 @@ export default class DatafilterbarSPL extends Plugin {
         if (!this.options.filterSameSource)
             return targets;
         let hostSources = Object.keys(host.data);
+        let hostSourceName = host.options ? host.options.fromName : null;
         for (let curElem of document.querySelectorAll('[swa]')) {
             if (!curElem.swac_comp || curElem.swac_comp === host)
                 continue;
             let comp = curElem.swac_comp;
-            let sharesSource = false;
-            for (let curSource in comp.data) {
-                if (hostSources.includes(curSource)) {
-                    sharesSource = true;
-                    break;
+            let sharesSource = Boolean(hostSourceName && comp.options
+                    && comp.options.fromName === hostSourceName);
+            if (!sharesSource) {
+                for (let curSource in comp.data) {
+                    if (hostSources.includes(curSource)) {
+                        sharesSource = true;
+                        break;
+                    }
                 }
             }
             if (sharesSource) {
@@ -1503,6 +1706,28 @@ export default class DatafilterbarSPL extends Plugin {
                 dataManager = dmReq.swac_comp;
         }
         return {comp: comp, dataManager: dataManager};
+    }
+
+    /**
+     * Normalizes the filter target selection.
+     *
+     * @param {String} target Target value
+     * @returns {String} Normalized target value
+     */
+    normalizeFilterTarget(target) {
+        let value = String(target || 'both').toLowerCase();
+        return ['both', 'chart', 'table'].includes(value) ? value : 'both';
+    }
+
+    /**
+     * Checks if filters and aggregation apply to a target.
+     *
+     * @param {Object} target Target descriptor
+     * @returns {Boolean} True when the target should get filter effects
+     */
+    filterTargetApplies(target) {
+        let targetType = target.dataManager ? 'chart' : 'table';
+        return this.filterTarget === 'both' || this.filterTarget === targetType;
     }
 
     /**
@@ -1605,10 +1830,11 @@ export default class DatafilterbarSPL extends Plugin {
         let thisRef = this;
         let list = this.menu.querySelector('.swac_datafilterbar_computedlist');
         list.innerHTML = '';
-        for (let curCol of this.computedColumns) {
+        for (let curCol of this.getCompatibleComputedColumns()) {
             let row = document.createElement('div');
             let label = document.createElement('span');
-            label.textContent = curCol.name + ' = ' + curCol.formula + ' ';
+            let definition = curCol.formula || curCol.source || '';
+            label.textContent = this.computedColumnLabel(curCol) + ' = ' + definition + ' ';
             let del = document.createElement('a');
             del.href = '#';
             del.innerHTML = '<span uk-icon="icon: close; ratio: 0.7"></span>';
@@ -1639,6 +1865,8 @@ export default class DatafilterbarSPL extends Plugin {
             text += ' adapted from ' + adapter.rowPath;
         if (adapter && adapter.timeAttr)
             text += ', time: ' + adapter.timeAttr;
+        if (adapter && adapter.adaptation)
+            text += ', Adaption: ' + (adapter.adaptation === 'ai' ? 'KI' : 'regelbasiert');
         if (adapter && adapter.numericAttrs && adapter.numericAttrs.length > 0)
             text += ', numeric: ' + adapter.numericAttrs.length;
         if (adapter && adapter.warnings && adapter.warnings.length > 0)
@@ -1653,35 +1881,7 @@ export default class DatafilterbarSPL extends Plugin {
      * @returns {String|null} Normalized link or null
      */
     normalizeSourceLink(link) {
-        let source = (link || '').trim();
-        let parsed;
-        try {
-            parsed = new URL(source);
-        } catch (e) {
-            return null;
-        }
-        if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:')
-            return null;
-        return this.normalizeSharedFileLink(parsed);
-    }
-
-    /**
-     * Converts known shared file links into direct download links.
-     *
-     * @param {URL} parsed Parsed source link
-     * @returns {String} Normalized source link
-     */
-    normalizeSharedFileLink(parsed) {
-        if (parsed.hostname === 'drive.google.com') {
-            let id = parsed.searchParams.get('id');
-            let match = parsed.pathname.match(/\/file\/d\/([^\/]+)/);
-            if (!id && match)
-                id = match[1];
-            if (id)
-                return 'https://drive.google.com/uc?export=download&id='
-                        + encodeURIComponent(id);
-        }
-        return parsed.href;
+        return ExternalDataSource.normalizeLink(link);
     }
 
     /**
@@ -1691,34 +1891,7 @@ export default class DatafilterbarSPL extends Plugin {
      * @returns {Promise} Promise with parsed json
      */
     loadExternalJson(url) {
-        return fetch(url, {
-            method: 'GET',
-            cache: 'no-cache',
-            credentials: 'omit',
-            headers: {
-                'Accept': 'application/json, text/plain;q=0.9, */*;q=0.8'
-            }
-        }).then(function (res) {
-            if (!res.ok)
-                throw new Error('HTTP status ' + res.status);
-            return res.text();
-        }).then(function (txt) {
-            let jsonText = txt.trim().replace(/^\uFEFF/, '');
-            try {
-                return JSON.parse(jsonText);
-            } catch (e) {
-                let firstObject = jsonText.indexOf('{');
-                let firstArray = jsonText.indexOf('[');
-                let start = firstObject >= 0 && (firstArray < 0 || firstObject < firstArray)
-                        ? firstObject : firstArray;
-                let endObject = jsonText.lastIndexOf('}');
-                let endArray = jsonText.lastIndexOf(']');
-                let end = endObject > endArray ? endObject : endArray;
-                if (start >= 0 && end > start)
-                    return JSON.parse(jsonText.substring(start, end + 1));
-                throw new Error('Response is no valid json.');
-            }
-        });
+        return ExternalDataSource.loadJson(url);
     }
 
     /**
@@ -1734,10 +1907,11 @@ export default class DatafilterbarSPL extends Plugin {
         if ((adapter && !adapter.usable) || sets.length === 0) {
             this.altSource = null;
             this.datasourceToLoad = null;
+            let reason = adapter && adapter.reason
+                    ? adapter.reason : 'JSON not suitable.';
             this.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
-                    = 'JSON not suitable';
-            Msg.warn('Datafilterbar', adapter && adapter.reason
-                    ? adapter.reason : 'JSON not suitable.', this.requestor);
+                    = 'Error: ' + reason;
+            Msg.warn('Datafilterbar', reason, this.requestor);
             return false;
         }
         for (let curSet of sets) {
@@ -1761,12 +1935,34 @@ export default class DatafilterbarSPL extends Plugin {
         if (saveable)
             this.saveSettings();
         this.updateRequestorDisplay();
+        this.notifySourceChange();
         this.applyAll();
         return true;
     }
 
     /**
-     * Loads an alternative datasource that replaces the shown data (#64)
+     * Adapts a source with the selected deterministic or AI method.
+     *
+     * @param {Object} json Source JSON
+     * @param {String} sourceName Source identifier
+     * @returns {Promise<Object>} Adaptation result
+     */
+    adaptExternalSource(json, sourceName) {
+        return ExternalDataSource.adapt(json, sourceName, this.adaptationMode);
+    }
+
+    /**
+     * Normalizes the selected datasource adaptation mode.
+     *
+     * @param {String} mode Selected mode
+     * @returns {String} Supported mode
+     */
+    normalizeAdaptationMode(mode) {
+        return AIDataSourceAdapter.normalizeMode(mode);
+    }
+
+    /**
+     * Loads an alternative datasource that replaces the shown data
      *
      * @returns {undefined}
      */
@@ -1786,9 +1982,9 @@ export default class DatafilterbarSPL extends Plugin {
         this.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
                 = 'Loading: ' + url;
         this.loadExternalJson(url).then(function (json) {
-            let adapter = DataSourceAdapter.adaptCapsule({data: json, fromName: url});
-            let sets = adapter.sets || [];
-            thisRef.applyAlternativeSource(url, sets, adapter, true);
+            return thisRef.adaptExternalSource(json, url);
+        }).then(function (adapter) {
+            thisRef.applyAlternativeSource(url, adapter.sets || [], adapter, true);
         }).catch(function (err) {
             thisRef.datasourceToLoad = null;
             let message = err && err.message ? err.message : err;
@@ -1810,25 +2006,20 @@ export default class DatafilterbarSPL extends Plugin {
                 ? evt.target.files[0] : null;
         if (!file)
             return;
-        let reader = new FileReader();
-        reader.onload = function () {
-            let json;
-            try {
-                json = JSON.parse(reader.result);
-            } catch (e) {
-                Msg.error('Datafilterbar', 'Selected file is no valid json.', thisRef.requestor);
-                thisRef.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
-                        = 'JSON not suitable';
-                return;
-            }
-            let sourceName = 'localfile:' + file.name;
-            let adapter = DataSourceAdapter.adaptCapsule({data: json, fromName: sourceName});
-            thisRef.applyAlternativeSource(sourceName, adapter.sets, adapter, false);
-        };
-        reader.onerror = function () {
-            Msg.error('Datafilterbar', 'Could not read selected file.', thisRef.requestor);
-        };
-        reader.readAsText(file);
+        let sourceName = 'localfile:' + file.name;
+        this.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
+                = this.adaptationMode === 'ai'
+                ? 'Adapting with AI: ' + file.name : 'Adapting: ' + file.name;
+        ExternalDataSource.readJsonFile(file).then(function (json) {
+            return thisRef.adaptExternalSource(json, sourceName);
+        }).then(function (adapter) {
+            thisRef.applyAlternativeSource(sourceName, adapter.sets || [], adapter, false);
+        }).catch(function (err) {
+            let message = err && err.message ? err.message : err;
+            Msg.error('Datafilterbar', 'Could not adapt selected file: ' + message, thisRef.requestor);
+            thisRef.menu.querySelector('.swac_datafilterbar_sourcestate').textContent
+                    = 'Error: ' + message;
+        });
     }
 
     /**
@@ -1849,6 +2040,7 @@ export default class DatafilterbarSPL extends Plugin {
         this.updateAvailableRange();
         this.saveSettings();
         this.updateRequestorDisplay();
+        this.notifySourceChange();
         this.applyAll();
     }
 
@@ -1858,8 +2050,100 @@ export default class DatafilterbarSPL extends Plugin {
      * @returns {undefined}
      */
     onClickExport() {
-        this.menu.querySelector('.swac_datafilterbar_settingsio').value
-                = JSON.stringify(this.settingsToObject(), null, 2);
+        this.menu.querySelector('.swac_datafilterbar_settingsio').value = this.getSettingsText();
+    }
+
+    /**
+     * Downloads the current settings as a text file.
+     *
+     * @returns {undefined}
+     */
+    onClickSettingsDownload() {
+        let text = this.getSettingsText();
+        this.menu.querySelector('.swac_datafilterbar_settingsio').value = text;
+        TableExport.download(new Blob([text], {type: 'text/plain;charset=utf-8'}), this.getSettingsFilename());
+    }
+
+    /**
+     * Copies the current settings to the clipboard.
+     *
+     * @returns {Promise<void>}
+     */
+    async onClickSettingsCopy() {
+        let text = this.getSettingsText();
+        this.menu.querySelector('.swac_datafilterbar_settingsio').value = text;
+        if (await TextTransfer.copy(text)) {
+            Msg.info('Datafilterbar', this.translate('settingscopied', 'Settings copied.'), this.requestor);
+            return;
+        }
+        Msg.warn('Datafilterbar', this.translate('settingscopyfailed', 'Settings could not be copied.'), this.requestor);
+    }
+
+    /**
+     * Gets the current settings as formatted JSON.
+     *
+     * @returns {String} Settings JSON
+     */
+    getSettingsText() {
+        return JSON.stringify(this.settingsToObject(), null, 2);
+    }
+
+    /**
+     * Gets a safe filename for a settings download.
+     *
+     * @returns {String} Download filename
+     */
+    getSettingsFilename() {
+        let source = this.altSource?.name || this.altSource?.url
+                || this.getHost().options.fromName || 'data';
+        return 'settings_' + String(source).replace(/[^a-z0-9_-]+/gi, '_') + '.txt';
+    }
+
+    /**
+     * Exports the visible table with the current display values.
+     *
+     * @returns {undefined}
+     */
+    onClickTableExport() {
+        let table = this.getTableExportTarget();
+        if (!TableExport.exportTable(table, this.getTableExportFilename(), this.getTableExportFormat()))
+            Msg.warn('Datafilterbar', this.translate('tableexportempty', 'No table data is available for export.'), this.requestor);
+    }
+
+    /**
+     * Gets the selected table export format.
+     *
+     * @returns {String} Export format
+     */
+    getTableExportFormat() {
+        return this.menu.querySelector('.swac_datafilterbar_tableexportformat')?.value || 'csv';
+    }
+
+    /**
+     * Gets the table target that shares the current datasource.
+     *
+     * @returns {HTMLTableElement|null} Table to export
+     */
+    getTableExportTarget() {
+        for (let target of this.findTargets()) {
+            if (target.dataManager)
+                continue;
+            let table = target.comp.requestor.querySelector('table');
+            if (table)
+                return table;
+        }
+        return null;
+    }
+
+    /**
+     * Gets a filename based on the current datasource.
+     *
+     * @returns {String} Download filename
+     */
+    getTableExportFilename() {
+        let source = this.altSource?.name || this.altSource?.url
+                || this.getHost().options.fromName || 'data';
+        return 'table_' + source;
     }
 
     /**
@@ -1899,10 +2183,12 @@ export default class DatafilterbarSPL extends Plugin {
             timeTo: this.toFilter ? this.toFilter.toISOString() : null,
             valueFilter: this.valueFilter,
             aggregation: this.aggregation,
+            filterTarget: this.filterTarget,
             renames: this.renames,
             computedColumns: this.computedColumns,
             columnFilters: this.columnFilters,
             series: this.getSeriesSettings(),
+            adaptationMode: this.adaptationMode,
             datasource: this.altSource && !this.altSource.local
                     ? this.altSource.url : this.datasourceToLoad
         };
@@ -1919,10 +2205,12 @@ export default class DatafilterbarSPL extends Plugin {
         this.toFilter = obj.timeTo ? new Date(obj.timeTo) : null;
         this.valueFilter = obj.valueFilter || null;
         this.aggregation = obj.aggregation || null;
+        this.filterTarget = this.normalizeFilterTarget(obj.filterTarget);
         this.renames = obj.renames || {};
-        this.computedColumns = obj.computedColumns || [];
+        this.computedColumns = this.mergeDefaultComputedColumns(obj.computedColumns || []);
         this.columnFilters = obj.columnFilters || {};
         this.seriesSettings = obj.series || null;
+        this.adaptationMode = this.normalizeAdaptationMode(obj.adaptationMode);
         if (obj.datasource) {
             this.altSource = null;
             this.datasourceToLoad = obj.datasource;
@@ -1936,11 +2224,78 @@ export default class DatafilterbarSPL extends Plugin {
     }
 
     /**
+     * Adds configured columns that are missing in imported or stored settings.
+     *
+     * @param {Array} columns Stored computed columns
+     * @returns {Array} Computed columns with configured defaults
+     */
+    mergeDefaultComputedColumns(columns) {
+        let result = [];
+        for (let curColumn of columns) {
+            let column = this.copyComputedColumn(curColumn);
+            let isConfiguredDefault = column && this.options.defaultComputedColumns
+                    .some(defaultColumn => defaultColumn.name === column.name);
+            if (column && !isConfiguredDefault)
+                result.push(column);
+        }
+        for (let curDefault of this.options.defaultComputedColumns) {
+            let column = this.copyComputedColumn(curDefault);
+            if (column && !result.find(curColumn => curColumn.name === column.name))
+                result.push(column);
+        }
+        return result;
+    }
+
+    /**
+     * Copies a supported computed column definition.
+     *
+     * @param {Object} column Column definition
+     * @returns {Object|null} Copied definition or null
+     */
+    copyComputedColumn(column) {
+        if (!column || !column.name)
+            return null;
+        let copy = {name: column.name};
+        if (column.formula) {
+            copy.formula = column.formula;
+        } else if (column.source && Array.isArray(column.valueRules)) {
+            copy.source = column.source;
+            copy.valueRules = column.valueRules.map(rule => Object.assign({}, rule));
+        } else {
+            return null;
+        }
+        if (column.labelKey)
+            copy.labelKey = column.labelKey;
+        if (column.noValueKey)
+            copy.noValueKey = column.noValueKey;
+        if (column.noValue !== undefined)
+            copy.noValue = column.noValue;
+        if (Array.isArray(column.requiresAttrs))
+            copy.requiresAttrs = column.requiresAttrs.slice();
+        return copy;
+    }
+
+    /**
+     * Gets computed columns whose required source attributes are available.
+     *
+     * @returns {Array} Compatible computed columns
+     */
+    getCompatibleComputedColumns() {
+        return this.computedColumns.filter((column) => {
+            if (!Array.isArray(column.requiresAttrs) || column.requiresAttrs.length === 0)
+                return true;
+            return column.requiresAttrs.every(attr => this.allAttrs.has(attr));
+        });
+    }
+
+    /**
      * Fills the menu inputs from the current state
      *
      * @returns {undefined}
      */
     fillInputsFromState() {
+        this.menu.querySelector('.swac_datafilterbar_target').value = this.filterTarget;
+        this.menu.querySelector('.swac_datafilterbar_adaptationmode').value = this.adaptationMode;
         this.menu.querySelector('.swac_datafilterbar_from').value
                 = this.fromFilter ? this.toInputValue(this.fromFilter) : '';
         this.menu.querySelector('.swac_datafilterbar_to').value
@@ -2012,7 +2367,7 @@ export default class DatafilterbarSPL extends Plugin {
 
     /**
      * Stores the settings. Renames and computed columns are stored globally
-     * so they apply to all stations (#70).
+     * so they apply to all compatible displays.
      *
      * @returns {undefined}
      */

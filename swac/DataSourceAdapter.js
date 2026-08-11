@@ -3,8 +3,7 @@
  *
  * The adapter is deterministic and does not know domain specific sources. It
  * searches for table like object lists, flattens nested objects and converts
- * numeric strings into numbers. A later AI based adapter can use the same
- * result structure.
+ * numeric strings into numbers.
  */
 export default class DataSourceAdapter {
 

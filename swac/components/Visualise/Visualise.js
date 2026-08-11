@@ -141,6 +141,22 @@ export default class Visualise extends View {
         };
         if (!options.dataUnits)
             this.options.dataUnits = null;
+
+        this.desc.opts[4] = {
+            name: 'autoVisus',
+            desc: 'Automatically creates visualisations for numeric attributes. Optional resolvers can define diagram types and ranges for project specific attributes.',
+            example: {
+                mode: 'automatic',
+                attributeFilter: function (attr, set) {
+                    return attr !== 'id';
+                },
+                definitionResolver: function (attr, set, type) {
+                    return {unit: '', type: type};
+                }
+            }
+        };
+        if (!options.autoVisus)
+            this.options.autoVisus = null;
     }
 
     init() {
@@ -152,6 +168,7 @@ export default class Visualise extends View {
     afterAddSet(set, repeateds) {
         Msg.flow('Visualise', 'afterAddSet() called for set ' + set.swac_fromName + '[' + set.id + ']', this.requestor);
         let repeatedForSets = this.requestor.querySelectorAll('.swac_repeatedForSet[swac_fromname="' + set.swac_fromName + '"][swac_setid="' + set.id + '"]');
+        let visus = this.getVisus(set);
         let foundVisus = 0;
         // For every repeatableArea
         for (let curRepeatedElem of repeatedForSets) {
@@ -162,7 +179,7 @@ export default class Visualise extends View {
                 let attr = curValueArea.getAttribute('swac_attrname');
                 // Search diagram definition
                 let def = null;
-                for (let curDef of this.options.visus) {
+                for (let curDef of visus) {
                     if (curDef.attr === attr) {
                         def = curDef;
                     } else if (curDef.attr === '*') {
@@ -189,6 +206,176 @@ export default class Visualise extends View {
                 Msg.warn('Visualise', 'There is no visualisation for set >' + set.swac_fromName + '[' + set.id + ']<', this.requestor);
             }
         }
+    }
+
+    /**
+     * Gets configured and automatically detected visualisations for a set.
+     *
+     * @param {WatchableSet} set Dataset to analyse
+     * @returns {Object[]} Diagram definitions
+     */
+    getVisus(set) {
+        let visus = this.options.visus.slice();
+        let autoOpts = this.options.autoVisus;
+        if (!autoOpts || autoOpts.mode === 'chart')
+            return visus;
+
+        for (let curAttr in set) {
+            if (!this.isAutomaticAttribute(curAttr, set, autoOpts))
+                continue;
+            if (visus.some(curDef => curDef.attr === curAttr))
+                continue;
+
+            let type = this.getAutomaticType(curAttr, set, autoOpts);
+            let def = this.getAutomaticDefinition(curAttr, set, type, autoOpts);
+            if (def)
+                visus.push(def);
+        }
+        return visus;
+    }
+
+    /**
+     * Checks whether an attribute can be shown as an automatic diagram.
+     *
+     * @param {String} attr Attribute name
+     * @param {WatchableSet} set Dataset to analyse
+     * @param {Object} autoOpts Automatic visualisation options
+     * @returns {Boolean} True when the attribute is numeric and allowed
+     */
+    isAutomaticAttribute(attr, set, autoOpts) {
+        if (attr.startsWith('swac_') || attr === 'id')
+            return false;
+        if (autoOpts.excludeAttrs && autoOpts.excludeAttrs.includes(attr))
+            return false;
+        if (!this.isNumericValue(set[attr]))
+            return false;
+        if (autoOpts.attributeFilter)
+            return autoOpts.attributeFilter(attr, set) === true;
+        return true;
+    }
+
+    /**
+     * Checks whether a value can be represented by a number diagram.
+     *
+     * @param {*} value Value to check
+     * @returns {Boolean} True when the value is numeric
+     */
+    isNumericValue(value) {
+        if (typeof value === 'number')
+            return isFinite(value);
+        if (typeof value !== 'string' || value.trim() === '')
+            return false;
+        return !isNaN(Number(value)) && isFinite(Number(value));
+    }
+
+    /**
+     * Resolves the diagram type from an attribute name.
+     *
+     * @param {String} attr Attribute name
+     * @param {WatchableSet} set Dataset to analyse
+     * @param {Object} autoOpts Automatic visualisation options
+     * @returns {String} Diagram type
+     */
+    getAutomaticType(attr, set, autoOpts) {
+        if (autoOpts.mode && autoOpts.mode !== 'automatic')
+            return this.getModeDiagramType(autoOpts.mode);
+
+        if (autoOpts.typeResolver) {
+            let resolvedType = autoOpts.typeResolver(attr, set, autoOpts.mode);
+            if (resolvedType)
+                return resolvedType;
+        }
+
+        let attrName = attr.toLowerCase();
+        if (/(temp|temperature)/.test(attrName))
+            return 'Thermometer';
+        if (/(humid|humidity|feuchte)/.test(attrName))
+            return 'Hygrometer';
+        if (/(percent|percentage|battery|charge)/.test(attrName))
+            return 'CircleProgress';
+        return 'CircleValue';
+    }
+
+    /**
+     * Maps a selected display mode to a diagram type.
+     *
+     * @param {String} mode Selected display mode
+     * @returns {String} Diagram type
+     */
+    getModeDiagramType(mode) {
+        let types = {
+            circle: 'CircleValue',
+            thermometer: 'Thermometer',
+            hygrometer: 'Hygrometer',
+            progress: 'CircleProgress'
+        };
+        return types[mode] || 'CircleValue';
+    }
+
+    /**
+     * Creates a diagram definition for a detected numeric attribute.
+     *
+     * @param {String} attr Attribute name
+     * @param {WatchableSet} set Dataset to analyse
+     * @param {String} type Diagram type
+     * @param {Object} autoOpts Automatic visualisation options
+     * @returns {Object|null} Diagram definition
+     */
+    getAutomaticDefinition(attr, set, type, autoOpts) {
+        let def = {
+            attr: attr,
+            type: type,
+            name: attr,
+            width: 180,
+            height: 180,
+            range: this.getDefaultRange(type, set[attr])
+        };
+        if (autoOpts.definitionResolver) {
+            let resolvedDef = autoOpts.definitionResolver(attr, set, type);
+            if (resolvedDef === null)
+                return null;
+            if (resolvedDef)
+                Object.assign(def, resolvedDef);
+        }
+        return def;
+    }
+
+    /**
+     * Gets a neutral range for automatic diagrams without project settings.
+     *
+     * @param {String} type Diagram type
+     * @param {*} value Current value
+     * @returns {Object} Range definition
+     */
+    getDefaultRange(type, value) {
+        if (type === 'Thermometer') {
+            return {
+                minValue: -20,
+                maxValue: 50,
+                values: [
+                    {maxValue: 10, col: '#56B4E9'},
+                    {maxValue: 30, col: '#009E73'},
+                    {maxValue: 50, col: '#D55E00'}
+                ]
+            };
+        }
+        if (type === 'Hygrometer' || type === 'CircleProgress') {
+            return {
+                minValue: 0,
+                maxValue: 100,
+                values: [
+                    {maxValue: 33, col: '#56B4E9'},
+                    {maxValue: 66, col: '#009E73'},
+                    {maxValue: 100, col: '#E69F00'}
+                ]
+            };
+        }
+        let maxValue = Math.max(10, Math.abs(Number(value)) * 2);
+        return {
+            minValue: Math.min(0, Number(value)),
+            maxValue: maxValue,
+            values: [{maxValue: maxValue, col: '#56B4E9'}]
+        };
     }
 
     /**
@@ -230,6 +417,9 @@ export default class Visualise extends View {
 
     calculateDiagram(set, diagramdef, valueArea, module, datadescription) {
         let thisRef = this;
+
+        if (!datadescription && diagramdef.range)
+            datadescription = new VisualiseRange(diagramdef.range);
 
         let diagramClass = module.default;
         // Get attribute name
@@ -319,5 +509,68 @@ export default class Visualise extends View {
                 });
             }
         }
+    }
+}
+
+/**
+ * Provides range data to diagrams without a Datadescription component.
+ */
+class VisualiseRange {
+    constructor(range) {
+        this.range = range;
+        this.definitions = this.createDefinitions(range);
+    }
+
+    createDefinitions(range) {
+        let minValue = Number(range.minValue);
+        let values = range.values || [];
+        let definitions = [];
+        for (let curValue of values) {
+            let maxValue = Number(curValue.maxValue);
+            definitions.push({
+                minValue: typeof curValue.minValue === 'number' ? curValue.minValue : minValue,
+                maxValue: maxValue,
+                col: curValue.col || '#7B7B7B',
+                txt: curValue.txt || ''
+            });
+            minValue = maxValue;
+        }
+        if (definitions.length === 0) {
+            definitions.push({
+                minValue: Number(range.minValue),
+                maxValue: Number(range.maxValue),
+                col: '#7B7B7B',
+                txt: ''
+            });
+        }
+        return definitions;
+    }
+
+    getDefinitions() {
+        return this.definitions;
+    }
+
+    getMinDefinition() {
+        return this.definitions[0];
+    }
+
+    getMaxDefinition() {
+        return this.definitions[this.definitions.length - 1];
+    }
+
+    getAttributeMinValue() {
+        return Number(this.range.minValue);
+    }
+
+    getAttributeMaxValue() {
+        return Number(this.range.maxValue);
+    }
+
+    getValuesVisdata(name, value, property) {
+        for (let curDef of this.definitions) {
+            if (value >= curDef.minValue && value <= curDef.maxValue)
+                return curDef[property];
+        }
+        return this.getMaxDefinition()[property];
     }
 }

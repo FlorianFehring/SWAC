@@ -2027,6 +2027,8 @@ DEFINTION of SET:\n\
         // Get components dependencies
         for (let depNo in this.desc.depends) {
             let dependency = this.desc.depends[depNo];
+            if (dependency.loadon === false)
+                continue;
             // Ignore if debugonly and no debugmode
             if (dependency.debugonly && !SWAC_config.debugmode)
                 continue;

@@ -86,7 +86,7 @@ export default class Select extends View {
             name: "rememberSelection",
             desc: "Remember selection and save to local storage"
         };
-        if (!options.rememberSelection)
+        if (typeof options.rememberSelection === 'undefined')
             this.options.rememberSelection = true;
 
         this.desc.funcs[0] = {
@@ -173,8 +173,8 @@ Example parameter:\n\
                     }).catch(function (err) {
                         Msg.error('Select', 'Error requesting the selecteds from >' + thisRef.options.selectedsSource + '<: ' + err, thisRef);
                     });
-                } else {
-                    // get selectets from local storage
+                } else if (thisRef.options.rememberSelection) {
+                    // Get selected values from local storage.
                     let localStorageValue = localStorage.getItem(thisRef.requestor.id + "_Selected");
                     if (localStorageValue) {
                         thisRef.requestor.value = "";
@@ -182,6 +182,8 @@ Example parameter:\n\
                         thisRef.setInputs(value);
                         thisRef.onChange({target: thisRef}, value);
                     }
+                    resolve();
+                } else {
                     resolve();
                 }
             }, this.requestor.id);

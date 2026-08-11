@@ -3,26 +3,7 @@ import Msg from '../../../../Msg.js';
 import Plugin from '../../../../Plugin.js';
 
 /**
- * DataManager plugin for the Charts component.
- *
- * Provides a settings bar above the chart that lets the user control how the
- * data is displayed:
- * - add and remove data series (attributes)
- * - assign a color to each data series
- *
- * The plugin detects the available numeric attributes automatically from the
- * data, so it works with any datasource (sensor data, water data, ...) without
- * configuration.
- *
- * Drawing is delegated to a chart drawing plugin (Linechart by default). The
- * DataManager controls that plugin through its official hooks (initChart,
- * afterAddSet, afterRemoveSet). The drawing plugin must be active in the options
- * so it gets loaded, the DataManager then keeps it in sync with the chosen
- * series and colors.
- *
- * Filtering of the data (time range, value) is not done here. Filtering also
- * affects the table and is therefore handled by the separate DataFilterStored
- * component.
+ * Manages chart series, colors and axis settings.
  */
 export default class DataManagerSPL extends Plugin {
 
@@ -33,15 +14,10 @@ export default class DataManagerSPL extends Plugin {
         this.desc.developers = 'Maczap (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
 
-        // No template is registered on purpose. A plugin that loads a template
-        // gets its own tab in the chart navigation. The DataManager must not be
-        // a tab, its settings bar is always visible above the chart. Without a
-        // template the chart drawing plugin (Linechart) stays the first tab.
-
         this.desc.opts[0] = {
             name: 'defaultAttrs',
             desc: 'Attributes shown at start. If not set the first numeric attribute is used.',
-            example: ['temp1']
+            example: ['value']
         };
         if (!opts.defaultAttrs)
             this.options.defaultAttrs = null;
@@ -55,6 +31,16 @@ export default class DataManagerSPL extends Plugin {
             this.options.excludeAttrs = ['id'];
 
         this.desc.opts[2] = {
+            name: 'attributeFilter',
+            desc: 'Optional function that decides whether an attribute is offered as a data series.',
+            example: function (attr, set) {
+                return attr !== 'internal_value';
+            }
+        };
+        if (!opts.attributeFilter)
+            this.options.attributeFilter = null;
+
+        this.desc.opts[3] = {
             name: 'chartPlugin',
             desc: 'Name of the chart drawing plugin that is controlled.',
             example: 'Linechart'
@@ -62,8 +48,17 @@ export default class DataManagerSPL extends Plugin {
         if (!opts.chartPlugin)
             this.options.chartPlugin = 'Linechart';
 
+        this.desc.opts[4] = {
+            name: 'showAxisSelectors',
+            desc: 'Shows optional controls for choosing the x and y axis attributes.',
+            example: true
+        };
+        if (typeof opts.showAxisSelectors === 'undefined')
+            this.options.showAxisSelectors = false;
+
         // Internal state
         this.knownAttrs = new Set();    // all numeric attributes found in data
+        this.axisAttrs = new Set();     // scalar attributes available for the x axis
         this.activeAttrs = [];          // attributes currently shown
         this.attrColors = {};           // chosen color per attribute
         this.allSets = [];              // all sets received, used for redraw
@@ -103,8 +98,10 @@ export default class DataManagerSPL extends Plugin {
         for (let curAttr in set) {
             if (curAttr.startsWith('swac_'))
                 continue;
-            if (this.options.excludeAttrs.includes(curAttr))
+            if (this.isExcludedAttr(curAttr, set))
                 continue;
+            if (this.isAxisValue(set[curAttr]))
+                this.axisAttrs.add(curAttr);
             if (!this.isNumericValue(set[curAttr]))
                 continue;
             this.knownAttrs.add(curAttr);
@@ -157,8 +154,7 @@ export default class DataManagerSPL extends Plugin {
     }
 
     /**
-     * Builds the settings bar and inserts it above the chart navigation, so it
-     * is always visible regardless of the active tab. Inserted only once.
+     * Builds the chart settings bar.
      *
      * @returns {undefined}
      */
@@ -176,6 +172,15 @@ export default class DataManagerSPL extends Plugin {
         // Place the bar above the chart navigation
         chartReq.insertBefore(bar, chartReq.firstChild);
         this.bar = bar;
+
+        if (this.options.showAxisSelectors) {
+            let xSelect = bar.querySelector('.swac_datamanager_xaxis');
+            let ySelect = bar.querySelector('.swac_datamanager_yaxis');
+            let applyButton = bar.querySelector('.swac_datamanager_axisapply');
+            applyButton.addEventListener('click', () => {
+                this.applyAxisSelection(xSelect.value, ySelect.value);
+            });
+        }
 
         // Build the language prefix the same way SWAC does: the component name
         // with /plugins/ removed and / replaced by _ (e.g. Charts_DataManager).
@@ -199,6 +204,20 @@ export default class DataManagerSPL extends Plugin {
      * @returns {String} The bar markup
      */
     getBarHtml() {
+        let axisControls = '';
+        if (this.options.showAxisSelectors) {
+            axisControls = '<div class="uk-width-1-1">'
+                    + '<div class="uk-grid-small uk-child-width-1-2@s" uk-grid>'
+                    + '<label><span class="uk-text-small" swac_lang="DataManager.xaxis">X axis</span>'
+                    + '<select class="swac_datamanager_xaxis uk-select uk-form-small"></select></label>'
+                    + '<label><span class="uk-text-small" swac_lang="DataManager.yaxis">Y axis</span>'
+                    + '<select class="swac_datamanager_yaxis uk-select uk-form-small"></select></label>'
+                    + '</div>'
+                    + '<div class="uk-margin-small-top">'
+                    + '<button class="swac_datamanager_axisapply uk-button uk-button-primary uk-button-small" type="button" swac_lang="DataManager.apply">Apply</button>'
+                    + '</div>'
+                    + '</div>';
+        }
         return '<div class="swac_datamanager_bar uk-card uk-card-default uk-card-small uk-card-body uk-margin-small-bottom">'
                 + '<div uk-grid class="uk-grid-small uk-flex-middle">'
                 + '<div class="uk-width-auto">'
@@ -218,6 +237,7 @@ export default class DataManagerSPL extends Plugin {
                 + '</div>'
                 + '</div>'
                 + '</div>'
+                + axisControls
                 + '</div>'
                 + '</div>';
     }
@@ -261,6 +281,66 @@ export default class DataManagerSPL extends Plugin {
             list.appendChild(li);
             SWAC.lang.translateAll(list);
         }
+        this.refreshAxisSelectors();
+    }
+
+    /**
+     * Updates the optional axis controls from the detected attributes.
+     *
+     * @returns {undefined}
+     */
+    refreshAxisSelectors() {
+        if (!this.options.showAxisSelectors || !this.bar)
+            return;
+        let comp = this.requestor.parent.swac_comp;
+        if (!this.axisAttrs.has(comp.options.xAxisAttrName) && this.axisAttrs.size > 0)
+            comp.options.xAxisAttrName = this.axisAttrs.values().next().value;
+        let xSelect = this.bar.querySelector('.swac_datamanager_xaxis');
+        let ySelect = this.bar.querySelector('.swac_datamanager_yaxis');
+        this.fillAxisSelect(xSelect, this.axisAttrs, comp.options.xAxisAttrName);
+        this.fillAxisSelect(ySelect, this.knownAttrs, this.activeAttrs[0]);
+    }
+
+    /**
+     * Fills one axis selector and keeps its current value.
+     *
+     * @param {HTMLElement} select Axis selector
+     * @param {Set} attributes Available attributes
+     * @param {String} selected Selected attribute
+     * @returns {undefined}
+     */
+    fillAxisSelect(select, attributes, selected) {
+        if (!select)
+            return;
+        select.innerHTML = '';
+        for (let curAttr of attributes) {
+            let option = document.createElement('option');
+            option.value = curAttr;
+            option.textContent = this.displayName(curAttr);
+            option.selected = curAttr === selected;
+            select.appendChild(option);
+        }
+    }
+
+    /**
+     * Applies both selected axis attributes and redraws once.
+     *
+     * @param {String} xAttr X axis attribute
+     * @param {String} yAttr Y axis attribute
+     * @returns {undefined}
+     */
+    applyAxisSelection(xAttr, yAttr) {
+        let comp = this.requestor.parent.swac_comp;
+        if (xAttr)
+            comp.options.xAxisAttrName = xAttr;
+        if (yAttr) {
+            this.activeAttrs = [yAttr];
+            if (!this.attrColors[yAttr])
+                this.attrColors[yAttr] = this.generateColor(0);
+        }
+        this.refreshAttrDropdown();
+        this.refreshTags();
+        this.rebuildChart();
     }
 
     /**
@@ -396,10 +476,13 @@ export default class DataManagerSPL extends Plugin {
         let drawSets = [];
         if (this.displaySets) {
             // Draw externally provided sets (filtered/transformed elsewhere)
-            drawSets = this.displaySets.slice();
+            drawSets = this.displaySets.filter(curSet => typeof curSet[xAttr] !== 'undefined'
+                        && curSet[xAttr] !== null);
         } else {
             for (let curSet of this.allSets) {
                 if (this.filterPredicate && !this.filterPredicate(curSet))
+                    continue;
+                if (typeof curSet[xAttr] === 'undefined' || curSet[xAttr] === null)
                     continue;
                 drawSets.push(curSet);
             }
@@ -469,6 +552,7 @@ export default class DataManagerSPL extends Plugin {
         this.displayNames = names || {};
         this.refreshAttrDropdown();
         this.refreshTags();
+        this.refreshAxisSelectors();
         this.patchDatasetLabels();
     }
 
@@ -521,8 +605,7 @@ export default class DataManagerSPL extends Plugin {
 
     /**
      * Sets a filter predicate that decides which sets are drawn, and redraws.
-     * Used by an external filter component (DataReducer) so the chart stays
-     * sorted and is redrawn only once per filter change.
+     * This keeps filtering separate from series and color handling.
      *
      * @param {Function|null} predicate Function (set) => boolean, or null for all
      * @returns {undefined}
@@ -561,12 +644,8 @@ export default class DataManagerSPL extends Plugin {
     }
 
     /**
-     * Prepares a rebuild triggered by an external plugin (Datafilterbar).
-     * The chart is cleared and the drawing plugin is muted: its per set hooks
-     * are replaced by empty functions, because every single change on another
-     * component with the same datasource would otherwise trigger a full chart
-     * update per set through the shared datastore, which freezes the browser
-     * on hundreds of sets. rebuildChart restores the hooks and draws once.
+     * Prepares a rebuild triggered by external display sets. The drawing hooks
+     * are muted until rebuildChart draws the final set list once.
      *
      * @returns {undefined}
      */
@@ -602,11 +681,9 @@ export default class DataManagerSPL extends Plugin {
     }
 
     /**
-     * Sets external display sets that are drawn instead of the collected sets,
-     * used by the Datafilterbar plugin for aggregated, renamed or replaced
-     * data. Attribute renames are applied to the active series and the x axis,
-     * the series selection is rebuilt from the given sets. Pass null to return
-     * to the own collected sets.
+     * Sets external display sets that are drawn instead of the collected sets.
+     * Attribute renames are applied to the active series and the x axis. Pass
+     * null to return to the own collected sets.
      *
      * @param {Array|null} sets Sets to draw, or null
      * @param {Object|null} renameMap Map old attribute name to new name
@@ -630,12 +707,15 @@ export default class DataManagerSPL extends Plugin {
         if (sets) {
             // Rebuild the known attributes from the display sets
             this.knownAttrs = new Set();
+            this.axisAttrs = new Set();
             for (let curSet of sets) {
                 for (let curAttr in curSet) {
                     if (curAttr.startsWith('swac_'))
                         continue;
-                    if (this.options.excludeAttrs.includes(curAttr))
+                    if (this.isExcludedAttr(curAttr, curSet))
                         continue;
+                    if (this.isAxisValue(curSet[curAttr]))
+                        this.axisAttrs.add(curAttr);
                     if (this.isNumericValue(curSet[curAttr]))
                         this.knownAttrs.add(curAttr);
                 }
@@ -669,7 +749,8 @@ export default class DataManagerSPL extends Plugin {
         }
         return {
             activeAttrs: this.activeAttrs.slice(),
-            attrColors: colors
+            attrColors: colors,
+            xAxisAttrName: this.requestor.parent.swac_comp.options.xAxisAttrName
         };
     }
 
@@ -682,6 +763,9 @@ export default class DataManagerSPL extends Plugin {
     setDisplaySettings(settings) {
         if (!settings)
             return;
+        let comp = this.requestor.parent.swac_comp;
+        if (settings.xAxisAttrName && this.axisAttrs.has(settings.xAxisAttrName))
+            comp.options.xAxisAttrName = settings.xAxisAttrName;
         if (settings.attrColors) {
             for (let curAttr in settings.attrColors) {
                 this.attrColors[curAttr] = settings.attrColors[curAttr];
@@ -708,6 +792,7 @@ export default class DataManagerSPL extends Plugin {
         }
         this.refreshAttrDropdown();
         this.refreshTags();
+        this.refreshAxisSelectors();
         this.rebuildChart();
     }
 
@@ -736,12 +821,40 @@ export default class DataManagerSPL extends Plugin {
         for (let curAttr in set) {
             if (curAttr.startsWith('swac_'))
                 continue;
-            if (this.options.excludeAttrs.includes(curAttr))
+            if (this.isExcludedAttr(curAttr, set))
                 continue;
             if (this.isNumericValue(set[curAttr]))
                 return curAttr;
         }
         return null;
+    }
+
+    /**
+     * Checks whether an attribute must be hidden from the series selection.
+     *
+     * @param {String} attr Attribute name
+     * @param {WatchableSet} set Dataset containing the attribute
+     * @returns {Boolean} True when the attribute must be excluded
+     */
+    isExcludedAttr(attr, set) {
+        if (this.options.excludeAttrs.includes(attr))
+            return true;
+        if (attr.startsWith('pos_'))
+            return true;
+        if (this.options.attributeFilter)
+            return this.options.attributeFilter(attr, set) !== true;
+        return false;
+    }
+
+    /**
+     * Checks whether a value can be used on a chart axis.
+     *
+     * @param {*} value Attribute value
+     * @returns {Boolean} True for scalar values
+     */
+    isAxisValue(value) {
+        return value !== null && typeof value !== 'undefined'
+                && (typeof value === 'string' || typeof value === 'number');
     }
 
     /**
