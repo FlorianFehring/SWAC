@@ -44,7 +44,7 @@ export default class MathJsonFormula {
      * Creates unique MathJSON symbols for a set of attributes.
      *
      * @param {Iterable<String>} attributes Attribute names
-     * @returns {Object} Symbol map and generated aliases
+     * @returns {Object} Symbol map and attribute aliases
      */
     static createVariables(attributes) {
         let variables = {};

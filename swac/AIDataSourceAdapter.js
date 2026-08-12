@@ -1,8 +1,7 @@
 import DataSourceAdapter from './DataSourceAdapter.js';
 
 /**
- * Adapts complex json sources through an optional OpenAI compatible service.
- * The deterministic adapter remains the default and fallback.
+ * Adapts JSON sources with the configured service.
  */
 export default class AIDataSourceAdapter {
 
@@ -43,7 +42,7 @@ export default class AIDataSourceAdapter {
     }
 
     /**
-     * Gets the browser configuration for direct or proxied requests.
+     * Gets the configured service options.
      *
      * @returns {Object|null} Configured service options
      */
@@ -111,7 +110,7 @@ export default class AIDataSourceAdapter {
     }
 
     /**
-     * Detects deterministic results that still contain nested array artefacts.
+     * Checks whether source data requires service based adaptation.
      *
      * @param {Object} result Deterministic adaptation result
      * @returns {Boolean} True if an AI fallback is useful
@@ -146,7 +145,7 @@ export default class AIDataSourceAdapter {
     }
 
     /**
-     * Normalizes a response and retries incomplete AI adaptations once.
+     * Requests records and retries incomplete results once.
      *
      * @param {Object} dataCapsule Source data and source name
      * @param {Object} config Service configuration
@@ -170,7 +169,7 @@ export default class AIDataSourceAdapter {
     }
 
     /**
-     * Detects incomplete AI output that benefits from one retry.
+     * Checks whether one request may be retried.
      *
      * @param {Error} err AI adaptation error
      * @returns {Boolean} True for incomplete result errors
@@ -258,7 +257,7 @@ export default class AIDataSourceAdapter {
     }
 
     /**
-     * Builds a safe error message from an OpenAI compatible response.
+     * Gets an error message from a service response.
      *
      * @param {Number} status HTTP status code
      * @param {Object|null} payload Service response payload
@@ -300,7 +299,7 @@ export default class AIDataSourceAdapter {
     }
 
     /**
-     * Defines the strict output contract for the AI service.
+     * Gets the service instructions for source conversion.
      *
      * @returns {String} System instructions
      */
@@ -388,7 +387,7 @@ export default class AIDataSourceAdapter {
     }
 
     /**
-     * Extracts the generated text from OpenAI compatible response formats.
+     * Extracts text from supported response formats.
      *
      * @param {Object} response Service response
      * @returns {Object} Parsed JSON result
@@ -433,7 +432,7 @@ export default class AIDataSourceAdapter {
     }
 
     /**
-     * Validates and normalizes an AI response through the deterministic adapter.
+     * Validates service records with the generic adapter.
      *
      * @param {Object} payload Parsed service result
      * @param {Object} dataCapsule Original source data
@@ -466,7 +465,7 @@ export default class AIDataSourceAdapter {
     }
 
     /**
-     * Converts optional AI warning data into a readable source status.
+     * Converts optional warnings into source status text.
      *
      * @param {*} warning AI warning value
      * @returns {String} Warning text
@@ -496,7 +495,7 @@ export default class AIDataSourceAdapter {
     }
 
     /**
-     * Keeps a deterministic result and records why the AI fallback was skipped.
+     * Adds a service warning to an existing result.
      *
      * @param {Object} result Deterministic result
      * @param {String} reason Fallback reason

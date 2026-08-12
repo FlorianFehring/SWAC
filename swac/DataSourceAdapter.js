@@ -1,9 +1,5 @@
 /**
- * Adapts unknown json structures into flat SWAC compatible datasets.
- *
- * The adapter is deterministic and does not know domain specific sources. It
- * searches for table like object lists, flattens nested objects and converts
- * numeric strings into numbers.
+ * Converts JSON data into flat SWAC datasets.
  */
 export default class DataSourceAdapter {
 

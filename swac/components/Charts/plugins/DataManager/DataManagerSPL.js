@@ -88,7 +88,7 @@ export default class DataManagerSPL extends Plugin {
      * @returns {undefined}
      */
     afterAddSet(set, repeateds) {
-        // Ignore transformed sets created by the Datafilterbar plugin
+        // Ignore transformed sets from the Datafilterbar plugin
         if (set.swac_datafilterbar_artificial)
             return;
         // Collect the set for later redraw
