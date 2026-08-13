@@ -84,6 +84,14 @@ export default class DatafilterbarSPL extends Plugin {
         if (typeof opts.enableMathlive === 'undefined')
             this.options.enableMathlive = false;
 
+        this.desc.opts[8] = {
+            name: 'visibleSections',
+            desc: 'Optional list of menu sections to show.',
+            example: ['filters', 'aggregation']
+        };
+        if (!Array.isArray(opts.visibleSections))
+            this.options.visibleSections = null;
+
         // Filter and transformation state
         this.fromFilter = null;
         this.toFilter = null;
@@ -151,7 +159,52 @@ export default class DatafilterbarSPL extends Plugin {
             this.options.defaultComputedColumns = config.defaultComputedColumns;
         if (typeof config.enableMathlive === 'boolean')
             this.options.enableMathlive = config.enableMathlive;
+        if (Array.isArray(config.visibleSections))
+            this.options.visibleSections = config.visibleSections;
         this.computedColumns = this.mergeDefaultComputedColumns(this.computedColumns);
+    }
+
+    /**
+     * Hides menu sections that are not configured for the current use case.
+     *
+     * @returns {undefined}
+     */
+    applySectionVisibility() {
+        if (!Array.isArray(this.options.visibleSections))
+            return;
+        let visible = new Set(this.options.visibleSections);
+        let target = this.menu.querySelector('.swac_datafilterbar_target');
+        if (!visible.has('target') && target) {
+            target.previousElementSibling.hidden = true;
+            target.hidden = true;
+        }
+        for (let section of ['series', 'computed', 'datasource', 'settings', 'requestor', 'tableexport']) {
+            if (!visible.has(section))
+                this.hideMenuSection(section);
+        }
+        if (!visible.has('aggregation'))
+            this.hideMenuSection('aggregation', false);
+    }
+
+    /**
+     * Hides a menu section beginning with its heading.
+     *
+     * @param {String} section Section name
+     * @param {Boolean} allFollowing Hide content up to the next heading
+     * @returns {undefined}
+     */
+    hideMenuSection(section, allFollowing = true) {
+        let heading = this.menu.querySelector('h5[swac_lang="Datafilterbar.' + section + '"]');
+        if (!heading)
+            return;
+        heading.hidden = true;
+        let element = heading.nextElementSibling;
+        while (element && (!allFollowing || element.tagName !== 'H5')) {
+            element.hidden = true;
+            if (!allFollowing)
+                return;
+            element = element.nextElementSibling;
+        }
     }
 
     /**
@@ -357,6 +410,7 @@ export default class DatafilterbarSPL extends Plugin {
         hostReq.insertBefore(menu, hostReq.firstChild);
         hostReq.insertBefore(toggle, hostReq.firstChild);
         this.menu = menu;
+        this.applySectionVisibility();
         menu.querySelector('.swac_datafilterbar_target').value = this.filterTarget;
 
         // Expand the short translation keys to the full plugin key
