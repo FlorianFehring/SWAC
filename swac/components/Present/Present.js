@@ -117,6 +117,10 @@ export default class Present extends View {
                 id: 'FilterSort',
                 active: false
             });
+            this.options.plugins.set('Datafilterbar', {
+                id: 'Datafilterbar',
+                active: false
+            });
         }
     }
 

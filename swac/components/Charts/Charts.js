@@ -122,6 +122,10 @@ export default class Charts extends View {
                 id: 'Piechart',
                 active: true
             });
+            this.options.plugins.set('Datafilterbar', {
+                id: 'Datafilterbar',
+                active: false
+            });
         }
 
         this.desc.funcs[0] = {

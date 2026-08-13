@@ -3,6 +3,24 @@
  */
 export default class TextTransfer {
 
+    constructor() {
+        this.name = 'TextTransfer';
+        this.options = {};
+        this.desc = {
+            text: 'Copies text to the browser clipboard with a compatibility fallback.',
+            developers: 'Florian Fehring (HSBI)',
+            license: 'GNU Lesser General Public License',
+            depends: [], reqPerSet: [], optPerSet: [], opts: [], events: [],
+            funcs: [], templates: [], styles: [], reqPerTpl: [], optPerTpl: []
+        };
+        this.desc.funcs[0] = {
+            name: 'copy',
+            desc: 'Copies text through the browser clipboard.',
+            params: [{name: 'text', type: 'String', desc: 'Text to copy.'}],
+            returns: {type: 'Promise<Boolean>', desc: 'True when the text was copied.'}
+        };
+    }
+
     /**
      * Copies text with a fallback for insecure browser contexts.
      *

@@ -3,6 +3,28 @@
  */
 export default class TableExport {
 
+    constructor() {
+        this.name = 'TableExport';
+        this.options = {};
+        this.desc = {
+            text: 'Downloads visible HTML table data in CSV, JSON or XLSX format.',
+            developers: 'Florian Fehring (HSBI)',
+            license: 'GNU Lesser General Public License',
+            depends: [], reqPerSet: [], optPerSet: [], opts: [], events: [],
+            funcs: [], templates: [], styles: [], reqPerTpl: [], optPerTpl: []
+        };
+        this.desc.funcs[0] = {
+            name: 'exportTable',
+            desc: 'Downloads the visible rows of an HTML table.',
+            params: [
+                {name: 'table', type: 'HTMLTableElement', desc: 'Table to export.'},
+                {name: 'filename', type: 'String', desc: 'Download filename.'},
+                {name: 'format', type: 'String', desc: 'CSV, JSON or XLSX format.'}
+            ],
+            returns: {type: 'Boolean', desc: 'True when a file was created.'}
+        };
+    }
+
     /**
      * Downloads the visible table rows in the selected format.
      *

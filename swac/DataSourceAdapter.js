@@ -3,6 +3,27 @@
  */
 export default class DataSourceAdapter {
 
+    constructor() {
+        this.name = 'DataSourceAdapter';
+        this.options = {};
+        this.desc = {
+            text: 'Detects measurement records in JSON and converts them into flat SWAC datasets.',
+            developers: 'Florian Fehring (HSBI)',
+            license: 'GNU Lesser General Public License',
+            depends: [], reqPerSet: [], optPerSet: [], opts: [], events: [],
+            funcs: [], templates: [], styles: [], reqPerTpl: [], optPerTpl: []
+        };
+        this.desc.funcs[0] = {
+            name: 'adaptCapsule',
+            desc: 'Adapts a data capsule into flat datasets.',
+            params: [
+                {name: 'dataCapsule', type: 'Object', desc: 'Source data capsule.'},
+                {name: 'options', type: 'Object', desc: 'Adapter options.'}
+            ],
+            returns: {type: 'Object', desc: 'Adaptation result and detected attributes.'}
+        };
+    }
+
     /**
      * Adapts a data capsule into flat datasets.
      *

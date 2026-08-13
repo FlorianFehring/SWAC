@@ -5,6 +5,27 @@ import DataSourceAdapter from './DataSourceAdapter.js';
  */
 export default class AIDataSourceAdapter {
 
+    constructor() {
+        this.name = 'AIDataSourceAdapter';
+        this.options = {};
+        this.desc = {
+            text: 'Combines deterministic JSON adaptation with an optional service based fallback.',
+            developers: 'Florian Fehring (HSBI)',
+            license: 'GNU Lesser General Public License',
+            depends: [], reqPerSet: [], optPerSet: [], opts: [], events: [],
+            funcs: [], templates: [], styles: [], reqPerTpl: [], optPerTpl: []
+        };
+        this.desc.funcs[0] = {
+            name: 'adaptCapsule',
+            desc: 'Adapts source data with the selected method.',
+            params: [
+                {name: 'dataCapsule', type: 'Object', desc: 'Source data capsule.'},
+                {name: 'options', type: 'Object', desc: 'Adaptation options.'}
+            ],
+            returns: {type: 'Promise<Object>', desc: 'Normalized adaptation result.'}
+        };
+    }
+
     /**
      * Adapts a source with the selected method.
      *

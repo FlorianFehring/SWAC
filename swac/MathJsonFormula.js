@@ -3,6 +3,39 @@
  */
 export default class MathJsonFormula {
 
+    constructor() {
+        this.name = 'MathJsonFormula';
+        this.options = {};
+        this.desc = {
+            text: 'Converts supported MathJSON expressions into safe dataset formulas.',
+            developers: 'Florian Fehring (HSBI)',
+            license: 'GNU Lesser General Public License',
+            depends: [], reqPerSet: [], optPerSet: [], opts: [], events: [],
+            funcs: [], templates: [], styles: [], reqPerTpl: [], optPerTpl: []
+        };
+        this.desc.funcs[0] = {
+            name: 'parse',
+            desc: 'Parses a MathJSON value returned by MathLive.',
+            params: [{name: 'value', type: 'String|Object|Array', desc: 'MathJSON value.'}],
+            returns: {type: 'Object|Array|null', desc: 'Parsed MathJSON value.'}
+        };
+        this.desc.funcs[1] = {
+            name: 'createVariables',
+            desc: 'Creates unique MathJSON symbols for dataset attributes.',
+            params: [{name: 'attributes', type: 'Iterable<String>', desc: 'Attribute names.'}],
+            returns: {type: 'Object', desc: 'Variable map and aliases.'}
+        };
+        this.desc.funcs[2] = {
+            name: 'toFormula',
+            desc: 'Converts MathJSON into the safe formula syntax.',
+            params: [
+                {name: 'mathJson', type: 'Object|Array', desc: 'MathJSON expression.'},
+                {name: 'variables', type: 'Object', desc: 'Symbol to attribute map.'}
+            ],
+            returns: {type: 'String|null', desc: 'Formula string or null.'}
+        };
+    }
+
     /**
      * Parses a MathJSON value returned by MathLive.
      *

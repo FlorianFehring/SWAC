@@ -3,6 +3,39 @@
  */
 export default class DataAggregation {
 
+    constructor() {
+        this.name = 'DataAggregation';
+        this.options = {};
+        this.desc = {
+            text: 'Filters time series and groups numeric values into configurable intervals.',
+            developers: 'Florian Fehring (HSBI)',
+            license: 'GNU Lesser General Public License',
+            depends: [], reqPerSet: [], optPerSet: [], opts: [], events: [],
+            funcs: [], templates: [], styles: [], reqPerTpl: [], optPerTpl: []
+        };
+        this.desc.funcs[0] = {
+            name: 'filterByTime',
+            desc: 'Filters datasets by a time range.',
+            params: [
+                {name: 'sets', type: 'Array', desc: 'Datasets to filter.'},
+                {name: 'timeAttr', type: 'String', desc: 'Timestamp attribute.'},
+                {name: 'from', type: 'Date|null', desc: 'Start of the range.'},
+                {name: 'to', type: 'Date|null', desc: 'End of the range.'}
+            ],
+            returns: {type: 'Array', desc: 'Filtered datasets.'}
+        };
+        this.desc.funcs[1] = {
+            name: 'aggregateSets',
+            desc: 'Aggregates numeric attributes into time intervals.',
+            params: [
+                {name: 'sets', type: 'Array', desc: 'Datasets to aggregate.'},
+                {name: 'timeAttr', type: 'String', desc: 'Timestamp attribute.'},
+                {name: 'aggregation', type: 'Object', desc: 'Interval amount and unit.'}
+            ],
+            returns: {type: 'Array', desc: 'Aggregated datasets.'}
+        };
+    }
+
     /**
      * Filters datasets by a time range.
      *

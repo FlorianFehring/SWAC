@@ -5,6 +5,40 @@ import AIDataSourceAdapter from './AIDataSourceAdapter.js';
  */
 export default class ExternalDataSource {
 
+    constructor() {
+        this.name = 'ExternalDataSource';
+        this.options = {};
+        this.desc = {
+            text: 'Loads JSON from web addresses or local files and adapts its records.',
+            developers: 'Florian Fehring (HSBI)',
+            license: 'GNU Lesser General Public License',
+            depends: [], reqPerSet: [], optPerSet: [], opts: [], events: [],
+            funcs: [], templates: [], styles: [], reqPerTpl: [], optPerTpl: []
+        };
+        this.desc.funcs[0] = {
+            name: 'loadJson',
+            desc: 'Loads and parses JSON from a web address.',
+            params: [{name: 'url', type: 'String', desc: 'JSON source URL.'}],
+            returns: {type: 'Promise', desc: 'Parsed JSON value.'}
+        };
+        this.desc.funcs[1] = {
+            name: 'readJsonFile',
+            desc: 'Reads and parses a selected local JSON file.',
+            params: [{name: 'file', type: 'File', desc: 'Selected JSON file.'}],
+            returns: {type: 'Promise', desc: 'Parsed JSON value.'}
+        };
+        this.desc.funcs[2] = {
+            name: 'adapt',
+            desc: 'Applies the selected adaptation method.',
+            params: [
+                {name: 'data', type: 'Object', desc: 'JSON source data.'},
+                {name: 'sourceName', type: 'String', desc: 'Source name.'},
+                {name: 'mode', type: 'String', desc: 'Adaptation mode.'}
+            ],
+            returns: {type: 'Promise', desc: 'Adaptation result.'}
+        };
+    }
+
     /**
      * Normalizes a supported external source link.
      *
