@@ -1,6 +1,7 @@
 import SWAC from '../../../../swac.js';
 import Msg from '../../../../Msg.js';
 import Plugin from '../../../../Plugin.js';
+import Remote from '../../../../Remote.js';
 import AIDataSourceAdapter from '../../../../AIDataSourceAdapter.js?ver=07.08.2026.3';
 import ExternalDataSource from '../../../../ExternalDataSource.js?ver=07.08.2026.3';
 import DataAggregation from '../../../../DataAggregation.js';
@@ -156,6 +157,17 @@ export default class DatafilterbarSPL extends Plugin {
         }
         if (!visible.has('aggregation'))
             this.hideMenuSection('aggregation', false);
+    }
+
+    /**
+     * Checks whether a menu section is enabled by the page configuration.
+     *
+     * @param {String} section Section name
+     * @returns {Boolean} True if the section is visible
+     */
+    isSectionVisible(section) {
+        return !Array.isArray(this.options.visibleSections)
+                || this.options.visibleSections.includes(section);
     }
 
     /**
@@ -388,9 +400,6 @@ export default class DatafilterbarSPL extends Plugin {
         menu.querySelector('.swac_datafilterbar_tableexport').addEventListener('click', function () {
             thisRef.onClickTableExport();
         });
-        menu.querySelector('.swac_datafilterbar_exportbtn').addEventListener('click', function () {
-            thisRef.onClickExport();
-        });
         menu.querySelector('.swac_datafilterbar_settingsdownload').addEventListener('click', function () {
             thisRef.onClickSettingsDownload();
         });
@@ -399,6 +408,9 @@ export default class DatafilterbarSPL extends Plugin {
         });
         menu.querySelector('.swac_datafilterbar_importbtn').addEventListener('click', function () {
             thisRef.onClickImport();
+        });
+        menu.querySelector('.swac_datafilterbar_settingsfile').addEventListener('change', function (evt) {
+            thisRef.onSelectSettingsFile(evt);
         });
 
         SWAC.lang.translateAll(toggle);
@@ -459,10 +471,10 @@ export default class DatafilterbarSPL extends Plugin {
                 + '<button class="swac_datafilterbar_apply uk-button uk-button-primary uk-button-small" type="button" swac_lang="Datafilterbar.apply">Apply</button> '
                 + '<button class="swac_datafilterbar_reset uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.reset">Reset</button>'
                 + '</div>'
-                + '<hr>'
-                + '<h5 swac_lang="Datafilterbar.series">Data series</h5>'
+                + '<hr class="swac_datafilterbar_seriesdivider">'
+                + '<h5 class="swac_datafilterbar_serieshead" swac_lang="Datafilterbar.series">Data series</h5>'
                 + '<div class="swac_datafilterbar_seriescont"></div>'
-                + '<hr>'
+                + '<hr class="swac_datafilterbar_seriesdivider">'
                 + '<h5 swac_lang="Datafilterbar.computed">Computed column</h5>'
                 + '<input class="swac_datafilterbar_colname uk-input uk-form-small uk-margin-small-bottom" type="text" placeholder="name">'
                 + '<div class="swac_datafilterbar_mathliveblock swac_dontdisplay">'
@@ -497,19 +509,6 @@ export default class DatafilterbarSPL extends Plugin {
                 + '<button class="swac_datafilterbar_removesource uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.removesource">Remove</button>'
                 + '<input class="swac_datafilterbar_sourcefile uk-input uk-form-small uk-margin-small-top" type="file" accept="application/json,.json">'
                 + '<div class="swac_datafilterbar_sourcestate uk-text-small uk-text-muted uk-margin-small-top"></div>'
-                + '<h5 swac_lang="Datafilterbar.settings">Settings</h5>'
-                + '<textarea class="swac_datafilterbar_settingsio uk-textarea uk-form-small uk-margin-small-bottom" rows="4"></textarea>'
-                + '<div class="uk-margin-small-bottom">'
-                + '<button class="swac_datafilterbar_exportbtn uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.exportbtn">Export</button> '
-                + '<button class="swac_datafilterbar_importbtn uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.importbtn">Import</button>'
-                + '</div>'
-                + '<div>'
-                + '<button class="swac_datafilterbar_settingscopy uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.settingscopy">Copy</button> '
-                + '<button class="swac_datafilterbar_settingsdownload uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.settingstxt">Download as TXT</button>'
-                + '</div>'
-                + '<hr>'
-                + '<h5 swac_lang="Datafilterbar.requestor">Resulting dataRequestor</h5>'
-                + '<pre class="swac_datafilterbar_requestor uk-text-small" style="white-space:pre-wrap;"></pre>'
                 + '<hr>'
                 + '<h5 swac_lang="Datafilterbar.tableexport">Table export</h5>'
                 + '<label class="uk-form-label uk-text-small" swac_lang="Datafilterbar.exportformat">Format</label>'
@@ -519,6 +518,20 @@ export default class DatafilterbarSPL extends Plugin {
                 + '<option value="xlsx" swac_lang="Datafilterbar.exportformat_xlsx">XLSX</option>'
                 + '</select>'
                 + '<button class="swac_datafilterbar_tableexport uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.tableexportbtn">Export table</button>'
+                + '<hr>'
+                + '<h5 swac_lang="Datafilterbar.settings">Settings</h5>'
+                + '<p class="uk-text-small uk-text-muted" swac_lang="Datafilterbar.settingshint">Current page settings can be saved and reused here.</p>'
+                + '<div class="uk-grid-small uk-child-width-1-1" uk-grid>'
+                + '<div><button class="swac_datafilterbar_importbtn uk-button uk-button-default uk-button-small uk-width-1-1" type="button" swac_lang="Datafilterbar.importbtn">Import</button>'
+                + '<input class="swac_datafilterbar_settingsfile swac_dontdisplay" type="file" accept="application/json,.json"></div>'
+                + '<div><button class="swac_datafilterbar_settingscopy uk-button uk-button-default uk-button-small uk-width-1-1" type="button" swac_lang="Datafilterbar.settingscopy">Copy</button></div>'
+                + '<div><button class="swac_datafilterbar_settingsdownload uk-button uk-button-default uk-button-small uk-width-1-1" type="button" swac_lang="Datafilterbar.settingstxt">Download as TXT</button></div>'
+                + '</div>'
+                + '<hr>'
+                + '<h5 swac_lang="Datafilterbar.requestor">Resulting dataRequestor</h5>'
+                + '<label class="swac_datafilterbar_requestorurllabel uk-form-label uk-text-small" swac_lang="Datafilterbar.requestorurl">Request URL</label>'
+                + '<a class="swac_datafilterbar_requestorurl uk-text-small uk-display-block uk-margin-small-bottom" target="_blank" rel="noopener" style="word-break:break-all;"></a>'
+                + '<pre class="swac_datafilterbar_requestor uk-text-small" style="white-space:pre-wrap;"></pre>'
                 + '</div>'
                 + '</div>';
     }
@@ -533,6 +546,13 @@ export default class DatafilterbarSPL extends Plugin {
             return;
         let dmBar = this.getHost().requestor.querySelector('.swac_datamanager_bar');
         let cont = this.menu.querySelector('.swac_datafilterbar_seriescont');
+        let visible = this.isSectionVisible('series') && !!dmBar && !!cont;
+        this.menu.querySelector('.swac_datafilterbar_serieshead').hidden = !visible;
+        cont.hidden = !visible;
+        for (let divider of this.menu.querySelectorAll('.swac_datafilterbar_seriesdivider'))
+            divider.hidden = !visible;
+        if (!visible)
+            return;
         if (dmBar && cont && !cont.contains(dmBar)) {
             cont.appendChild(dmBar);
             dmBar.classList.remove('uk-card', 'uk-card-default', 'uk-card-small',
@@ -683,7 +703,9 @@ export default class DatafilterbarSPL extends Plugin {
         let field = this.menu?.querySelector('.swac_datafilterbar_mathfield');
         if (!field || typeof field.getValue !== 'function')
             return null;
-        let mathJson = MathJsonFormula.parse(field.getValue('math-json'));
+        let mathJson = MathJsonFormula.fromLatex(
+                field.getValue('latex-unstyled'), this.MathfieldElement.computeEngine)
+                || MathJsonFormula.parse(field.getValue('math-json'));
         let formula = MathJsonFormula.toFormula(mathJson, this.mathVariables);
         if (!formula) {
             Msg.warn('Datafilterbar', this.translate('formulaerror', 'The formula contains unsupported values.'), this.requestor);
@@ -2104,23 +2126,13 @@ export default class DatafilterbarSPL extends Plugin {
     }
 
     /**
-     * Writes all settings as json into the textarea
-     *
-     * @returns {undefined}
-     */
-    onClickExport() {
-        this.menu.querySelector('.swac_datafilterbar_settingsio').value = this.getSettingsText();
-    }
-
-    /**
-     * Downloads the current settings as a text file.
+     * Downloads the current settings as a JSON file.
      *
      * @returns {undefined}
      */
     onClickSettingsDownload() {
         let text = this.getSettingsText();
-        this.menu.querySelector('.swac_datafilterbar_settingsio').value = text;
-        TableExport.download(new Blob([text], {type: 'text/plain;charset=utf-8'}), this.getSettingsFilename());
+        TableExport.download(new Blob([text], {type: 'application/json;charset=utf-8'}), this.getSettingsFilename());
     }
 
     /**
@@ -2130,12 +2142,29 @@ export default class DatafilterbarSPL extends Plugin {
      */
     async onClickSettingsCopy() {
         let text = this.getSettingsText();
-        this.menu.querySelector('.swac_datafilterbar_settingsio').value = text;
         if (await TextTransfer.copy(text)) {
+            this.showSettingsCopyFeedback();
             Msg.info('Datafilterbar', this.translate('settingscopied', 'Settings copied.'), this.requestor);
             return;
         }
         Msg.warn('Datafilterbar', this.translate('settingscopyfailed', 'Settings could not be copied.'), this.requestor);
+    }
+
+    /**
+     * Shows a successful copy operation on the settings button.
+     *
+     * @returns {undefined}
+     */
+    showSettingsCopyFeedback() {
+        let button = this.menu.querySelector('.swac_datafilterbar_settingscopy');
+        if (!button)
+            return;
+        button.textContent = this.translate('settingscopydone', 'Copied');
+        button.classList.add('uk-button-primary');
+        window.setTimeout(() => {
+            button.textContent = this.translate('settingscopy', 'Copy JSON');
+            button.classList.remove('uk-button-primary');
+        }, 2000);
     }
 
     /**
@@ -2155,7 +2184,7 @@ export default class DatafilterbarSPL extends Plugin {
     getSettingsFilename() {
         let source = this.altSource?.name || this.altSource?.url
                 || this.getHost().options.fromName || 'data';
-        return 'settings_' + String(source).replace(/[^a-z0-9_-]+/gi, '_') + '.txt';
+        return 'settings_' + String(source).replace(/[^a-z0-9_-]+/gi, '_') + '.json';
     }
 
     /**
@@ -2206,17 +2235,44 @@ export default class DatafilterbarSPL extends Plugin {
     }
 
     /**
-     * Reads settings json from the textarea and applies it
+     * Opens the selection for a settings JSON file.
      *
      * @returns {undefined}
      */
     onClickImport() {
-        let raw = this.menu.querySelector('.swac_datafilterbar_settingsio').value;
+        this.menu.querySelector('.swac_datafilterbar_settingsfile').click();
+    }
+
+    /**
+     * Reads and applies a selected settings JSON file.
+     *
+     * @param {Event} evt File selection event
+     * @returns {Promise<void>}
+     */
+    async onSelectSettingsFile(evt) {
+        let file = evt.target.files[0];
+        evt.target.value = '';
+        if (!file)
+            return;
+        try {
+            this.applySettingsText(await file.text());
+        } catch (error) {
+            Msg.error('Datafilterbar', this.translate('settingsreaderror', 'Settings file could not be read.'), this.requestor);
+        }
+    }
+
+    /**
+     * Applies settings from a JSON string.
+     *
+     * @param {String} raw Settings JSON
+     * @returns {undefined}
+     */
+    applySettingsText(raw) {
         let obj;
         try {
             obj = JSON.parse(raw);
         } catch (e) {
-            Msg.error('Datafilterbar', 'Import is no valid json.', this.requestor);
+            Msg.error('Datafilterbar', this.translate('settingsinvalid', 'Settings file is no valid JSON.'), this.requestor);
             return;
         }
         this.settingsFromObject(obj);
@@ -2237,20 +2293,30 @@ export default class DatafilterbarSPL extends Plugin {
      * @returns {Object} Settings object
      */
     settingsToObject() {
-        return {
-            timeFrom: this.fromFilter ? this.fromFilter.toISOString() : null,
-            timeTo: this.toFilter ? this.toFilter.toISOString() : null,
-            valueFilter: this.valueFilter,
-            aggregation: this.aggregation,
+        let settings = {
             filterTarget: this.filterTarget,
             renames: this.renames,
             computedColumns: this.computedColumns,
             columnFilters: this.columnFilters,
-            series: this.getSeriesSettings(),
-            adaptationMode: this.adaptationMode,
-            datasource: this.altSource && !this.altSource.local
-                    ? this.altSource.url : this.datasourceToLoad
         };
+        if (this.fromFilter)
+            settings.timeFrom = this.fromFilter.toISOString();
+        if (this.toFilter)
+            settings.timeTo = this.toFilter.toISOString();
+        if (this.valueFilter)
+            settings.valueFilter = this.valueFilter;
+        if (this.aggregation)
+            settings.aggregation = this.aggregation;
+        let series = this.getSeriesSettings();
+        if (series)
+            settings.series = series;
+        if (this.adaptationMode !== 'auto')
+            settings.adaptationMode = this.adaptationMode;
+        let datasource = this.altSource && !this.altSource.local
+                ? this.altSource.url : this.datasourceToLoad;
+        if (datasource)
+            settings.datasource = datasource;
+        return settings;
     }
 
     /**
@@ -2342,8 +2408,34 @@ export default class DatafilterbarSPL extends Plugin {
             filters.push(this.valueFilter.attr + ',' + opMap[this.valueFilter.op] + ',' + this.valueFilter.val);
         if (filters.length > 0)
             requestor.fromWheres.filter = filters.join('&filter=');
+        let link = this.getRequestorLink(requestor);
+        let linkElement = this.menu.querySelector('.swac_datafilterbar_requestorurl');
+        this.menu.querySelector('.swac_datafilterbar_requestorurllabel').hidden = !link;
+        linkElement.hidden = !link;
+        linkElement.href = link || '';
+        linkElement.textContent = link || '';
         this.menu.querySelector('.swac_datafilterbar_requestor').textContent
                 = JSON.stringify(requestor, null, 2);
+    }
+
+    /**
+     * Builds the request URL for the current dataRequestor.
+     *
+     * @param {Object} requestor Data request definition
+     * @returns {String|null} Request URL or null
+     */
+    getRequestorLink(requestor) {
+        if (!requestor.fromName || requestor.fromName.startsWith('localfile:'))
+            return null;
+        let resource = Remote.determineMatchingResource(requestor.fromName, 'get');
+        if (!resource)
+            return null;
+        let link = resource.url;
+        for (let curWhere in requestor.fromWheres) {
+            link += link.includes('?') ? '&' : '?';
+            link += curWhere + '=' + requestor.fromWheres[curWhere];
+        }
+        return link;
     }
 
     /**

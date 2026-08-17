@@ -196,6 +196,38 @@ export default class RouteAnalyticsSPL extends Plugin {
         if (typeof options.groupUnroutedPoints === 'undefined')
             this.options.groupUnroutedPoints = false;
 
+        this.desc.opts[24] = {
+            name: 'segmentColorAttr',
+            desc: 'Numeric attribute used to color individual route segments.'
+        };
+        if (!options.segmentColorAttr)
+            this.options.segmentColorAttr = null;
+
+        this.desc.opts[25] = {
+            name: 'segmentColorThresholds',
+            desc: 'Thresholds for good and medium route segment values.'
+        };
+        if (!options.segmentColorThresholds)
+            this.options.segmentColorThresholds = null;
+
+        this.desc.opts[26] = {
+            name: 'segmentColorMode',
+            desc: 'Combines endpoint values. Possible values are max and average.'
+        };
+        if (!['max', 'average'].includes(options.segmentColorMode))
+            this.options.segmentColorMode = 'max';
+
+        this.desc.opts[27] = {
+            name: 'segmentColors',
+            desc: 'Colors used for good, medium and bad route segments.'
+        };
+        this.options.segmentColors = {
+            good: '#2EAD2E',
+            medium: '#F9C80E',
+            bad: '#D7374C',
+            ...options.segmentColors
+        };
+
         // Attributes for internal usage
         this.map = null;
         this.routeanalytics = null;
@@ -1209,11 +1241,69 @@ export default class RouteAnalyticsSPL extends Plugin {
             let points = group.rows.map(row => [row.position.lat, row.position.lng]);
             L.polyline(points, {
                 color: group.color,
-                weight: 4,
+                weight: this.options.segmentColorAttr ? 5 : 4,
                 opacity: 0.85,
                 interactive: false
             }).addTo(this.routeLayer);
+
+            this.drawRouteSegments(group);
         }
+    }
+
+    /**
+     * Draws colored route segments from adjacent route points.
+     *
+     * @param {Object} group Route group
+     * @returns {undefined}
+     */
+    drawRouteSegments(group) {
+        if (!this.options.segmentColorAttr)
+            return;
+
+        for (let index = 1; index < group.rows.length; index++) {
+            let previousRow = group.rows[index - 1];
+            let currentRow = group.rows[index];
+            let color = this.getSegmentColor(previousRow.set, currentRow.set);
+            if (!color)
+                continue;
+
+            L.polyline([
+                [previousRow.position.lat, previousRow.position.lng],
+                [currentRow.position.lat, currentRow.position.lng]
+            ], {
+                color: color,
+                weight: 4,
+                opacity: 1,
+                interactive: false
+            }).addTo(this.routeLayer);
+        }
+    }
+
+    /**
+     * Gets the color for a route segment from its endpoint values.
+     *
+     * @param {Object} previousSet Previous dataset
+     * @param {Object} currentSet Current dataset
+     * @returns {String|null} Segment color
+     */
+    getSegmentColor(previousSet, currentSet) {
+        let attr = this.options.segmentColorAttr;
+        let values = [
+            this.getNumericValue(previousSet[attr]),
+            this.getNumericValue(currentSet[attr])
+        ].filter(value => value !== null);
+        if (values.length == 0)
+            return null;
+
+        let value = this.options.segmentColorMode == 'average'
+                ? values.reduce((sum, current) => sum + current, 0) / values.length
+                : Math.max(...values);
+        let thresholds = this.options.segmentColorThresholds || this.getHealthThresholds(attr);
+        if (value <= thresholds.good)
+            return this.options.segmentColors.good;
+        if (value <= thresholds.medium)
+            return this.options.segmentColors.medium;
+        return this.options.segmentColors.bad;
     }
 
     /**

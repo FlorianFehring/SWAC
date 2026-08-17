@@ -34,6 +34,15 @@ export default class MathJsonFormula {
             ],
             returns: {type: 'String|null', desc: 'Formula string or null.'}
         };
+        this.desc.funcs[3] = {
+            name: 'fromLatex',
+            desc: 'Parses MathLive LaTex while preserving numeric expression structure.',
+            params: [
+                {name: 'latex', type: 'String', desc: 'LaTex value from MathLive.'},
+                {name: 'computeEngine', type: 'Object', desc: 'MathLive Compute Engine.'}
+            ],
+            returns: {type: 'Object|Array|Number|null', desc: 'MathJSON value or null.'}
+        };
     }
 
     /**
@@ -61,6 +70,81 @@ export default class MathJsonFormula {
      */
     static toFormula(mathJson, variables = {}) {
         return this.toFormulaPart(mathJson, variables);
+    }
+
+    /**
+     * Parses MathLive LaTex without evaluating formulas made of numeric literals.
+     *
+     * @param {String} latex LaTex value from MathLive
+     * @param {Object} computeEngine MathLive Compute Engine
+     * @returns {Object|Array|Number|null} MathJSON value or null
+     */
+    static fromLatex(latex, computeEngine) {
+        if (typeof latex !== 'string' || !computeEngine || typeof computeEngine.parse !== 'function')
+            return null;
+        let literals = {};
+        let index = 0;
+        let source = latex.replace(/\\times|\\cdot/g, ' * ')
+                .replace(/\\div/g, ' / ')
+                .replace(/\\left|\\right/g, '');
+        let protectedLatex = source.replace(/(?<![A-Za-z_0-9])\d+(?:\.\d+)?/g, function (value, offset, text) {
+            if (text.substring(0, offset).endsWith('_{'))
+                return value;
+            let symbol = 'swac_number_' + index++;
+            literals[symbol] = Number(value);
+            return '\\mathrm{' + symbol + '}';
+        });
+        try {
+            let mathJson = this.restoreNumericLiterals(computeEngine.parse(protectedLatex).json, literals);
+            return this.restoreSubtractions(mathJson);
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /**
+     * Replaces protected numeric symbols in a MathJSON expression.
+     *
+     * @param {Object|Array|Number|String} node MathJSON node
+     * @param {Object} literals Symbol to number map
+     * @returns {Object|Array|Number|String} MathJSON node
+     */
+    static restoreNumericLiterals(node, literals) {
+        if (typeof node === 'string' && Object.prototype.hasOwnProperty.call(literals, node))
+            return literals[node];
+        if (Array.isArray(node))
+            return node.map(part => this.restoreNumericLiterals(part, literals));
+        if (node && typeof node === 'object') {
+            let result = {};
+            for (let key in node)
+                result[key] = this.restoreNumericLiterals(node[key], literals);
+            return result;
+        }
+        return node;
+    }
+
+    /**
+     * Restores direct subtraction expressions from canonical addition nodes.
+     *
+     * @param {Object|Array|Number|String} node MathJSON node
+     * @returns {Object|Array|Number|String} MathJSON node
+     */
+    static restoreSubtractions(node) {
+        if (Array.isArray(node)) {
+            let parts = node.map(part => this.restoreSubtractions(part));
+            if (parts[0] === 'Add' && parts.length === 3
+                    && Array.isArray(parts[2]) && parts[2][0] === 'Negate'
+                    && parts[2].length === 2)
+                return ['Subtract', parts[1], parts[2][1]];
+            return parts;
+        }
+        if (node && typeof node === 'object') {
+            let result = {};
+            for (let key in node)
+                result[key] = this.restoreSubtractions(node[key]);
+            return result;
+        }
+        return node;
     }
 
     /**

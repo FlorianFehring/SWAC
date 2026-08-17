@@ -7,7 +7,7 @@ export default class DataAggregation {
         this.name = 'DataAggregation';
         this.options = {};
         this.desc = {
-            text: 'Filters time series and groups numeric values into configurable intervals.',
+            text: 'Filters time series and groups values into configurable intervals.',
             developers: 'Florian Fehring (HSBI)',
             license: 'GNU Lesser General Public License',
             depends: [], reqPerSet: [], optPerSet: [], opts: [], events: [],
@@ -26,13 +26,19 @@ export default class DataAggregation {
         };
         this.desc.funcs[1] = {
             name: 'aggregateSets',
-            desc: 'Aggregates numeric attributes into time intervals.',
+            desc: 'Aggregates numeric attributes and retains representative values for other attributes.',
             params: [
                 {name: 'sets', type: 'Array', desc: 'Datasets to aggregate.'},
                 {name: 'timeAttr', type: 'String', desc: 'Timestamp attribute.'},
                 {name: 'aggregation', type: 'Object', desc: 'Interval amount and unit.'}
             ],
             returns: {type: 'Array', desc: 'Aggregated datasets.'}
+        };
+        this.desc.funcs[2] = {
+            name: 'mostFrequentValue',
+            desc: 'Gets the most frequent value from an array.',
+            params: [{name: 'values', type: 'Array', desc: 'Values to evaluate.'}],
+            returns: {type: 'Any', desc: 'Most frequent value or null.'}
         };
     }
 
@@ -97,20 +103,22 @@ export default class DataAggregation {
         let result = [];
         for (let [key, group] of buckets) {
             let aggregated = Object.assign({}, group[0]);
-            let numericAttrs = new Set();
+            let attrs = new Set();
             for (let set of group) {
                 for (let attr in set) {
                     if (attr.startsWith('swac_') || attr === 'id' || attr === timeAttr)
                         continue;
-                    if (this.isNumericValue(set[attr]))
-                        numericAttrs.add(attr);
+                    attrs.add(attr);
                 }
             }
 
-            for (let attr of numericAttrs) {
+            for (let attr of attrs) {
                 let sum = 0;
                 let count = 0;
+                let values = [];
                 for (let set of group) {
+                    if (set[attr] !== null && set[attr] !== undefined)
+                        values.push(set[attr]);
                     let value = this.toNumber(set[attr]);
                     if (value === null)
                         continue;
@@ -119,12 +127,53 @@ export default class DataAggregation {
                 }
                 if (count > 0)
                     aggregated[attr] = Math.round((sum / count) * 1000) / 1000;
+                else if (values.length > 0)
+                    aggregated[attr] = this.mostFrequentValue(values);
             }
             aggregated[timeAttr] = this.toIsoLocal(new Date(key * bucketMs));
             aggregated.swac_aggregateCount = group.length;
             result.push(aggregated);
         }
         return result;
+    }
+
+    /**
+     * Gets the most frequent value while retaining the first value on ties.
+     *
+     * @param {Array} values Values to evaluate
+     * @returns {*} Most frequent value or null
+     */
+    static mostFrequentValue(values) {
+        let counts = new Map();
+        let result = null;
+        let highestCount = 0;
+        for (let value of values) {
+            let key = this.valueKey(value);
+            let count = (counts.get(key) || 0) + 1;
+            counts.set(key, count);
+            if (count > highestCount) {
+                highestCount = count;
+                result = value;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Creates a comparable key for a dataset value.
+     *
+     * @param {*} value Dataset value
+     * @returns {String} Value key
+     */
+    static valueKey(value) {
+        if (value && typeof value === 'object') {
+            try {
+                return typeof value + ':' + JSON.stringify(value);
+            } catch (e) {
+                return typeof value + ':' + String(value);
+            }
+        }
+        return typeof value + ':' + String(value);
     }
 
     /**
