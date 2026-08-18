@@ -1,4 +1,4 @@
-import DataSourceAdapter from './DataSourceAdapter.js';
+import DataSourceAdapter from './DataSourceAdapter.js?ver=17.08.2026.9';
 
 /**
  * Adapts JSON sources with the configured service.

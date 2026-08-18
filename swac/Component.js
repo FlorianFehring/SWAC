@@ -26,6 +26,7 @@ export default class Component {
             this.desc.reqPerSet = [];
             this.desc.optPerSet = [];
             this.desc.opts = [];
+            this.desc.guifuncs = [];
             this.desc.events = [];
             this.desc.funcs = [];
         }

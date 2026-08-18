@@ -2,12 +2,13 @@ import SWAC from '../../../../swac.js';
 import Msg from '../../../../Msg.js';
 import Plugin from '../../../../Plugin.js';
 import Remote from '../../../../Remote.js';
-import AIDataSourceAdapter from '../../../../AIDataSourceAdapter.js?ver=07.08.2026.3';
-import ExternalDataSource from '../../../../ExternalDataSource.js?ver=07.08.2026.3';
-import DataAggregation from '../../../../DataAggregation.js';
-import MathJsonFormula from '../../../../MathJsonFormula.js';
-import TableExport from '../../../../TableExport.js?ver=08.08.2026.6';
-import TextTransfer from '../../../../TextTransfer.js?ver=10.08.2026.1';
+import AIDataSourceAdapter from '../../../../AIDataSourceAdapter.js?ver=17.08.2026.9';
+import ExternalDataSource from '../../../../ExternalDataSource.js?ver=17.08.2026.9';
+import DataAggregation from '../../../../DataAggregation.js?ver=17.08.2026.9';
+import MathJsonFormula from '../../../../MathJsonFormula.js?ver=17.08.2026.9';
+import TableExport from '../../../../TableExport.js?ver=17.08.2026.9';
+import TextTransfer from '../../../../TextTransfer.js?ver=17.08.2026.9';
+import {getConfiguredGuiSections} from '../../../../GuiFunctions.js?ver=17.08.2026.9';
 
 /**
  * Adds a side menu for data filters and transformations.
@@ -130,11 +131,20 @@ export default class DatafilterbarSPL extends Plugin {
      * @returns {undefined}
      */
     loadConfiguredDefaults() {
-        let config = window[this.requestor.id + '_options'];
+        let config = window[this.requestor.id + '_options'] || {};
+        let host = this.requestor.parent && this.requestor.parent.swac_comp;
+        if (host && host.options.plugins) {
+            let pluginConfig = host.options.plugins.get(this.requestor.pluginname);
+            if (pluginConfig)
+                config = Object.assign({}, config, pluginConfig);
+        }
         if (config && typeof config.enableMathlive === 'boolean')
             this.options.enableMathlive = config.enableMathlive;
         if (config && Array.isArray(config.visibleSections))
             this.options.visibleSections = config.visibleSections;
+        let sections = getConfiguredGuiSections(host?.options, host?.getGuiFunctionNames?.());
+        if (sections)
+            this.options.visibleSections = sections;
     }
 
     /**
@@ -147,11 +157,16 @@ export default class DatafilterbarSPL extends Plugin {
             return;
         let visible = new Set(this.options.visibleSections);
         let target = this.menu.querySelector('.swac_datafilterbar_target');
-        if (!visible.has('target') && target) {
+        if (!visible.has('filters') && !visible.has('aggregation') && target) {
+            this.menu.querySelector('.swac_datafilterbar_targetdivider').hidden = true;
             target.previousElementSibling.hidden = true;
             target.hidden = true;
         }
-        for (let section of ['series', 'computed', 'datasource', 'settings', 'requestor', 'tableexport']) {
+        if (!visible.has('filters') && !visible.has('aggregation'))
+            this.menu.querySelector('.swac_datafilterbar_availblock').hidden = true;
+        this.menu.querySelector('.swac_datafilterbar_actions').hidden
+                = !visible.has('filters') && !visible.has('aggregation');
+        for (let section of ['filters', 'series', 'computed', 'datasource', 'settings', 'requestor', 'tableexport']) {
             if (!visible.has(section))
                 this.hideMenuSection(section);
         }
@@ -199,7 +214,7 @@ export default class DatafilterbarSPL extends Plugin {
     loadMathlive() {
         if (!this.options.enableMathlive || this.mathlivePromise)
             return;
-        this.mathlivePromise = import('../../../../libs/mathlive/MathLiveLoader.js?ver=11.08.2026.3')
+        this.mathlivePromise = import('../../../../libs/mathlive/MathLiveLoader.js?ver=17.08.2026.9')
                 .then((MathLiveLoader) => MathLiveLoader.loadMathLive())
                 .then((MathfieldElement) => {
                     this.MathfieldElement = MathfieldElement;
@@ -438,7 +453,7 @@ export default class DatafilterbarSPL extends Plugin {
                 + '<span class="uk-text-bold" swac_lang="Datafilterbar.availrange">Available time range</span><br>'
                 + '<span class="swac_datafilterbar_availvalues uk-text-small"></span>'
                 + '</div>'
-                + '<hr>'
+                + '<hr class="swac_datafilterbar_targetdivider">'
                 + '<label class="uk-form-label uk-text-small" swac_lang="Datafilterbar.target">Apply to</label>'
                 + '<select class="swac_datafilterbar_target uk-select uk-form-small uk-margin-small-bottom">'
                 + '<option value="both" swac_lang="Datafilterbar.target_both">Chart and table</option>'
@@ -458,6 +473,7 @@ export default class DatafilterbarSPL extends Plugin {
                 + '<input class="swac_datafilterbar_val uk-input uk-form-small" type="number" placeholder="0" style="width:80px;">'
                 + '</div>'
                 + '<h5 class="uk-margin-small-top" swac_lang="Datafilterbar.aggregation">Aggregation</h5>'
+                + '<div class="swac_datafilterbar_aggregationblock">'
                 + '<div class="uk-flex uk-flex-middle" style="gap:4px;">'
                 + '<input class="swac_datafilterbar_aggamount uk-input uk-form-small" type="number" min="0" placeholder="0" style="width:80px;">'
                 + '<select class="swac_datafilterbar_aggunit uk-select uk-form-small">'
@@ -467,7 +483,8 @@ export default class DatafilterbarSPL extends Plugin {
                 + '<option value="days" swac_lang="Datafilterbar.unit_days">Days</option>'
                 + '</select>'
                 + '</div>'
-                + '<div class="uk-margin-small-top">'
+                + '</div>'
+                + '<div class="swac_datafilterbar_actions uk-margin-small-top">'
                 + '<button class="swac_datafilterbar_apply uk-button uk-button-primary uk-button-small" type="button" swac_lang="Datafilterbar.apply">Apply</button> '
                 + '<button class="swac_datafilterbar_reset uk-button uk-button-default uk-button-small" type="button" swac_lang="Datafilterbar.reset">Reset</button>'
                 + '</div>'
@@ -529,9 +546,9 @@ export default class DatafilterbarSPL extends Plugin {
                 + '</div>'
                 + '<hr>'
                 + '<h5 swac_lang="Datafilterbar.requestor">Resulting dataRequestor</h5>'
-                + '<label class="swac_datafilterbar_requestorurllabel uk-form-label uk-text-small" swac_lang="Datafilterbar.requestorurl">Request URL</label>'
-                + '<a class="swac_datafilterbar_requestorurl uk-text-small uk-display-block uk-margin-small-bottom" target="_blank" rel="noopener" style="word-break:break-all;"></a>'
                 + '<pre class="swac_datafilterbar_requestor uk-text-small" style="white-space:pre-wrap;"></pre>'
+                + '<label class="swac_datafilterbar_requestorurllabel uk-form-label uk-text-small uk-display-block uk-margin-small-top" swac_lang="Datafilterbar.requestorurl">Request URL</label>'
+                + '<a class="swac_datafilterbar_requestorurl uk-text-small uk-display-block uk-margin-small-bottom" target="_blank" rel="noopener" style="word-break:break-all;"></a>'
                 + '</div>'
                 + '</div>';
     }
@@ -783,6 +800,10 @@ export default class DatafilterbarSPL extends Plugin {
         if (!this.menu)
             return;
         let block = this.menu.querySelector('.swac_datafilterbar_availblock');
+        if (!this.isSectionVisible('filters') && !this.isSectionVisible('aggregation')) {
+            block.classList.add('swac_dontdisplay');
+            return;
+        }
         if (!this.timeAttrName || this.sourceSets().length === 0) {
             block.classList.add('swac_dontdisplay');
             return;

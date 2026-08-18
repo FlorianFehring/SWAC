@@ -1,5 +1,5 @@
 import SWAC from '../../swac.js';
-import View from '../../View.js';
+import View from '../../View.js?ver=17.08.2026.9';
 import Msg from '../../Msg.js';
 import ModelFactory from './model/ModelFactory.js';
 
@@ -12,6 +12,7 @@ export default class Worldmap2d extends View {
         this.desc.text = '2D Worldmap component for displaying data on a canvas. Useable for geojson data and plain datasets as well.';
         this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
+        this.setGuiFunctions(['filter', 'aggregation', 'tableExport']);
 
         //load dependencies
         this.desc.depends[0] = {
@@ -468,6 +469,13 @@ export default class Worldmap2d extends View {
         if (typeof options.markerCondition === 'undefined')
             this.options.markerCondition = null;
 
+        this.desc.opts[31] = {
+            name: 'dataShowModalAllowDelete',
+            desc: 'If true the data modal provides a button to delete the displayed dataset.'
+        };
+        if (typeof options.dataShowModalAllowDelete === 'undefined')
+            this.options.dataShowModalAllowDelete = false;
+
         // document plugins
         if (!options.plugins) {
             this.options.plugins = new Map();
@@ -486,6 +494,7 @@ export default class Worldmap2d extends View {
             this.options.plugins.set('Timeline', {id: 'Timeline', active: false});
             this.options.plugins.set('ToggleClickInteractionButton', {id: 'ToggleClickInteractionButton', active: false});
         }
+        this.enableGuiFunctions('RouteAnalytics');
 
         this.desc.funcs[0] = {
             name: 'loadModelFile',

@@ -1,4 +1,4 @@
-import AIDataSourceAdapter from './AIDataSourceAdapter.js';
+import AIDataSourceAdapter from './AIDataSourceAdapter.js?ver=17.08.2026.9';
 
 /**
  * Loads and adapts external json data sources for SWAC components.

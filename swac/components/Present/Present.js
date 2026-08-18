@@ -1,5 +1,5 @@
 import SWAC from '../../swac.js';
-import View from '../../View.js';
+import View from '../../View.js?ver=17.08.2026.9';
 import Msg from '../../Msg.js';
 
 export default class Present extends View {
@@ -10,6 +10,10 @@ export default class Present extends View {
         this.desc.text = 'Presents two dimensional datasets no matter of the number or names of columns. There are different templates for default presentation.';
         this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
+        this.setGuiFunctions([
+            'filter', 'aggregation', 'computedColumns', 'datasource',
+            'tableExport', 'settings', 'requestor'
+        ]);
 
         this.desc.templates[0] = {
             name: 'table_per_dataset',
@@ -122,6 +126,7 @@ export default class Present extends View {
                 active: false
             });
         }
+        this.enableGuiFunctions('Datafilterbar');
     }
 
     init() {

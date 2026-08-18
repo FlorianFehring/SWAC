@@ -1,6 +1,6 @@
 
 import SWAC from '../../swac.js';
-import View from '../../View.js';
+import View from '../../View.js?ver=17.08.2026.9';
 import Msg from '../../Msg.js';
 
 export default class Charts extends View {
@@ -11,6 +11,10 @@ export default class Charts extends View {
         this.desc.text = "Show bar- line or pie-chart and datatable for every data.";
         this.desc.developers = 'Florian Fehring (HSBI)';
         this.desc.license = 'GNU Lesser General Public License';
+        this.setGuiFunctions([
+            'filter', 'aggregation', 'series', 'computedColumns',
+            'datasource', 'tableExport', 'settings', 'requestor'
+        ]);
 
         this.desc.depends[0] = {
             name: 'Chartjs Class',
@@ -127,6 +131,7 @@ export default class Charts extends View {
                 active: false
             });
         }
+        this.enableGuiFunctions('Datafilterbar');
 
         this.desc.funcs[0] = {
             name: 'redrawCharts',

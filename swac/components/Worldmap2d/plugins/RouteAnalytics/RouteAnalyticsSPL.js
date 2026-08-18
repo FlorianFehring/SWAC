@@ -1,8 +1,9 @@
 import SWAC from '../../../../swac.js';
 import Msg from '../../../../Msg.js';
 import Plugin from '../../../../Plugin.js';
-import DataAggregation from '../../../../DataAggregation.js';
-import TableExport from '../../../../TableExport.js?ver=08.08.2026.6';
+import DataAggregation from '../../../../DataAggregation.js?ver=17.08.2026.9';
+import TableExport from '../../../../TableExport.js?ver=17.08.2026.9';
+import {getConfiguredGuiSections} from '../../../../GuiFunctions.js?ver=17.08.2026.9';
 
 /**
  * Filters route points and renders route statistics.
@@ -93,7 +94,7 @@ export default class RouteAnalyticsSPL extends Plugin {
             name: 'routeColors',
             desc: 'Colors used to draw route lines.'
         };
-        if (!Array.isArray(options.routeColors)) {
+        if (!Array.isArray(options.routeColors) || options.routeColors.length === 0) {
             this.options.routeColors = [
                 '#0072B2',
                 '#D55E00',
@@ -251,11 +252,13 @@ export default class RouteAnalyticsSPL extends Plugin {
         this.renderTimer = null;
         this.hasFittedBounds = false;
         this.columnNames = this.loadColumnNames();
+        this.visibleSections = null;
     }
 
     init() {
         return new Promise((resolve, reject) => {
             this.map = this.requestor.parent.swac_comp;
+            this.loadGuiFunctions();
             this.routeanalytics = this.requestor.parent.querySelector('.routeanalytics');
             this.buildMenu();
             this.routeSelect = this.menu.querySelector('.routeanalytics-route-select');
@@ -305,6 +308,61 @@ export default class RouteAnalyticsSPL extends Plugin {
         host.insertBefore(toggle, host.firstChild);
         SWAC.lang.translateAll(toggle);
         SWAC.lang.translateAll(this.menu);
+        this.applySectionVisibility();
+    }
+
+    /**
+     * Loads menu sections configured by the host component.
+     *
+     * @returns {undefined}
+     */
+    loadGuiFunctions() {
+        this.visibleSections = getConfiguredGuiSections(this.map.options,
+                this.map.getGuiFunctionNames?.());
+    }
+
+    /**
+     * Hides route menu sections that are not enabled by GUI functions.
+     *
+     * @returns {undefined}
+     */
+    applySectionVisibility() {
+        if (!Array.isArray(this.visibleSections))
+            return;
+        let visible = new Set(this.visibleSections);
+        for (let section of ['filters', 'tableexport']) {
+            if (!visible.has(section))
+                this.hideMenuSection(section);
+        }
+        if (!visible.has('aggregation'))
+            this.hideMenuSection('aggregation', false);
+        if (!visible.has('filters') && !visible.has('aggregation')) {
+            this.menu.querySelector('.routeanalytics-available-block').hidden = true;
+            this.menu.querySelector('.routeanalytics-filter-divider').hidden = true;
+        }
+        this.menu.querySelector('.routeanalytics-actions').hidden
+                = !visible.has('filters') && !visible.has('aggregation');
+    }
+
+    /**
+     * Hides one settings menu section.
+     *
+     * @param {String} section Section name
+     * @param {Boolean} allFollowing Hide content up to the next heading
+     * @returns {undefined}
+     */
+    hideMenuSection(section, allFollowing = true) {
+        let heading = this.menu.querySelector('h5[swac_lang="Worldmap2d_RouteAnalytics.' + section + '"]');
+        if (!heading)
+            return;
+        heading.hidden = true;
+        let element = heading.nextElementSibling;
+        while (element && (!allFollowing || element.tagName !== 'H5')) {
+            element.hidden = true;
+            if (!allFollowing)
+                return;
+            element = element.nextElementSibling;
+        }
     }
 
     /**
@@ -327,7 +385,7 @@ export default class RouteAnalyticsSPL extends Plugin {
                 + '<span class="uk-text-bold" swac_lang="Worldmap2d_RouteAnalytics.available_range">Available time range</span><br>'
                 + '<span class="routeanalytics-available-values uk-text-small"></span>'
                 + '</div>'
-                + '<hr>'
+                + '<hr class="routeanalytics-filter-divider">'
                 + '<h5 swac_lang="Worldmap2d_RouteAnalytics.filters">Filters</h5>'
                 + '<label class="uk-form-label uk-text-small" swac_lang="Worldmap2d_RouteAnalytics.time_range">Time range</label>'
                 + '<input class="routeanalytics-from-input uk-input uk-form-small uk-margin-small-bottom" type="datetime-local">'
@@ -352,6 +410,7 @@ export default class RouteAnalyticsSPL extends Plugin {
                 + '<option value="unknown" swac_lang="Worldmap2d_RouteAnalytics.health_unknown">Unknown</option>'
                 + '</select>'
                 + '<h5 class="uk-margin-small-top" swac_lang="Worldmap2d_RouteAnalytics.aggregation">Aggregation</h5>'
+                + '<div class="routeanalytics-aggregation-block">'
                 + '<label class="uk-form-label uk-text-small" swac_lang="Worldmap2d_RouteAnalytics.target">Apply to</label>'
                 + '<select class="routeanalytics-aggregation-target uk-select uk-form-small uk-margin-small-bottom">'
                 + '<option value="both" swac_lang="Worldmap2d_RouteAnalytics.target_both">Map and table</option>'
@@ -367,7 +426,8 @@ export default class RouteAnalyticsSPL extends Plugin {
                 + '<option value="days" swac_lang="Worldmap2d_RouteAnalytics.days">Days</option>'
                 + '</select>'
                 + '</div>'
-                + '<div class="uk-margin-small-top">'
+                + '</div>'
+                + '<div class="routeanalytics-actions uk-margin-small-top">'
                 + '<button class="routeanalytics-apply-button uk-button uk-button-primary uk-button-small" type="button" swac_lang="Worldmap2d_RouteAnalytics.apply">Apply</button> '
                 + '<button class="routeanalytics-reset-button uk-button uk-button-default uk-button-small" type="button" swac_lang="Worldmap2d_RouteAnalytics.reset">Reset</button>'
                 + '</div>'
@@ -635,6 +695,13 @@ export default class RouteAnalyticsSPL extends Plugin {
     updateAvailableRange() {
         let times = this.rows.map(row => this.getSetTime(row.set)).filter(time => time !== null);
         let block = this.menu.querySelector('.routeanalytics-available-block');
+        let visible = !Array.isArray(this.visibleSections)
+                || this.visibleSections.includes('filters')
+                || this.visibleSections.includes('aggregation');
+        if (!visible) {
+            block.classList.add('swac_dontdisplay');
+            return;
+        }
         if (times.length == 0) {
             block.classList.add('swac_dontdisplay');
             return;
@@ -1534,7 +1601,9 @@ export default class RouteAnalyticsSPL extends Plugin {
                 ? this.lang('not_available', 'n/a') : this.formatNumber(group.stats.distanceKm, 2) + ' km', group.stats.distanceKm));
         row.appendChild(this.createSummaryCell(group.isUnrouted
                 ? this.lang('not_available', 'n/a') : this.formatNumber(group.stats.elevationGain, 0) + ' m', group.stats.elevationGain));
-        row.appendChild(this.createSummaryCell(healthLabel, group.stats.healthSortValue));
+        row.appendChild(this.createSummaryCell(group.isUnrouted
+                ? this.lang('not_available', 'n/a') : healthLabel,
+                group.isUnrouted ? '' : group.stats.healthSortValue));
 
         for (let attr of averageAttrs) {
             let value = group.stats.averageValues.get(attr);
@@ -1814,7 +1883,8 @@ export default class RouteAnalyticsSPL extends Plugin {
             health: healthRating.health,
             startTime: startTime,
             endTime: endTime,
-            durationMinutes: startTime && endTime ? (endTime - startTime) / 60000 : null
+            durationMinutes: startTime !== null && endTime !== null
+                    ? (endTime - startTime) / 60000 : null
         };
     }
 
@@ -2127,7 +2197,7 @@ export default class RouteAnalyticsSPL extends Plugin {
     compareRows(rowA, rowB) {
         let timeA = this.getSetTime(rowA.set);
         let timeB = this.getSetTime(rowB.set);
-        if (!timeA || !timeB)
+        if (timeA === null || timeB === null)
             return 0;
         return timeA - timeB;
     }
@@ -2139,10 +2209,11 @@ export default class RouteAnalyticsSPL extends Plugin {
      * @returns {Number|null} Timestamp in milliseconds
      */
     getSetTime(set) {
-        if (!this.options.tsAttr || !set[this.options.tsAttr])
+        let value = this.options.tsAttr ? set[this.options.tsAttr] : null;
+        if (value === null || typeof value === 'undefined' || value === '')
             return null;
 
-        let time = new Date(set[this.options.tsAttr]).getTime();
+        let time = new Date(value).getTime();
         return Number.isFinite(time) ? time : null;
     }
 
@@ -2180,7 +2251,7 @@ export default class RouteAnalyticsSPL extends Plugin {
     formatNumber(value, digits) {
         if (!Number.isFinite(value))
             return this.lang('not_available', 'n/a');
-        return Number(value).toLocaleString(undefined, {
+        return Number(value).toLocaleString(SWAC.lang.activeLang, {
             maximumFractionDigits: digits
         });
     }
@@ -2194,7 +2265,7 @@ export default class RouteAnalyticsSPL extends Plugin {
     formatDateTime(value) {
         if (!Number.isFinite(value))
             return this.lang('not_available', 'n/a');
-        return new Date(value).toLocaleString();
+        return new Date(value).toLocaleString(SWAC.lang.activeLang);
     }
 
     /**

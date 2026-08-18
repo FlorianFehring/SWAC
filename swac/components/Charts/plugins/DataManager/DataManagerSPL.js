@@ -16,7 +16,7 @@ export default class DataManagerSPL extends Plugin {
 
         this.desc.opts[0] = {
             name: 'defaultAttrs',
-            desc: 'Attributes shown at start. If not set the first numeric attribute is used.',
+            desc: 'Attributes shown at start. If not set the most common numeric attribute is used.',
             example: ['value']
         };
         if (!opts.defaultAttrs)
@@ -58,6 +58,7 @@ export default class DataManagerSPL extends Plugin {
 
         // Internal state
         this.knownAttrs = new Set();    // all numeric attributes found in data
+        this.attrCounts = new Map();    // number of datasets containing each numeric attribute
         this.axisAttrs = new Set();     // scalar attributes available for the x axis
         this.activeAttrs = [];          // attributes currently shown
         this.attrColors = {};           // chosen color per attribute
@@ -71,7 +72,6 @@ export default class DataManagerSPL extends Plugin {
     }
 
     init() {
-        let thisRef = this;
         return new Promise((resolve, reject) => {
             // No template and no contElement needed, the bar is built directly
             // into the chart requestor in buildBar()
@@ -105,17 +105,21 @@ export default class DataManagerSPL extends Plugin {
             if (!this.isNumericValue(set[curAttr]))
                 continue;
             this.knownAttrs.add(curAttr);
+            this.attrCounts.set(curAttr, (this.attrCounts.get(curAttr) || 0) + 1);
         }
 
         // Build the bar once after the first set arrived
         if (!this.initialised) {
             this.initialised = true;
             this.buildBar();
-            this.setDefaultAttrs(set);
+            if (this.options.defaultAttrs || !set.swac_dataRequest)
+                this.setDefaultAttrs(set);
         }
 
         // Redraw once when the last set of the request was added
         if (set.swac_dataRequest && set.id === set.swac_dataRequest.highestId) {
+            if (this.activeAttrs.length === 0)
+                this.setDefaultAttrs(set);
             this.refreshAttrDropdown();
             this.refreshTags();
             this.rebuildChart();
@@ -142,7 +146,7 @@ export default class DataManagerSPL extends Plugin {
     setDefaultAttrs(set) {
         let startAttrs = this.options.defaultAttrs;
         if (!startAttrs) {
-            let first = this.firstNumericAttr(set);
+            let first = this.mostCommonNumericAttr() || this.firstNumericAttr(set);
             startAttrs = first ? [first] : [];
         }
         for (let curAttr of startAttrs) {
@@ -320,6 +324,23 @@ export default class DataManagerSPL extends Plugin {
             option.selected = curAttr === selected;
             select.appendChild(option);
         }
+    }
+
+    /**
+     * Returns the numeric attribute found in the most datasets.
+     *
+     * @returns {String|null} Attribute name
+     */
+    mostCommonNumericAttr() {
+        let selected = null;
+        let highestCount = 0;
+        for (let [attr, count] of this.attrCounts) {
+            if (count > highestCount) {
+                selected = attr;
+                highestCount = count;
+            }
+        }
+        return selected;
     }
 
     /**

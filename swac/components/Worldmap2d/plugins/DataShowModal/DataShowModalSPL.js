@@ -30,10 +30,10 @@ export default class DataShowModalSPL extends Plugin {
 
         this.desc.opts[2] = {
             name: "allowDelete",
-            desc: "If true deleteion of datasets is allowed",
+            desc: "If true deletion of datasets is allowed",
         };
         if (options.allowDelete === undefined) {
-            this.options.allowDelete = true;
+            this.options.allowDelete = false;
         } else {
             this.options.allowDelete = options.allowDelete;
         }
@@ -45,23 +45,34 @@ export default class DataShowModalSPL extends Plugin {
 
     init() {
         return new Promise((resolve, reject) => {
-            // add event listener for mapMarkerClick
+            let mapOptions = this.requestor.parent.swac_comp.options;
+            if (mapOptions.dataShowModalAllowDelete === true)
+                this.options.allowDelete = mapOptions.dataShowModalAllowDelete;
+
+            // Add event listener for map marker clicks
             document.addEventListener('swac_' + this.requestor.parent.id + '_marker_click',
                     this.onMarkerClick.bind(this));
-// Get modal template
+
+            // Get modal template
             this.modal = this.contElements[0].querySelector('.worldmap2d_datamodal');
+            let delBtn = this.modal.querySelector('.worldmap2d_datamodal_del');
+            if (delBtn) {
+                if (this.options.allowDelete)
+                    delBtn.addEventListener('click', this.onDeleteSet.bind(this));
+                else
+                    delBtn.remove();
+            }
             resolve();
         });
     }
 
     /**
-     * Function executed when a click on a marker occured
+     * Function executed when a marker is clicked.
      */
     onMarkerClick(e) {
         // Get dataset from marker
         let set = e.detail.target.feature.set;
         this.modalset = set;
-        console.log('TEST set in modal: ' + set);
 
         // Remove old data
         let olddata = this.modal.querySelectorAll('.worldmap2d_repeatedForValue');
@@ -79,15 +90,13 @@ export default class DataShowModalSPL extends Plugin {
             oldlabel.swac_comp.delete();
 
         // Set setname if available
-        if (set.name) {
-            this.modal.querySelector('.worldmap2d_setname').innerHTML = set.name;
-        }
+        this.modal.querySelector('.worldmap2d_setname').textContent = set.name || '';
         // Add new data
         let contElem = this.modal.querySelector('.worldmap2d_repeatForValue');
         let displayedAttrs = [];
         // Display attributes in configured order
         for (let curAttr of this.options.attributeOrder) {
-            if (set[curAttr]) {
+            if (Object.prototype.hasOwnProperty.call(set, curAttr)) {
                 this.modifyModalContent(contElem, set, curAttr);
                 displayedAttrs.push(curAttr);
             }
@@ -136,16 +145,6 @@ export default class DataShowModalSPL extends Plugin {
             viewHandler.load(labelElem);
         }
 
-        // Check if del is allowed
-        let delBtn = this.modal.querySelector('.worldmap2d_datamodal_del');
-        if (delBtn) {
-            if (this.options.allowDelete) {
-                delBtn.addEventListener('click', this.onDeleteSet.bind(this));
-            } else {
-                delBtn.remove();
-            }
-        }
-
         // Translate modal
         window.swac.lang.translateAll(this.modal);
         UIkit.modal(this.modal).show();
@@ -153,7 +152,7 @@ export default class DataShowModalSPL extends Plugin {
 
     onDeleteSet(evt) {
         let dataCapsule = {
-            fromName: this.modalset.swac_fromname
+            fromName: this.modalset.swac_fromName
         };
         dataCapsule.data = [{
                 id: this.modalset.id,
@@ -178,10 +177,10 @@ export default class DataShowModalSPL extends Plugin {
         // Create modal content
         let contCopy = contElem.cloneNode(true);
         let attrElem = contCopy.querySelector('.worldmap2d_attr');
-        attrElem.innerHTML = attr;
+        attrElem.textContent = attr;
         attrElem.setAttribute('swac_lang', attr);
         let valElem = contCopy.querySelector('.worldmap2d_val');
-        valElem.innerHTML = set[attr];
+        valElem.textContent = this.formatAttributeValue(set[attr]);
         if (this.options.attrsFormat.has(attr))
             valElem.setAttribute('swac_lang_format', this.options.attrsFormat.get(attr));
         contCopy.classList.remove('worldmap2d_repeatForValue');
@@ -193,6 +192,30 @@ export default class DataShowModalSPL extends Plugin {
         if (dd) {
             let col = dd.getValueColor(set, null, attr);
             valElem.setAttribute('style', 'color:' + col);
+        }
+    }
+
+    /**
+     * Formats object values for the modal table.
+     *
+     * @param {*} value Attribute value
+     * @returns {String} Display value
+     */
+    formatAttributeValue(value) {
+        if (value === null || typeof value === 'undefined')
+            return String(value);
+        if (typeof value !== 'object')
+            return String(value);
+
+        let map = this.requestor.parent.swac_comp;
+        let coordinates = map.normalizeCoordinates(map.getCoordinatesFromGeoValue(value));
+        if (coordinates)
+            return (coordinates.length > 2 ? 'POINT Z' : 'POINT') + '(' + coordinates.join(' ') + ')';
+
+        try {
+            return JSON.stringify(value);
+        } catch (e) {
+            return String(value);
         }
     }
 
