@@ -94,6 +94,14 @@ export default class DatafilterbarSPL extends Plugin {
         if (!Array.isArray(opts.visibleSections))
             this.options.visibleSections = null;
 
+        this.desc.opts[9] = {
+            name: 'showTargetSelection',
+            desc: 'If false the configured filter target is fixed and its selection is hidden.',
+            example: false
+        };
+        if (typeof opts.showTargetSelection === 'undefined')
+            this.options.showTargetSelection = true;
+
         // Filter and transformation state
         this.fromFilter = null;
         this.toFilter = null;
@@ -163,6 +171,12 @@ export default class DatafilterbarSPL extends Plugin {
             this.options.enableMathlive = config.enableMathlive;
         if (Array.isArray(config.visibleSections))
             this.options.visibleSections = config.visibleSections;
+        if (typeof config.showTargetSelection === 'boolean')
+            this.options.showTargetSelection = config.showTargetSelection;
+        if (typeof config.filterTarget === 'string') {
+            this.options.filterTarget = config.filterTarget;
+            this.filterTarget = this.normalizeFilterTarget(config.filterTarget);
+        }
         let sections = getConfiguredGuiSections(host?.options, host?.getGuiFunctionNames?.());
         if (sections)
             this.options.visibleSections = sections;
@@ -175,10 +189,15 @@ export default class DatafilterbarSPL extends Plugin {
      * @returns {undefined}
      */
     applySectionVisibility() {
+        let target = this.menu.querySelector('.swac_datafilterbar_target');
+        if (!this.options.showTargetSelection && target) {
+            this.menu.querySelector('.swac_datafilterbar_targetdivider').hidden = true;
+            target.previousElementSibling.hidden = true;
+            target.hidden = true;
+        }
         if (!Array.isArray(this.options.visibleSections))
             return;
         let visible = new Set(this.options.visibleSections);
-        let target = this.menu.querySelector('.swac_datafilterbar_target');
         if (!visible.has('filters') && !visible.has('aggregation') && target) {
             this.menu.querySelector('.swac_datafilterbar_targetdivider').hidden = true;
             target.previousElementSibling.hidden = true;
@@ -2510,7 +2529,8 @@ export default class DatafilterbarSPL extends Plugin {
         this.toFilter = obj.timeTo ? new Date(obj.timeTo) : null;
         this.valueFilter = obj.valueFilter || null;
         this.aggregation = obj.aggregation || null;
-        this.filterTarget = this.normalizeFilterTarget(obj.filterTarget);
+        if (this.options.showTargetSelection)
+            this.filterTarget = this.normalizeFilterTarget(obj.filterTarget);
         this.renames = obj.renames || {};
         this.computedColumns = this.mergeDefaultComputedColumns(obj.computedColumns || []);
         this.columnFilters = obj.columnFilters || {};

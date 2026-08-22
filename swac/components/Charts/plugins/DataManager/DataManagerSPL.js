@@ -56,6 +56,22 @@ export default class DataManagerSPL extends Plugin {
         if (typeof opts.showAxisSelectors === 'undefined')
             this.options.showAxisSelectors = false;
 
+        this.desc.opts[5] = {
+            name: 'displayNames',
+            desc: 'Display names for attributes used in controls, legends and axis titles.',
+            example: {pm2_5: 'PM2,5'}
+        };
+        if (!opts.displayNames)
+            this.options.displayNames = {};
+
+        this.desc.opts[6] = {
+            name: 'showSourceNames',
+            desc: 'Shows the datasource name before the attribute in chart legends.',
+            example: false
+        };
+        if (typeof opts.showSourceNames === 'undefined')
+            this.options.showSourceNames = true;
+
         // Internal state
         this.knownAttrs = new Set();    // all numeric attributes found in data
         this.attrCounts = new Map();    // number of datasets containing each numeric attribute
@@ -67,16 +83,42 @@ export default class DataManagerSPL extends Plugin {
         this.bar = null;                // the settings bar dom element
         this.filterPredicate = null;    // optional external filter for drawn sets
         this.displaySets = null;        // optional external sets to draw instead of allSets
-        this.displayNames = {};         // attribute name -> display name (renames)
+        this.displayNames = Object.assign({}, this.options.displayNames); // attribute name -> display name
         this.mutedHooks = null;         // stored drawing plugin hooks while muted
+        this.rebuildTimeout = null;     // combines consecutive dataset updates
     }
 
     init() {
+        this.loadConfiguredDefaults();
         return new Promise((resolve, reject) => {
             // No template and no contElement needed, the bar is built directly
             // into the chart requestor in buildBar()
             resolve();
         });
+    }
+
+    /**
+     * Loads page defaults after the plugin requestor is available.
+     *
+     * @returns {undefined}
+     */
+    loadConfiguredDefaults() {
+        let config = window[this.requestor.id + '_options'] || {};
+        let host = this.requestor.parent && this.requestor.parent.swac_comp;
+        if (host && host.options.plugins) {
+            let pluginConfig = host.options.plugins.get(this.requestor.pluginname);
+            if (pluginConfig)
+                config = Object.assign({}, config, pluginConfig);
+        }
+        let optionNames = [
+            'defaultAttrs', 'excludeAttrs', 'attributeFilter', 'chartPlugin',
+            'showAxisSelectors', 'displayNames', 'showSourceNames'
+        ];
+        for (let optionName of optionNames) {
+            if (typeof config[optionName] !== 'undefined')
+                this.options[optionName] = config[optionName];
+        }
+        this.displayNames = Object.assign({}, this.options.displayNames || {});
     }
 
     /**
@@ -116,14 +158,24 @@ export default class DataManagerSPL extends Plugin {
                 this.setDefaultAttrs(set);
         }
 
-        // Redraw once when the last set of the request was added
-        if (set.swac_dataRequest && set.id === set.swac_dataRequest.highestId) {
+        this.scheduleRebuild(set);
+    }
+
+    /**
+     * Combines consecutive dataset updates into one chart rebuild.
+     *
+     * @param {WatchableSet} set Last received dataset
+     * @returns {undefined}
+     */
+    scheduleRebuild(set) {
+        window.clearTimeout(this.rebuildTimeout);
+        this.rebuildTimeout = window.setTimeout(() => {
             if (this.activeAttrs.length === 0)
                 this.setDefaultAttrs(set);
             this.refreshAttrDropdown();
             this.refreshTags();
             this.rebuildChart();
-        }
+        }, 0);
     }
 
     /**
@@ -570,7 +622,7 @@ export default class DataManagerSPL extends Plugin {
      * @returns {undefined}
      */
     setDisplayNames(names) {
-        this.displayNames = names || {};
+        this.displayNames = Object.assign({}, this.options.displayNames || {}, names || {});
         this.refreshAttrDropdown();
         this.refreshTags();
         this.refreshAxisSelectors();
@@ -598,13 +650,17 @@ export default class DataManagerSPL extends Plugin {
         if (!chartPlugin || !chartPlugin.chart)
             return;
         let changed = false;
-        for (let oldName in this.displayNames) {
-            let newName = this.displayNames[oldName];
+        let attributes = new Set([...this.knownAttrs, ...Object.keys(this.displayNames)]);
+        for (let oldName of attributes) {
+            let newName = this.displayName(oldName);
             // Legend entries end with _attribute
             let suffix = '_' + oldName;
             for (let curDs of chartPlugin.chart.data.datasets) {
                 if (curDs.label && curDs.label.endsWith(suffix)) {
-                    curDs.label = curDs.label.substring(0, curDs.label.length - suffix.length) + '_' + newName;
+                    if (this.options.showSourceNames)
+                        curDs.label = curDs.label.substring(0, curDs.label.length - suffix.length) + '_' + newName;
+                    else
+                        curDs.label = newName;
                     changed = true;
                 }
             }

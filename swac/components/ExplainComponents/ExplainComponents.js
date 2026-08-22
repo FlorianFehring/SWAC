@@ -40,6 +40,12 @@ export default class ExplainComponents extends View {
         };
         if (!this.options.componentName)
             this.options.componentName = null;
+        this.desc.opts[1] = {
+            name: 'componentPath',
+            desc: 'Optional module path relative to the SWAC root.'
+        };
+        if (!this.options.componentPath)
+            this.options.componentPath = null;
 
         // Internal data
         this.hilighteds = [];
@@ -58,8 +64,10 @@ export default class ExplainComponents extends View {
             }
 
             let thisRef = this;
+            let componentPath = this.options.componentPath
+                    || 'components/' + componentName + '/' + componentName + '.js';
             // Load component script
-            import(SWAC.config.swac_root + 'components/' + componentName + '/' + componentName + '.js?vers=' + SWAC.desc.version)
+            import(SWAC.config.swac_root + componentPath + '?vers=' + SWAC.desc.version)
                     .then(module => {
                         // Check if object is available
                         if (module.default) {
@@ -151,6 +159,9 @@ export default class ExplainComponents extends View {
         let funcsElem = this.requestor.querySelector('.functionsDiv');
         let functionsDiv = this.explainFunctions(component);
         funcsElem.appendChild(functionsDiv);
+
+        let guiFunctionsDiv = this.explainGuiFunctions(component);
+        funcsElem.appendChild(guiFunctionsDiv);
 
         // Add dependency documentation
         let depElem = this.requestor.querySelector('.dependenciesDiv');
@@ -900,6 +911,32 @@ export default class ExplainComponents extends View {
             explDiv.appendChild(funcArea);
         }
 
+        return explDiv;
+    }
+
+    /**
+     * Creates a description of the optional component GUI functions.
+     *
+     * @param {SWACComponent} component Component to describe
+     * @returns {HTMLElement} GUI function description
+     */
+    explainGuiFunctions(component) {
+        let explDiv = document.createElement('div');
+        if (!component.desc.guifuncs || component.desc.guifuncs.length === 0)
+            return explDiv;
+
+        let heading = document.createElement('h3');
+        heading.innerHTML = SWAC.lang.dict.ExplainComponents.guiFunctions;
+        explDiv.appendChild(heading);
+        let list = document.createElement('ul');
+        for (let func of component.desc.guifuncs) {
+            if (!func)
+                continue;
+            let item = document.createElement('li');
+            item.innerHTML = '<strong>' + func.option + '</strong>: ' + func.desc;
+            list.appendChild(item);
+        }
+        explDiv.appendChild(list);
         return explDiv;
     }
 

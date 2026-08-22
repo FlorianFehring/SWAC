@@ -40,10 +40,10 @@ export default class ExternalDataSource {
     }
 
     /**
-     * Normalizes a supported external source link.
+     * Validates an external source link.
      *
      * @param {String} link External source link
-     * @returns {String|null} Normalized link or null
+     * @returns {String|null} Source link or null
      */
     static normalizeLink(link) {
         let source = String(link || '').trim();
@@ -55,15 +55,6 @@ export default class ExternalDataSource {
         }
         if (!['http:', 'https:'].includes(parsed.protocol))
             return null;
-        if (parsed.hostname === 'drive.google.com') {
-            let id = parsed.searchParams.get('id');
-            let match = parsed.pathname.match(/\/file\/d\/([^\/]+)/);
-            if (!id && match)
-                id = match[1];
-            if (id)
-                return 'https://drive.google.com/uc?export=download&id='
-                        + encodeURIComponent(id);
-        }
         return parsed.href;
     }
 

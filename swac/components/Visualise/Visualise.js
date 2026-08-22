@@ -157,6 +157,14 @@ export default class Visualise extends View {
         };
         if (!options.autoVisus)
             this.options.autoVisus = null;
+
+        this.desc.opts[5] = {
+            name: 'maxRenderedSets',
+            desc: 'Maximum number of datasets rendered while all loaded datasets remain available to the component.',
+            example: 1
+        };
+        if (typeof options.maxRenderedSets === 'undefined')
+            this.options.maxRenderedSets = null;
     }
 
     init() {
@@ -167,6 +175,14 @@ export default class Visualise extends View {
 
     afterAddSet(set, repeateds) {
         Msg.flow('Visualise', 'afterAddSet() called for set ' + set.swac_fromName + '[' + set.id + ']', this.requestor);
+        if (this.options.maxRenderedSets !== null) {
+            let renderedSets = this.requestor.querySelectorAll('.swac_repeatedForSet');
+            if (renderedSets.length > this.options.maxRenderedSets) {
+                for (let curRepeated of repeateds)
+                    curRepeated.remove();
+                return;
+            }
+        }
         let repeatedForSets = this.requestor.querySelectorAll('.swac_repeatedForSet[swac_fromname="' + set.swac_fromName + '"][swac_setid="' + set.id + '"]');
         let visus = this.getVisus(set);
         let foundVisus = 0;
@@ -474,6 +490,20 @@ export default class Visualise extends View {
             let vdattrElem = valueArea.querySelector('.swac_visualise_diagram_attr');
             if (vdattrElem) {
                 vdattrElem.appendChild(diagramElem);
+            }
+            let legendName = valueArea.querySelector('.swac_visualise_legend_name');
+            if (legendName && name !== attr) {
+                legendName.removeAttribute('swac_lang');
+                legendName.textContent = name;
+            }
+            if (unit) {
+                let legendValue = valueArea.querySelector('.swac_visualise_legend_value');
+                if (legendValue) {
+                    let legendUnit = document.createElement('span');
+                    legendUnit.classList.add('swac_visualise_legend_unit');
+                    legendUnit.textContent = ' ' + unit;
+                    legendValue.after(legendUnit);
+                }
             }
         }
         thisRef.createAttribution();
