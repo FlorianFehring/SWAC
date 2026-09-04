@@ -5,6 +5,7 @@ import BindPoint from './BindPoint.js';
 import Model from './Model.js';
 import WatchableSet from './WatchableSet.js';
 import ViewHandler from './ViewHandler.js';
+import {guiFunctions, getEnabledGuiFunctions} from './GuiFunctions.js?ver=17.08.2026.9';
 
 /**
  * General class for components
@@ -125,6 +126,50 @@ export default class View extends Component {
         this.inViOb = new IntersectionObserver(this.onInVi.bind(this), this.options.inViOpts);
         // endViObserver
         this.endViOb = new IntersectionObserver(this.onEndVi.bind(this), {threshold: 0.1});
+    }
+
+    /**
+     * Activates the plugin that provides enabled GUI functions.
+     *
+     * @param {String} pluginName Plugin that provides the settings menu
+     * @param {Array<String>|null} supportedFunctions Supported GUI function names
+     * @returns {Boolean} True if the plugin was activated
+     */
+    enableGuiFunctions(pluginName, supportedFunctions = null) {
+        let functions = supportedFunctions || this.getGuiFunctionNames();
+        if (getEnabledGuiFunctions(this.options, functions).length === 0)
+            return false;
+
+        if (!(this.options.plugins instanceof Map))
+            this.options.plugins = new Map();
+
+        let plugin = this.options.plugins.get(pluginName) || {id: pluginName, active: false};
+        plugin.active = true;
+        this.options.plugins.set(pluginName, plugin);
+        return true;
+    }
+
+    /**
+     * Defines the GUI functions supported by this component.
+     *
+     * @param {Array<String>|null} supportedFunctions Supported GUI function names
+     * @returns {undefined}
+     */
+    setGuiFunctions(supportedFunctions = null) {
+        this.desc.guifuncs = guiFunctions.filter(function (func) {
+            return !supportedFunctions || supportedFunctions.includes(func.name);
+        }).map(func => Object.assign({}, func, {
+            sections: func.sections.slice()
+        }));
+    }
+
+    /**
+     * Gets the GUI functions supported by this component.
+     *
+     * @returns {Array<String>} Supported GUI function names
+     */
+    getGuiFunctionNames() {
+        return (this.desc.guifuncs || []).map(func => func.name);
     }
 
     /**
@@ -371,7 +416,6 @@ export default class View extends Component {
 //        selector += '[swac_setId="' + id + '"]';
 //        let repeateds = this.requestor.querySelectorAll(selector);
 //        for (let curRepeated of repeateds) {
-//            console.log('TEST remove',curRepeated);
 //            curRepeated.remove();
 //        }
         let set = this.data[fromName].getSet(id);

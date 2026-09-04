@@ -1,0 +1,146 @@
+.routeanalytics-menu {
+    box-sizing: border-box;
+}
+
+.routeanalytics-menu .uk-form-label {
+    display: block;
+    margin: 0;
+}
+
+.routeanalytics-filter-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 64px 76px;
+    gap: 4px;
+}
+
+.routeanalytics-aggregation-row {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 4px;
+}
+
+.routeanalytics-togglebar {
+    position: relative;
+    z-index: 1;
+}
+
+.routeanalytics-summary {
+    margin-top: 20px;
+}
+
+.routeanalytics-summary-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.routeanalytics-summary-header h3 {
+    margin: 0;
+}
+
+.routeanalytics-table-wrapper {
+    overflow-x: auto;
+}
+
+.routeanalytics-table {
+    width: 100%;
+}
+
+.routeanalytics-route-color {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+}
+
+.routeanalytics-route-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.routeanalytics-route-selectable {
+    cursor: pointer;
+}
+
+.routeanalytics-route-selectable:hover .routeanalytics-route-label {
+    color: #1e87f0;
+    text-decoration: underline;
+}
+
+.routeanalytics-route-selectable:focus {
+    outline: 2px solid #1e87f0;
+    outline-offset: -2px;
+}
+
+.routeanalytics-search {
+    max-width: 320px;
+    margin-bottom: 8px;
+}
+
+.routeanalytics-table th {
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.routeanalytics-table thead tr:nth-child(2) th {
+    cursor: default;
+    padding-top: 0;
+}
+
+.routeanalytics-column-label::after {
+    color: #aaa;
+    content: "\2195";
+    display: inline-block;
+    font-size: 0.8em;
+    margin-left: 6px;
+}
+
+.routeanalytics-rename-icon {
+    display: inline-block;
+    margin-left: 4px;
+    vertical-align: middle;
+}
+
+.routeanalytics-toggle-all {
+    margin-left: 8px !important;
+}
+
+.routeanalytics-table th[data-sort-direction="asc"] .routeanalytics-column-label::after {
+    color: #1A1A1D;
+    content: "\25B2";
+}
+
+.routeanalytics-table th[data-sort-direction="desc"] .routeanalytics-column-label::after {
+    color: #1A1A1D;
+    content: "\25BC";
+}
+
+.routeanalytics-column-search {
+    min-width: 110px;
+}
+
+.routeanalytics-table td {
+    white-space: nowrap;
+}
+
+.routeanalytics-table .routeanalytics-healthiest-row td {
+    background-color: #e8f5ec;
+}
+
+.routeanalytics-table .routeanalytics-healthiest-row:hover td {
+    background-color: #ddf0e4;
+}
+
+.routeanalytics-table .uk-checkbox {
+    margin: 0;
+}
+
+.routeanalytics-healthiest,
+.routeanalytics-empty {
+    margin-top: 0;
+}

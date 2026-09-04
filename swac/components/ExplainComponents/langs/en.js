@@ -7,6 +7,7 @@ var ExplainComponents_en = {
     attributeReq : "Optional",
     attributesNone : "This component does not require special attributes in the data.",
     functions : "Functions",
+    guiFunctions : "GUI functions",
     noFunctions : "This component has no external useable functions.",
     noParams : 'This method has no parameters',
     paramName : 'Parameter name',

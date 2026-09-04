@@ -1,0 +1,28 @@
+<div class="swac_datamanager_bar uk-card uk-card-default uk-card-small uk-card-body uk-margin-small-bottom">
+    <div uk-grid class="uk-grid-small uk-flex-middle">
+
+        <!-- Label -->
+        <div class="uk-width-auto">
+            <span class="uk-text-bold uk-text-small" swac_lang="DataManager.series">Data series:</span>
+        </div>
+
+        <!-- Active series shown as removable tags with a color picker each -->
+        <div class="uk-width-expand">
+            <div class="swac_datamanager_activetags uk-flex uk-flex-wrap"></div>
+        </div>
+
+        <!-- Add a new series from the available attributes -->
+        <div class="uk-width-auto">
+            <div class="uk-inline">
+                <button class="uk-button uk-button-default uk-button-small" type="button">
+                    <span uk-icon="icon: plus; ratio: 0.8"></span>
+                    <span swac_lang="DataManager.add">Add</span>
+                </button>
+                <div uk-dropdown="mode: click; pos: bottom-left">
+                    <ul class="swac_datamanager_attrlist uk-nav uk-dropdown-nav"></ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

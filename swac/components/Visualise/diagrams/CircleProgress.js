@@ -75,7 +75,8 @@ export default class CircleProgress extends Diagram {
         percentageCircle.style.transform = 'translate(5px, 5px)';
         percentageCircle.style.strokeLinecap = 'round';
         percentageCircle.style.strokeDasharray = '343';
-        percentageCircle.style.strokeDashoffset = (343 - 343 * value/100);
+        let normalizedValue = Math.max(0, Math.min(value, maxvalue));
+        percentageCircle.style.strokeDashoffset = (343 - 343 * normalizedValue / maxvalue);
         percentageCircle.style.stroke = stroke;
         
         svgElement.appendChild(percentageCircle);
@@ -97,7 +98,11 @@ export default class CircleProgress extends Diagram {
         percentageLabel.classList.add('swac_percentageLabel');
         
         percentageLabel.innerText = value;
-        if(this.comp.options.dataUnits && this.comp.options.dataUnits[name]) {
+        if (this.unit) {
+            percentageLabel.innerText += ' ' + this.unit;
+            if (maxvalue !== 100)
+                percentageLabel.innerText += ' / ' + maxvalue + ' ' + this.unit;
+        } else if(this.comp.options.dataUnits && this.comp.options.dataUnits[name]) {
             percentageLabel.innerText += this.comp.options.dataUnits[name];
             if(maxvalue !== 100)
                 percentageLabel.innerText += ' / ' + maxvalue + ' ' + this.comp.options.dataUnits[name];

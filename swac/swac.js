@@ -12,7 +12,7 @@ import Model from './Model.js';
 var SWAC = {
     desc: {
         name: 'core',
-        version: '23.03.2026'
+        version: '20.08.2026.1'
     },
     config: {},
     msgs: new Map(),

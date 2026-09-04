@@ -7,6 +7,7 @@ var ExplainComponents_de = {
     attributeReq: 'Wymagane',
     attributesNone: 'Ten komponent nie wymaga atrybutów w danych.',
     functions: 'Funkcje',
+    guiFunctions: 'Funkcje GUI',
     noFunctions: 'Ten komponent nie udostępnia funkcji do użytku zewnętrznego.',
     noParams: 'Ta metoda nie posiada parametrów',
     paramName: 'Nazwa parametru',

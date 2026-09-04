@@ -115,6 +115,8 @@ export default class Devhelper extends View {
      * @returns {undefined}
      */
     analyseRequestor(requestor) {
+        if (!requestor.swac_comp || !requestor.swac_comp.options)
+            return;
         // Check if supports plugins
         if (requestor.swac_comp.options.plugins && requestor.swac_comp.options.plugins.size > 0) {
             Msg.hint('Devhelper',

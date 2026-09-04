@@ -157,6 +157,13 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
             desc: 'List of predefined colors that can be used in the legend. If not set, the all colors are used.',
             exmaple: ['#ffffff', '#000000']
         }
+        this.desc.opts[7] = {
+            name: 'formatAttributeBorders',
+            desc: 'Shows the attribute color as a border on formatted values.',
+            example: false
+        };
+        if (typeof options.formatAttributeBorders === 'undefined')
+            this.options.formatAttributeBorders = true;
         this.desc.funcs[0] = {
             name: 'getLegend',
             desc: 'Builds a legend container',
@@ -1125,7 +1132,7 @@ Example: in obj[0] = { attr1=1, attr2=2} can the second attribute be accessed wi
                     curElemForAttr.style.backgroundColor = 'transparent';
                     curElemForAttr.style.color = 'inherit';
                     // If attribute should be visualised
-                    if (legenddata[attribute].visualise) {
+                    if (legenddata[attribute].visualise && this.options.formatAttributeBorders) {
                         let attrCol = this.getAttributeColor(attribute);
                         // Add bordercolor for attribute
                         if (attrCol !== '#808080') {

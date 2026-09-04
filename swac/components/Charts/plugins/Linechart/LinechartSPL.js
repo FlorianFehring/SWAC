@@ -40,6 +40,13 @@ export default class LinechartSPL extends Plugin {
     init() {
         let thisRef = this;
         return new Promise((resolve, reject) => {
+            // Read optional chart settings from the host plugin configuration.
+            let pluginConfig = thisRef.requestor.parent.swac_comp.options.plugins
+                    .get(thisRef.requestor.pluginname)
+                    || thisRef.requestor.parent.swac_comp.options.plugins.get('Linechart');
+            if (pluginConfig && pluginConfig.legend)
+                thisRef.options.legend = pluginConfig.legend;
+
             // Check if content area is available
             if (!thisRef.contElements || thisRef.contElements.length === 0) {
                 Msg.error('LinechartSPL', 'This plugin needs a contElement to insert the chart.', this.requestor);
@@ -232,6 +239,7 @@ export default class LinechartSPL extends Plugin {
                 parsing: parsing_inst,
                 scales: this.options.scales,
                 plugins: {
+                    legend: this.options.legend,
                     zoom: {
                         zoom: {
                             wheel: {
