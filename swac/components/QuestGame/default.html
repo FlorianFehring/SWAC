@@ -1,0 +1,48 @@
+<div id="questgame" class="questgame">
+
+    <div class="swac_repeatForSet qg-station swac_dontdisplay" swac_id="{id}">
+
+        <div class="qg-header">
+            <picture swac_hideOnEmpty="{img}">
+                <source srcset="{img}.avif" type="image/avif">
+                <img class="qg-charimg" src="{img}.jpg" alt="" width="75" height="100">
+            </picture>
+            <h2 class="qg-title">{title}</h2>
+        </div>
+
+        <div class="qg-content">{text}</div>
+
+        <div class="qg-says" swac_hideOnEmpty="{says}">{says}</div>
+        <picture swac_hideOnEmpty="{charimg}">
+            <source srcset="{charimg}.avif" type="image/avif">
+            <img class="qg-charimg" src="{charimg}.jpg" alt="" width="75" height="100">
+        </picture>
+
+        <div class="qg-media"></div>
+
+        <div class="qg-choise">
+            <ul>
+                <li class="qg-repeat_for_answer-option">
+                    <label>
+                        <input type="radio" name="option" value="A"><span class="qg-choiseanswer-option"></span>
+                    </label>
+                </li>
+            </ul>
+        </div>
+
+        <div class="qg-textanswer swac_dontdisplay">
+            <input type="text">
+        </div>
+
+        <div class="qg-feedback"></div>
+        <button class="qg-next-btn"></button>
+        <br><br>
+        <div class="qg-hints swac_dontdisplay">
+            <button class="qg-hint-btn">Hinweis anzeigen</button>
+            <ul class="qg-hint-list"></ul>
+        </div>
+        
+        <a href="#" class="qg-overjump-btn swac_dontdisplay" swac_lang="question_jumpover">Überspringen</a>
+        <br><br><br><br><br>
+    </div>
+</div>
